@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import OpenMirrorNav from "./OpenMirrorNav";
 
 const dogs = [
   {
@@ -113,8 +112,27 @@ function ShareCard({ line }: { line: string }) {
 export default function DontCloneMeTom() {
   return (
     <main className="min-h-screen bg-[#0C0C0C] text-[#F5F0E8]">
-      <OpenMirrorNav />
       <div className="mx-auto max-w-2xl px-5 py-10">
+
+        {/* Nav back */}
+        <div className="flex items-center justify-between mb-10">
+          <a
+            href="https://openmirrorllc.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-[#9A9188] hover:text-[#9A9188] transition"
+          >
+            ← Open Mirror LLC
+          </a>
+          <a
+            href="https://crossheartpray.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-black uppercase tracking-[0.2em] text-[#FB923C] hover:text-[#FDBA74] transition"
+          >
+            CrossHeartPray ✝️
+          </a>
+        </div>
 
         {/* Hero */}
         <section className="text-center mb-12">
