@@ -181,7 +181,7 @@ export default function DontCloneMeTom() {
             {dogs.map((dog) => (
               <div
                 key={dog.name}
-                className="rounded-2xl border border-[#262626] bg-[#151515] p-5"
+                className="pop rounded-2xl border border-[#262626] bg-[#151515] p-5"
               >
                 <div className="flex items-start justify-between gap-2 mb-3">
                   <div>
