@@ -304,7 +304,7 @@ export default function DontCloneMeTom() {
               Take the $50K Rescue Challenge
             </a>
             <a
-              href="#invite-tom"
+              href="#share-real-dogs"
               className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#141d2e] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#e8edf5] hover:border-[#26324c] transition"
             >
               Share Real Dogs
