@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OpenMirrorNav from "./OpenMirrorNav";
 
 const shareLines = [
@@ -95,14 +95,14 @@ type Pet = {
 };
 
 function AdoptablePets() {
-  const [zip, setZip] = useState("");
+  const [zip, setZip] = useState("63040");
   const [radius, setRadius] = useState(50);
   const [species, setSpecies] = useState("dogs");
   const [phase, setPhase] = useState<
     "idle" | "loading" | "ok" | "empty" | "unconfigured" | "error"
   >("idle");
   const [pets, setPets] = useState<Pet[]>([]);
-  const [searchedZip, setSearchedZip] = useState("");
+  const [searchedZip, setSearchedZip] = useState("63040");
 
   async function search(e?: React.FormEvent) {
     e?.preventDefault();
@@ -133,6 +133,11 @@ function AdoptablePets() {
     }
   }
 
+  useEffect(() => {
+    search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const externalSearch = (site: "petfinder" | "adoptapet") =>
     site === "petfinder"
       ? `https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}`
@@ -148,7 +153,7 @@ function AdoptablePets() {
             onChange={(e) => setZip(e.target.value)}
             inputMode="numeric"
             maxLength={5}
-            placeholder="e.g. 63101"
+            placeholder="e.g. 63040"
             aria-label="ZIP code"
             className="w-full rounded-full border border-[#26324c] bg-[#141d2e] px-5 py-3 text-base font-bold text-[#e8edf5] placeholder:text-[#94a3b8] outline-none focus:border-[#2DD4BF]"
           />
@@ -170,7 +175,7 @@ function AdoptablePets() {
           type="submit"
           className="rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#0b1220] transition hover:opacity-90"
         >
-          Show real dog faces
+          Show 3 real dog faces
         </button>
       </form>
 
@@ -183,23 +188,15 @@ function AdoptablePets() {
 
       {phase === "unconfigured" && (
         <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">Real adoptable dog faces near {searchedZip}.</p>
+          <p className="text-base font-bold text-[#e8edf5]">Open real adoptable dog searches near {searchedZip}.</p>
           <p className="mt-1 text-sm text-[#94a3b8]">
-            The rescue feed is still warming up. While that partner access finishes, Petfinder can show real adoptable dog faces and links near your ZIP:
+            The rescue feed is still warming up. For now, open real adoptable dog searches directly from the original adoption sources:
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
             <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Adopt-a-Pet →</a>
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-2xl border border-[#26324c] bg-white">
-            <iframe
-              title="Real Petfinder dog faces"
-              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#fff;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller type='["dog"]' age='[]' limit="6" hidebreed status="adoptable" petlisttitle="" location="${searchedZip}" distance="50" apibase="https://api.petfinder.com" petfinderurl="https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}&distance=5050"></pet-scroller></body></html>`}
-              className="h-[720px] w-full bg-white"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-            />
-          </div>
 
         </div>
       )}
@@ -214,7 +211,7 @@ function AdoptablePets() {
       {phase === "ok" && (
         <>
           <p className="mt-5 text-xs font-black uppercase tracking-wide text-[#94a3b8]">
-            {pets.length} faces near {searchedZip} · closest first
+            {Math.min(pets.length, 3)} real dog faces near {searchedZip}
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {pets.slice(0, 3).map((p) => (
@@ -275,7 +272,7 @@ export default function DontCloneMeTom() {
             A cloned-dog headline got people talking. Let&apos;s use that attention to help real dogs get seen.
           </p>
           <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
-            Type your ZIP and open real adoptable dog faces near you.
+            Starting with 3 real adoptable dog faces near 63040. Change the ZIP anytime.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
@@ -316,7 +313,7 @@ export default function DontCloneMeTom() {
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Don&apos;t clone me. Adopt me.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            Type your ZIP and find real adoptable dog faces near you. Every click opens the original adoption source.
+            We start with 3 real local dog faces near 63040. Change the ZIP to search your area.
           </p>
           <AdoptablePets />
         </section>
