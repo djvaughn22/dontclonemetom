@@ -196,9 +196,9 @@ function AdoptablePets() {
 
       {phase === "unconfigured" && (
         <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">Meet real rescue dogs near {searchedZip} right now.</p>
+          <p className="text-base font-bold text-[#e8edf5]">First 3 closest dog faces near {searchedZip}.</p>
           <p className="mt-1 text-sm text-[#94a3b8]">
-            Our in-site rescue feed is warming up — for now, tap through to real adoptable dogs near you:
+            The live rescue feed is still warming up. Until the partner feed returns photos, these links open real nearby adoptable dogs:
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
@@ -220,7 +220,7 @@ function AdoptablePets() {
             {pets.length} faces near {searchedZip} · closest first
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {pets.map((p) => (
+            {pets.slice(0, 3).map((p) => (
               <a
                 key={p.id}
                 href={p.adoptionUrl || "#"}
@@ -246,8 +246,8 @@ function AdoptablePets() {
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
-            <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">More on Petfinder</a>
-            <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">More on Adopt-a-Pet</a>
+            <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">See more nearby dogs on Petfinder</a>
+            <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">See more nearby dogs on Adopt-a-Pet</a>
           </div>
         </>
       )}
