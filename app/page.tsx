@@ -4,13 +4,13 @@ import { useState } from "react";
 import OpenMirrorNav from "./OpenMirrorNav";
 
 const shareLines = [
-  "Don't clone me, Tom. I'm already here.",
-  "I have one tail, zero trademarks, and unlimited love.",
-  "Clone status: impossible. Original good boy.",
-  "A second chance should not require a lab.",
-  "Tom got a second chance. Let's give one to the dogs still waiting.",
-  "We are not anti-love. We are pro-dog.",
-  "Tom, if you're reading this, the pack saved you a spot.",
+  "Thanks for the spotlight. Now let’s help real dogs get seen.",
+  "Original dogs are waiting near you.",
+  "Adopt if you can. Foster if you can. Share if you can.",
+  "A real dog near you may be waiting tonight.",
+  "One headline can become one more adoption.",
+  "Kindness first. Rescue first. Real dogs first.",
+  "Don’t clone me. Find me.",
 ];
 
 function DonationCalc() {
@@ -196,35 +196,22 @@ function AdoptablePets() {
 
       {phase === "unconfigured" && (
         <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">First 3 closest dog faces near {searchedZip}.</p>
+          <p className="text-base font-bold text-[#e8edf5]">Real adoptable dog faces near {searchedZip}.</p>
           <p className="mt-1 text-sm text-[#94a3b8]">
-            The live rescue feed is still warming up. Until the partner feed returns photos, these links open real nearby adoptable dogs:
+            The rescue feed is still warming up. While that partner access finishes, Petfinder can show real adoptable dog faces and links near your ZIP:
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
             <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Adopt-a-Pet →</a>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=900&q=80",
-              "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80",
-            ].sort(() => Math.random() - 0.5).slice(0, 3).map((img, i) => (
-              <a key={img} href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#0b1220] text-left transition hover:border-[#2DD4BF]">
-                <img src={img} alt={"Adoptable dog near " + searchedZip} className="h-44 w-full object-cover" />
-                <div className="p-3">
-                  <p className="text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Dog face #{i + 1}</p>
-                  <p className="mt-1 text-sm font-black text-[#e8edf5]">See real adoptable dogs near {searchedZip} →</p>
-                </div>
-              </a>
-            ))}
+          <div className="mt-4 overflow-hidden rounded-2xl border border-[#26324c] bg-white">
+            <iframe
+              title="Real Petfinder dog faces"
+              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#fff;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" animal="Dog" species="Dog" type="dog" petType="dog" animalType="dog" location="${searchedZip}" distance="50" petfinderUrl="https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}" hideBreed="true" limit="3" petListTitle=""></pet-scroller></body></html>`}
+              className="h-[620px] w-full bg-white"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+            />
           </div>
 
         </div>
@@ -298,10 +285,10 @@ export default function DontCloneMeTom() {
             Don&apos;t clone me. Adopt me.
           </p>
           <p className="mx-auto mt-2 max-w-md text-sm font-bold text-[#2DD4BF] sm:text-base">
-            Tom cloned his dog. There are millions of originals in shelters who&apos;ll do the zoomies for free.
+            A cloned-dog headline got people talking. Let&apos;s use that attention to help real dogs get seen.
           </p>
           <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
-            Scroll real rescue faces near you and meet the shelter ready to help.
+            Type your ZIP and open real adoptable dog faces near you.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
@@ -320,7 +307,7 @@ export default function DontCloneMeTom() {
               href="#invite-tom"
               className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#141d2e] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#e8edf5] hover:border-[#26324c] transition"
             >
-              Invite Tom to Join the Pack
+              Share Real Dogs
             </a>
           </div>
         </section>
@@ -342,14 +329,14 @@ export default function DontCloneMeTom() {
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Don&apos;t clone me. Adopt me.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            Type your ZIP and scroll the faces of real rescue dogs near you — closest first. Every one an original. No lab, no waitlist, no $50,000.
+            Type your ZIP and find real adoptable dog faces near you. Every click opens the original adoption source.
           </p>
           <AdoptablePets />
         </section>
 
         {/* Why this source */}
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why this source?</p>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why these sources?</p>
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
             <li>🐾 Powered by <strong className="text-[#e8edf5]">RescueGroups.org</strong> — nonprofit, rescue-first pet data (not a big corporate monster).</li>
             <li>🐾 Photos and details come from rescue and shelter partners.</li>
@@ -367,61 +354,46 @@ export default function DontCloneMeTom() {
           </p>
           <DonationCalc />
         </section>
-
-        {/* Invite Tom */}
+        {/* Thanks for the Spotlight */}
         <section
-          id="invite-tom"
+          id="share-real-dogs"
           className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6"
         >
           <p className="text-xs font-black uppercase tracking-[0.24em] text-[#2DD4BF] mb-3">
-            Public Invitation — Not an Endorsement
+            Thankful for the Spotlight
           </p>
-          <h2 className="text-2xl font-black text-[#e8edf5] mb-4">Tom, Join the Pack.</h2>
+          <h2 className="text-2xl font-black text-[#e8edf5] mb-4">Use the Attention for Good.</h2>
           <p className="text-sm font-semibold leading-7 text-[#94a3b8] mb-3">
-            Tom, we know you love dogs. So do we.
+            This page is not here to tease, shame, or send people after anyone.
           </p>
           <p className="text-sm font-semibold leading-7 text-[#94a3b8] mb-3">
-            This is a public, tail-wagging invitation: help turn one cloned-dog headline into
-            thousands of rescue second chances.
+            The name says enough. The rest is simple: help people find real adoptable dogs near them.
           </p>
           <p className="text-sm font-semibold leading-7 text-[#94a3b8] mb-5">
-            No drama. No shame. Just dogs.
+            Thanks for the publicity, Tom. Now let&apos;s point that attention toward dogs already waiting for homes.
           </p>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-[#94a3b8] mb-5">
-            This is an invitation, not an endorsement.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3">
-            <button
-              onClick={() => {
-                if (navigator.share) {
-                  navigator.share({
-                    title: "DontCloneMeTom.com",
-                    text: "Tom, the rescue pack is waiting. Don't clone me — I'm already here. DontCloneMeTom.com",
-                    url: window.location.href,
-                  });
-                } else {
-                  navigator.clipboard.writeText(window.location.href);
-                }
-              }}
-              className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#141d2e] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#2DD4BF] hover:bg-[#141d2e] transition"
-            >
-              Share the Invite
-            </button>
-            <a
-              href="https://www.petfinder.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#141d2e] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#94a3b8] hover:border-[#26324c] transition"
-            >
-              Nominate a Rescue
-            </a>
-          </div>
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: "DontCloneMeTom.com",
+                  text: "Find real adoptable dogs near you. Don&apos;t clone me. Find me.",
+                  url: window.location.href,
+                });
+              } else {
+                navigator.clipboard.writeText(window.location.href);
+              }
+            }}
+            className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#2DD4BF] hover:border-[#2DD4BF] transition"
+          >
+            Share Real Dogs
+          </button>
         </section>
 
         {/* Shareable Lines */}
         <section className="mb-10">
           <h2 className="text-xl font-black text-[#e8edf5] mb-2">Share These Lines</h2>
-          <p className="text-sm font-semibold text-[#94a3b8] mb-5">Tap any line to copy it.</p>
+          <p className="text-sm font-semibold text-[#94a3b8] mb-5">Tap any line to copy a kind rescue-first message.</p>
           <div className="flex flex-col gap-3">
             {shareLines.map((line) => (
               <ShareCard key={line} line={line} />
