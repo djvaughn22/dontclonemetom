@@ -235,6 +235,21 @@ export default function DontCloneMeTom() {
           <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share. Don&apos;t clone.</p>
         </section>
 
+        {/* Thank you, Tom */}
+        <section className="mb-10 rounded-2xl border border-[#2DD4BF]/25 bg-[#141d2e] p-6 text-center">
+          <div className="mb-2 text-2xl" aria-hidden>🤍🐾</div>
+          <h2 className="mb-3 text-xl font-black text-[#e8edf5]">Thank you, Tom Brady.</h2>
+          <p className="mx-auto mb-3 max-w-xl text-sm font-semibold leading-7 text-[#94a3b8]">
+            We love and respect Tom Brady and his choice — loving a pet that deeply is a beautiful thing.
+            Not everyone can do it, and not everyone needs to.
+          </p>
+          <p className="mx-auto max-w-xl text-sm font-semibold leading-7 text-[#94a3b8]">
+            But the attention it brought to how much we love our pets? That&apos;s a gift. Thank you, Tom,
+            for reminding the world how much a dog can mean. We love you for it — and there are millions
+            more dogs out there ready to be loved just the same.
+          </p>
+        </section>
+
         {/* Share */}
         <section
           id="share-real-dogs"
