@@ -44,33 +44,32 @@ export async function GET(request: Request) {
   const speciesPath = species === "cats" ? "cats" : species === "any" ? "pets" : "dogs";
   const url = new URL(`${RG_BASE}/${speciesPath}`);
   url.searchParams.set("include", "pictures,orgs");
-  url.searchParams.set(
-    "fields[animals]",
-    "name,ageGroup,sex,sizeGroup,descriptionText,url,cityState,distance",
-  );
-  url.searchParams.set("fields[pictures]", "large,small,original");
-  url.searchParams.set("fields[orgs]", "name,citystate");
-  url.searchParams.set("sort", "animals.distance");
   url.searchParams.set("limit", "60");
 
-  const debug = searchParams.get("debug") === "1";
   let res: Response;
   try {
     res = await fetch(url.toString(), {
       method: "POST",
-      headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
+      headers: {
+        Authorization: key,
+        "Content-Type": "application/vnd.api+json",
+        Accept: "application/vnd.api+json",
+      },
       body: JSON.stringify({ data: { filterRadius: { miles: radius, postalcode: zip } } }),
     });
-  } catch (e) {
-    return NextResponse.json({ status: "error", pets: [], ...(debug ? { debug: { threw: String(e), url: url.toString() } } : {}) });
-  }
-  if (!res.ok) {
-    const errText = await res.text().catch(() => "");
-    return NextResponse.json({ status: "error", pets: [], ...(debug ? { debug: { httpStatus: res.status, url: url.toString(), body: errText.slice(0, 600) } } : {}) });
+  } catch {
+    return NextResponse.json({ status: "error", pets: [] });
   }
 
-  const json = await res.json().catch(() => null);
-  if (!json) return NextResponse.json({ status: "error", pets: [] });
+  const raw = await res.text().catch(() => "");
+  let json: any = null;
+  try {
+    json = JSON.parse(raw);
+  } catch {
+    // RescueGroups returns HTTP 200 with an empty body until the API key is
+    // approved for data access — treat that as "no results yet".
+  }
+  if (!res.ok || !json) return NextResponse.json({ status: "error", pets: [] });
 
   const inc: IncItem[] = Array.isArray(json.included) ? json.included : [];
   const picById: Record<string, IncItem> = {};

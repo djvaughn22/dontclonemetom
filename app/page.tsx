@@ -118,7 +118,9 @@ function AdoptablePets() {
         `/api/adoptable-pets?zip=${z}&radius=${radius}&species=${species}`,
       );
       const data = await res.json();
-      if (data.status === "unconfigured") {
+      // No key yet, or the key isn't returning data yet (RescueGroups approval):
+      // show the "meet dogs now" fallback either way so the site always helps.
+      if (data.status === "unconfigured" || data.status === "error") {
         setPets([]);
         setPhase("unconfigured");
         return;
@@ -194,9 +196,9 @@ function AdoptablePets() {
 
       {phase === "unconfigured" && (
         <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">Adoptable pet search is almost ready.</p>
+          <p className="text-base font-bold text-[#e8edf5]">Meet real rescue dogs near {searchedZip} right now.</p>
           <p className="mt-1 text-sm text-[#94a3b8]">
-            Add the free RescueGroups API key to turn on live rescue faces. Meanwhile, meet real dogs now near {searchedZip}:
+            Our in-site rescue feed is warming up — for now, tap through to real adoptable dogs near you:
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
