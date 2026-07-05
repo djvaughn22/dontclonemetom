@@ -36,47 +36,25 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
-type Dog = { id: string; name: string; breed: string; photo: string; miles: number | null; city?: string | null; url: string };
-
 function FindDogs() {
   const [zip, setZip] = useState("63040");
-  const [activeZip, setActiveZip] = useState("63040");
-  const [dogs, setDogs] = useState<Dog[]>([]);
-  const [status, setStatus] = useState<"loading" | "ok" | "empty" | "error">("loading");
 
-  async function load(z: string) {
-    const clean = z.match(/\d{5}/)?.[0] ?? "63040";
-    setActiveZip(clean);
-    setStatus("loading");
-    // The upstream feed is intermittently flaky, so try a few times before
-    // settling on the fallback links — a quick miss usually succeeds on retry.
-    for (let attempt = 0; attempt < 3; attempt++) {
-      try {
-        const res = await fetch(`/api/adoptable-pets?zip=${clean}`);
-        const data = await res.json();
-        if (Array.isArray(data.dogs) && data.dogs.length > 0) {
-          setDogs(data.dogs);
-          setStatus("ok");
-          return;
-        }
-      } catch {
-        // fall through to retry
-      }
-      if (attempt < 2) await new Promise((r) => setTimeout(r, 1300));
-    }
-    setDogs([]);
-    setStatus("error");
-  }
-
-  // Auto-load dogs near 63040 on first paint — no clicking required.
+  // Load Petfinder's adoptable-pet widget script once; it upgrades the
+  // <pet-scroller> element below into a live, dogs-only list.
   useEffect(() => {
-    load("63040");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (document.querySelector("script[data-pet-scroller]")) return;
+    const s = document.createElement("script");
+    s.src = "https://www.petfinder.com/pet-scroller.bundle.js";
+    s.async = true;
+    s.setAttribute("data-pet-scroller", "true");
+    document.body.appendChild(s);
   }, []);
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=50`;
-  const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${activeZip}`;
+  const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
+
+  const openNearMe = () => window.open(petfinderUrl, "_blank", "noopener,noreferrer");
 
   return (
     <div>
@@ -86,99 +64,32 @@ function FindDogs() {
           inputMode="numeric"
           value={zip}
           onChange={(e) => setZip(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") load(zip); }}
+          onKeyDown={(e) => { if (e.key === "Enter") openNearMe(); }}
           maxLength={5}
           aria-label="ZIP code"
           placeholder="ZIP code"
           className="w-full rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3 text-base font-bold text-[#e8edf5] placeholder-[#94a3b8] focus:border-[#2DD4BF] focus:outline-none sm:w-40"
         />
         <button
-          onClick={() => load(zip)}
+          onClick={openNearMe}
           className="inline-flex justify-center rounded-xl bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
         >
           🐶 Find dogs near me
         </button>
       </div>
+      <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
+        Enter a ZIP to open dog-only searches on Petfinder and{" "}
+        <a href={adoptapetUrl} target="_blank" rel="noopener noreferrer" className="text-[#2DD4BF] underline">Adopt-a-Pet</a>. Or meet adoptable dogs right here 👇
+      </p>
 
-      {status === "loading" && (
-        <p className="mt-5 text-sm font-semibold text-[#94a3b8]">Finding dogs near {activeZip}…</p>
-      )}
-
-      {status === "ok" && dogs.length > 0 && (
-        <>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {dogs.map((d) => (
-              <a
-                key={d.id}
-                href={d.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group overflow-hidden rounded-2xl border border-[#26324c] bg-[#0b1220] transition hover:border-[#2DD4BF]"
-              >
-                <div className="aspect-square w-full overflow-hidden bg-[#141d2e]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={d.photo}
-                    alt={d.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
-                  <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
-                  {(d.city || d.miles != null) && (
-                    <p className="mt-0.5 truncate text-xs font-semibold text-[#2DD4BF]">
-                      {[d.city, d.miles != null ? `${d.miles} mi` : null].filter(Boolean).join(" · ")}
-                    </p>
-                  )}
-                </div>
-              </a>
-            ))}
-          </div>
-          <a
-            href={adoptapetUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex text-xs font-black uppercase tracking-[0.12em] text-[#2DD4BF] transition hover:underline"
-          >
-            See all dogs near {activeZip} on Adopt-a-Pet →
-          </a>
-          <p className="mt-2 text-xs font-semibold text-[#94a3b8]">
-            Real adoptable dogs from Adopt-a-Pet. Tap a dog to meet them.
-          </p>
-        </>
-      )}
-
-      {(status === "empty" || status === "error") && (
-        <div className="mt-5">
-          <p className="mb-3 text-sm font-semibold text-[#94a3b8]">
-            {status === "empty"
-              ? `Couldn’t pull dogs for ${activeZip} right now — these open the adoption sites directly:`
-              : "Couldn’t reach the adoption feed right now — these open the adoption sites directly:"}
-          </p>
-          <div className="flex flex-col gap-3">
-            <a
-              href={petfinderUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
-            >
-              <span>See dogs on Petfinder</span>
-              <span className="text-[#94a3b8]">→</span>
-            </a>
-            <a
-              href={adoptapetUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
-            >
-              <span>See dogs on Adopt-a-Pet</span>
-              <span className="text-[#94a3b8]">→</span>
-            </a>
-          </div>
-        </div>
-      )}
+      {/* Petfinder's live adoptable-dog widget (dogs only) */}
+      <div
+        className="mt-5 overflow-hidden rounded-2xl bg-white p-1"
+        dangerouslySetInnerHTML={{
+          __html:
+            `<pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" petfinderUrl="https://www.petfinder.com/" type='["dog"]' hideBreed="false" limit="24" petListTitle=""></pet-scroller>`,
+        }}
+      />
     </div>
   );
 }
