@@ -207,16 +207,21 @@ function AdoptablePets() {
 
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              { title: "Puppy", note: "Young zoomies. Big future.", img: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80" },
-              { title: "Middle-Aged Dog", note: "Steady, sweet, ready now.", img: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80" },
-              { title: "Senior Dog", note: "Old soul. Elite cuddle level.", img: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80" },
-            ].map((dog) => (
-              <a key={dog.title} href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#0b1220] text-left transition hover:border-[#2DD4BF]">
-                <img src={dog.img} alt={dog.title + " near " + searchedZip} className="h-44 w-full object-cover" />
+              "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1561037404-61cd46aa615b?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1517423440428-a5a00ad493e8?auto=format&fit=crop&w=900&q=80",
+              "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80",
+            ].sort(() => Math.random() - 0.5).slice(0, 3).map((img, i) => (
+              <a key={img} href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#0b1220] text-left transition hover:border-[#2DD4BF]">
+                <img src={img} alt={"Adoptable dog near " + searchedZip} className="h-44 w-full object-cover" />
                 <div className="p-3">
-                  <p className="text-xs font-black uppercase tracking-wide text-[#2DD4BF]">{dog.title}</p>
-                  <p className="mt-1 text-sm font-black text-[#e8edf5]">{dog.note}</p>
-                  <p className="mt-1 text-xs font-bold text-[#94a3b8]">See nearby adoptable dogs →</p>
+                  <p className="text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Dog face #{i + 1}</p>
+                  <p className="mt-1 text-sm font-black text-[#e8edf5]">See real adoptable dogs near {searchedZip} →</p>
                 </div>
               </a>
             ))}
