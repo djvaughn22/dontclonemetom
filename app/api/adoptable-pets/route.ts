@@ -37,7 +37,8 @@ export async function GET(request: Request) {
     );
   }
 
-  const key = process.env.RESCUEGROUPS_API_KEY;
+  // Accept either the conventional name or the shorter one set in Vercel.
+  const key = process.env.RESCUEGROUPS_API_KEY || process.env.rescuegroups;
   if (!key) return NextResponse.json({ status: "unconfigured", pets: [] });
 
   const speciesPath = species === "cats" ? "cats" : species === "any" ? "pets" : "dogs";
