@@ -39,15 +39,32 @@ function ShareCard({ line }: { line: string }) {
 function FindDogs() {
   const [zip, setZip] = useState("63040");
 
-  // Load Petfinder's adoptable-pet widget script once; it upgrades the
-  // <pet-scroller> element below into a live, dogs-only list.
+  // Load Petfinder's widget script once, then inject a small style into its
+  // shadow DOM so cards show two-per-row on desktop (and stack on mobile).
   useEffect(() => {
-    if (document.querySelector("script[data-pet-scroller]")) return;
-    const s = document.createElement("script");
-    s.src = "https://www.petfinder.com/pet-scroller.bundle.js";
-    s.async = true;
-    s.setAttribute("data-pet-scroller", "true");
-    document.body.appendChild(s);
+    if (!document.querySelector("script[data-pet-scroller]")) {
+      const s = document.createElement("script");
+      s.src = "https://www.petfinder.com/pet-scroller.bundle.js";
+      s.async = true;
+      s.setAttribute("data-pet-scroller", "true");
+      document.body.appendChild(s);
+    }
+    let tries = 0;
+    const iv = setInterval(() => {
+      const el = document.querySelector("pet-scroller") as
+        | (HTMLElement & { shadowRoot: ShadowRoot | null })
+        | null;
+      const sr = el?.shadowRoot;
+      if (sr && !sr.getElementById("dcmt-2col")) {
+        const st = document.createElement("style");
+        st.id = "dcmt-2col";
+        st.textContent =
+          "@media(min-width:640px){.grid-col_result{flex:0 0 48% !important;max-width:48% !important;box-sizing:border-box}}";
+        sr.appendChild(st);
+      }
+      if (sr || ++tries > 40) clearInterval(iv);
+    }, 500);
+    return () => clearInterval(iv);
   }, []);
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
@@ -90,6 +107,16 @@ function FindDogs() {
             `<pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" petfinderUrl="https://www.petfinder.com/" type='["dog"]' hideBreed="false" limit="24" petListTitle=""></pet-scroller>`,
         }}
       />
+
+      <a
+        href={adoptapetUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-4 inline-flex w-full items-center justify-between rounded-xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+      >
+        <span>See more dogs on Adopt-a-Pet</span>
+        <span className="text-[#94a3b8]">→</span>
+      </a>
     </div>
   );
 }
@@ -98,7 +125,7 @@ export default function DontCloneMeTom() {
   return (
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <OpenMirrorNav />
-      <div className="mx-auto max-w-2xl px-5 py-10">
+      <div className="mx-auto max-w-3xl px-5 py-10">
 
         {/* Hero — the domain is the whole hook (…Tom.com) */}
         <section className="text-center mb-10">
@@ -159,7 +186,7 @@ export default function DontCloneMeTom() {
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why these sources?</p>
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
-            <li>🐾 Searches open on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> — the original adoption sources.</li>
+            <li>🐾 The dogs on this page come live from <strong className="text-[#e8edf5]">Petfinder</strong>; you can also search <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> — both original adoption sources.</li>
             <li>🐾 Photos and details come from real rescue and shelter partners on those sites.</li>
             <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
           </ul>
