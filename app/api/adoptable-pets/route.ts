@@ -53,6 +53,7 @@ export async function GET(request: Request) {
   url.searchParams.set("sort", "animals.distance");
   url.searchParams.set("limit", "60");
 
+  const debug = searchParams.get("debug") === "1";
   let res: Response;
   try {
     res = await fetch(url.toString(), {
@@ -60,10 +61,13 @@ export async function GET(request: Request) {
       headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
       body: JSON.stringify({ data: { filterRadius: { miles: radius, postalcode: zip } } }),
     });
-  } catch {
-    return NextResponse.json({ status: "error", pets: [] });
+  } catch (e) {
+    return NextResponse.json({ status: "error", pets: [], ...(debug ? { debug: { threw: String(e), url: url.toString() } } : {}) });
   }
-  if (!res.ok) return NextResponse.json({ status: "error", pets: [] });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => "");
+    return NextResponse.json({ status: "error", pets: [], ...(debug ? { debug: { httpStatus: res.status, url: url.toString(), body: errText.slice(0, 600) } } : {}) });
+  }
 
   const json = await res.json().catch(() => null);
   if (!json) return NextResponse.json({ status: "error", pets: [] });
