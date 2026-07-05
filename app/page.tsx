@@ -204,6 +204,12 @@ function AdoptablePets() {
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
             <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Adopt-a-Pet →</a>
           </div>
+          <iframe
+            title="Petfinder dog faces"
+            srcDoc={'<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#f8fafc;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" petfinderUrl="https://www.petfinder.com/" hideBreed="true" limit="3" petListTitle=""></pet-scroller></body></html>'}
+            className="mt-4 h-[560px] w-full rounded-2xl border border-[#26324c] bg-white"
+            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+          />
         </div>
       )}
 
