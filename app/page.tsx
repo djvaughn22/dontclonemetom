@@ -36,7 +36,7 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
-type Dog = { id: string; name: string; breed: string; photo: string; miles: number | null; url: string };
+type Dog = { id: string; name: string; breed: string; photo: string; miles: number | null; city?: string | null; url: string };
 
 function FindDogs() {
   const [zip, setZip] = useState("63040");
@@ -127,8 +127,10 @@ function FindDogs() {
                 <div className="p-3">
                   <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
                   <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
-                  {d.miles != null && (
-                    <p className="mt-0.5 text-xs font-semibold text-[#2DD4BF]">{d.miles} mi away</p>
+                  {(d.city || d.miles != null) && (
+                    <p className="mt-0.5 truncate text-xs font-semibold text-[#2DD4BF]">
+                      {[d.city, d.miles != null ? `${d.miles} mi` : null].filter(Boolean).join(" · ")}
+                    </p>
                   )}
                 </div>
               </a>
