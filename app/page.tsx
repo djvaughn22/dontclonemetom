@@ -92,16 +92,18 @@ function PetfinderWidget() {
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[#26324c] bg-white p-1">
-      {createElement("pet-scroller", {
-        s3Url: "https://dbw3zep4prcju.cloudfront.net/",
-        apiBase: "https://psl.petfinder.com/graphql",
-        organization: "[]",
-        status: "adoptable",
-        petfinderUrl: "https://www.petfinder.com/",
-        hideBreed: "true",
-        limit: "24",
-        petListTitle: "",
-      })}
+      <pet-scroller
+        type='["dog"]'
+        age='[]'
+        s3Url="https://dbw3zep4prcju.cloudfront.net/"
+        apiBase="https://psl.petfinder.com/graphql"
+        organization="[]"
+        status="adoptable"
+        petfinderUrl="https://www.petfinder.com/search/dogs-for-adoption/"
+        hideBreed="true"
+        limit="24"
+        petListTitle=""
+      />
     </div>
   );
 }
@@ -129,14 +131,14 @@ export default function DontCloneMeTom() {
             A cloned-dog headline got people talking. Let&apos;s use that attention to help real dogs get seen.
           </p>
           <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
-            Real adoptable pets from Petfinder. Find one. Help one. Share one.
+            Dogs first. Real adoptable dogs from Petfinder.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="#find"
               className="inline-flex justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] hover:opacity-90 transition"
             >
-              🐶 Meet Adoptable Pets
+              🐶 Meet Adoptable Dogs
             </a>
             <a
               href="#rescue-challenge"
@@ -170,7 +172,7 @@ export default function DontCloneMeTom() {
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Don&apos;t clone me. Adopt me.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            Browse real adoptable pets from Petfinder below.
+            Browse real adoptable dogs from Petfinder below.
           </p>
           <PetfinderWidget />
         </section>
