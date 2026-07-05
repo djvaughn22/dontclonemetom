@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import OpenMirrorNav from "./OpenMirrorNav";
 
 const shareLines = [
@@ -79,172 +79,29 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
-type Pet = {
-  id: string;
-  name: string;
-  age: string | null;
-  sex: string | null;
-  size: string | null;
-  city: string | null;
-  state: string | null;
-  organizationName: string | null;
-  photoUrl: string | null;
-  description: string | null;
-  adoptionUrl: string | null;
-  distance: number | null;
-};
-
-function AdoptablePets() {
-  const [zip, setZip] = useState("63040");
-  const [radius, setRadius] = useState(50);
-  const [species, setSpecies] = useState("dogs");
-  const [phase, setPhase] = useState<
-    "idle" | "loading" | "ok" | "empty" | "unconfigured" | "error"
-  >("idle");
-  const [pets, setPets] = useState<Pet[]>([]);
-  const [searchedZip, setSearchedZip] = useState("63040");
-
-  async function search(e?: React.FormEvent) {
-    e?.preventDefault();
-    const z = zip.replace(/[^0-9]/g, "").slice(0, 5);
-    if (z.length !== 5) {
-      setPhase("error");
-      return;
-    }
-    setSearchedZip(z);
-    setPhase("loading");
-    try {
-      const res = await fetch(
-        `/api/adoptable-pets?zip=${z}&radius=${radius}&species=${species}`,
-      );
-      const data = await res.json();
-      // No key yet, or the key isn't returning data yet (RescueGroups approval):
-      // show the "meet dogs now" fallback either way so the site always helps.
-      if (data.status === "unconfigured" || data.status === "error") {
-        setPets([]);
-        setPhase("unconfigured");
-        return;
-      }
-      const list: Pet[] = Array.isArray(data.pets) ? data.pets : [];
-      setPets(list);
-      setPhase(list.length ? "ok" : "empty");
-    } catch {
-      setPhase("error");
-    }
-  }
-
+function PetfinderWidget() {
   useEffect(() => {
-    search();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (document.querySelector('script[data-petfinder-scroller="true"]')) return;
+
+    const script = document.createElement("script");
+    script.src = "https://www.petfinder.com/pet-scroller.bundle.js";
+    script.async = true;
+    script.dataset.petfinderScroller = "true";
+    document.body.appendChild(script);
   }, []);
 
-  const externalSearch = (site: "petfinder" | "adoptapet") =>
-    site === "petfinder"
-      ? `https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}`
-      : `https://www.adoptapet.com/pet-search?geo_range=${radius}&location=${searchedZip}`;
-
   return (
-    <div>
-      <form onSubmit={search} className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-        <label className="min-w-[9rem] flex-1">
-          <span className="mb-1 block text-xs font-black uppercase tracking-wide text-[#94a3b8]">ZIP code</span>
-          <input
-            value={zip}
-            onChange={(e) => setZip(e.target.value)}
-            inputMode="numeric"
-            maxLength={5}
-            placeholder="e.g. 63040"
-            aria-label="ZIP code"
-            className="w-full rounded-full border border-[#26324c] bg-[#141d2e] px-5 py-3 text-base font-bold text-[#e8edf5] placeholder:text-[#94a3b8] outline-none focus:border-[#2DD4BF]"
-          />
-        </label>
-        <label>
-          <span className="mb-1 block text-xs font-black uppercase tracking-wide text-[#94a3b8]">Distance</span>
-          <select
-            value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
-            aria-label="Distance"
-            className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-3 text-sm font-bold text-[#e8edf5] outline-none focus:border-[#2DD4BF]"
-          >
-            <option value={25}>25 miles</option>
-            <option value={50}>50 miles</option>
-            <option value={100}>100 miles</option>
-          </select>
-        </label>
-        <button
-          type="submit"
-          className="rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#0b1220] transition hover:opacity-90"
-        >
-          Show 3 real dog faces
-        </button>
-      </form>
-
-      {phase === "error" && (
-        <p className="mt-3 text-sm font-bold text-[#5eead4]">Please enter a valid 5-digit ZIP code.</p>
-      )}
-      {phase === "loading" && (
-        <p className="mt-5 text-sm font-bold text-[#94a3b8]">Finding original good pups near {searchedZip}…</p>
-      )}
-
-      {phase === "unconfigured" && (
-        <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">Open real adoptable dog searches near {searchedZip}.</p>
-          <p className="mt-1 text-sm text-[#94a3b8]">
-            The rescue feed is still warming up. For now, open real adoptable dog searches directly from the original adoption sources:
-          </p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
-            <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Adopt-a-Pet →</a>
-          </div>
-
-
-        </div>
-      )}
-
-      {phase === "empty" && (
-        <div className="mt-6 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6 text-center">
-          <p className="text-base font-bold text-[#e8edf5]">No pets found for that search yet.</p>
-          <p className="mt-1 text-sm text-[#94a3b8]">Try a wider distance or another ZIP code.</p>
-        </div>
-      )}
-
-      {phase === "ok" && (
-        <>
-          <p className="mt-5 text-xs font-black uppercase tracking-wide text-[#94a3b8]">
-            {Math.min(pets.length, 3)} real dog faces near {searchedZip}
-          </p>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-            {pets.slice(0, 3).map((p) => (
-              <a
-                key={p.id}
-                href={p.adoptionUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative block aspect-square overflow-hidden rounded-2xl bg-[#0b1220] ring-1 ring-[#26324c] transition hover:ring-[#2DD4BF]"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.photoUrl as string}
-                  alt={`${p.name}, adoptable near ${p.city || searchedZip}`}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                  style={{ objectPosition: "center 28%" }}
-                />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2.5 pt-8">
-                  <p className="truncate text-sm font-black text-white">{p.name}</p>
-                  <p className="text-[0.65rem] font-bold text-[#5eead4]">
-                    {[p.age, p.size, p.distance != null ? `${p.distance} mi` : null].filter(Boolean).join(" · ")}
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">See more nearby dogs on Petfinder</a>
-            <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#94a3b8] underline underline-offset-2 hover:text-[#e8edf5]">See more nearby dogs on Adopt-a-Pet</a>
-          </div>
-        </>
-      )}
+    <div className="overflow-hidden rounded-2xl border border-[#26324c] bg-white p-1">
+      {createElement("pet-scroller", {
+        s3Url: "https://dbw3zep4prcju.cloudfront.net/",
+        apiBase: "https://psl.petfinder.com/graphql",
+        organization: "[]",
+        status: "adoptable",
+        petfinderUrl: "https://www.petfinder.com/",
+        hideBreed: "true",
+        limit: "24",
+        petListTitle: "",
+      })}
     </div>
   );
 }
@@ -272,14 +129,14 @@ export default function DontCloneMeTom() {
             A cloned-dog headline got people talking. Let&apos;s use that attention to help real dogs get seen.
           </p>
           <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
-            Starting with 3 real adoptable dog faces near 63040. Change the ZIP anytime.
+            Real adoptable pets from Petfinder. Find one. Help one. Share one.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="#find"
               className="inline-flex justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] hover:opacity-90 transition"
             >
-              🐶 Meet Real Dogs Near You
+              🐶 Meet Adoptable Pets
             </a>
             <a
               href="#rescue-challenge"
@@ -313,9 +170,9 @@ export default function DontCloneMeTom() {
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Don&apos;t clone me. Adopt me.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            We start with 3 real local dog faces near 63040. Change the ZIP to search your area.
+            Browse real adoptable pets from Petfinder below.
           </p>
-          <AdoptablePets />
+          <PetfinderWidget />
         </section>
 
         {/* Why this source */}
