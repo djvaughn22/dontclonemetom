@@ -204,12 +204,24 @@ function AdoptablePets() {
             <a href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Petfinder →</a>
             <a href={externalSearch("adoptapet")} target="_blank" rel="noopener noreferrer" className="rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-wide text-[#2DD4BF]">Adopt-a-Pet →</a>
           </div>
-          <iframe
-            title="Petfinder dog faces"
-            srcDoc={'<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#f8fafc;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" petfinderUrl="https://www.petfinder.com/" hideBreed="true" limit="3" petListTitle=""></pet-scroller></body></html>'}
-            className="mt-4 h-[560px] w-full rounded-2xl border border-[#26324c] bg-white"
-            sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-          />
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              { title: "Puppy", note: "Young zoomies. Big future.", img: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=900&q=80" },
+              { title: "Middle-Aged Dog", note: "Steady, sweet, ready now.", img: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=900&q=80" },
+              { title: "Senior Dog", note: "Old soul. Elite cuddle level.", img: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=900&q=80" },
+            ].map((dog) => (
+              <a key={dog.title} href={externalSearch("petfinder")} target="_blank" rel="noopener noreferrer" className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#0b1220] text-left transition hover:border-[#2DD4BF]">
+                <img src={dog.img} alt={dog.title + " near " + searchedZip} className="h-44 w-full object-cover" />
+                <div className="p-3">
+                  <p className="text-xs font-black uppercase tracking-wide text-[#2DD4BF]">{dog.title}</p>
+                  <p className="mt-1 text-sm font-black text-[#e8edf5]">{dog.note}</p>
+                  <p className="mt-1 text-xs font-bold text-[#94a3b8]">See nearby adoptable dogs →</p>
+                </div>
+              </a>
+            ))}
+          </div>
+
         </div>
       )}
 
