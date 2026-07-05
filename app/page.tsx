@@ -84,7 +84,7 @@ function FindDogs() {
 
   const clean = (zip.match(/\d{5}/)?.[0]) ?? "63040";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=50`;
-  const adoptapetUrl = `https://www.adoptapet.com/pet-search?pet_type=dog&geo_range=50&location=${clean}`;
+  const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
 
   function openPetfinder() {
     window.open(petfinderUrl, "_blank", "noopener,noreferrer");
