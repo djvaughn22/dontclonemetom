@@ -48,20 +48,24 @@ function FindDogs() {
     const clean = z.match(/\d{5}/)?.[0] ?? "63040";
     setActiveZip(clean);
     setStatus("loading");
-    try {
-      const res = await fetch(`/api/adoptable-pets?zip=${clean}`);
-      const data = await res.json();
-      if (Array.isArray(data.dogs) && data.dogs.length > 0) {
-        setDogs(data.dogs);
-        setStatus("ok");
-      } else {
-        setDogs([]);
-        setStatus(data.status === "error" ? "error" : "empty");
+    // The upstream feed is intermittently flaky, so try a few times before
+    // settling on the fallback links — a quick miss usually succeeds on retry.
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await fetch(`/api/adoptable-pets?zip=${clean}`);
+        const data = await res.json();
+        if (Array.isArray(data.dogs) && data.dogs.length > 0) {
+          setDogs(data.dogs);
+          setStatus("ok");
+          return;
+        }
+      } catch {
+        // fall through to retry
       }
-    } catch {
-      setDogs([]);
-      setStatus("error");
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 1300));
     }
+    setDogs([]);
+    setStatus("error");
   }
 
   // Auto-load dogs near 63040 on first paint — no clicking required.
