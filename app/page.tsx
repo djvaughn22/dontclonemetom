@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useEffect, useState } from "react";
+import { useState } from "react";
 import OpenMirrorNav from "./OpenMirrorNav";
 
 const shareLines = [
@@ -79,31 +79,63 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
-function PetfinderWidget() {
-  useEffect(() => {
-    if (document.querySelector('script[data-petfinder-scroller="true"]')) return;
+function FindDogs() {
+  const [zip, setZip] = useState("63040");
 
-    const script = document.createElement("script");
-    script.src = "https://www.petfinder.com/pet-scroller.bundle.js";
-    script.async = true;
-    script.dataset.petfinderScroller = "true";
-    document.body.appendChild(script);
-  }, []);
+  const clean = (zip.match(/\d{5}/)?.[0]) ?? "63040";
+  const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=50`;
+  const adoptapetUrl = `https://www.adoptapet.com/pet-search?pet_type=dog&geo_range=50&location=${clean}`;
+
+  function openPetfinder() {
+    window.open(petfinderUrl, "_blank", "noopener,noreferrer");
+  }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#26324c] bg-white p-1">
-      <pet-scroller
-        type='["dog"]'
-        age='[]'
-        s3Url="https://dbw3zep4prcju.cloudfront.net/"
-        apiBase="https://psl.petfinder.com/graphql"
-        organization="[]"
-        status="adoptable"
-        petfinderUrl="https://www.petfinder.com/search/dogs-for-adoption/"
-        hideBreed="true"
-        limit="24"
-        petListTitle=""
-      />
+    <div>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="text"
+          inputMode="numeric"
+          value={zip}
+          onChange={(e) => setZip(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") openPetfinder();
+          }}
+          maxLength={5}
+          aria-label="ZIP code"
+          placeholder="ZIP code"
+          className="w-full rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3 text-base font-bold text-[#e8edf5] placeholder-[#94a3b8] focus:border-[#2DD4BF] focus:outline-none sm:w-40"
+        />
+        <button
+          onClick={openPetfinder}
+          className="inline-flex justify-center rounded-xl bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
+        >
+          🐶 Find dog faces near me
+        </button>
+      </div>
+      <div className="mt-4 flex flex-col gap-3">
+        <a
+          href={petfinderUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+        >
+          <span>Open dog faces on Petfinder</span>
+          <span className="text-[#94a3b8]">→</span>
+        </a>
+        <a
+          href={adoptapetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+        >
+          <span>Open dogs on Adopt-a-Pet</span>
+          <span className="text-[#94a3b8]">→</span>
+        </a>
+      </div>
+      <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
+        These open real adoptable-dog searches on the original adoption sources. Dogs only.
+      </p>
     </div>
   );
 }
@@ -170,19 +202,20 @@ export default function DontCloneMeTom() {
 
         {/* Live adoptable dogs by ZIP */}
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
-          <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Don&apos;t clone me. Adopt me.</h2>
+          <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Dog faces near you.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            Browse real adoptable dogs from Petfinder below.
+            Enter a ZIP to open real adoptable-dog searches from the original adoption sources.
+            Defaults to 63040.
           </p>
-          <PetfinderWidget />
+          <FindDogs />
         </section>
 
         {/* Why this source */}
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why these sources?</p>
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
-            <li>🐾 Powered by <strong className="text-[#e8edf5]">RescueGroups.org</strong> — nonprofit, rescue-first pet data (not a big corporate monster).</li>
-            <li>🐾 Photos and details come from rescue and shelter partners.</li>
+            <li>🐾 Searches open on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> — the original adoption sources.</li>
+            <li>🐾 Photos and details come from real rescue and shelter partners on those sites.</li>
             <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
           </ul>
           <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share. Don&apos;t clone.</p>
