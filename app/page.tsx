@@ -191,7 +191,21 @@ export default function DontCloneMeTom() {
 
         {/* Hero — the domain is the whole hook (…Tom.com) */}
         <section className="text-center mb-10">
-          <div className="mb-3 text-4xl">🐶</div>
+          <div className="mb-4 flex justify-center">
+            <img
+              src="/isaiah-icon.jpg"
+              alt="Isaiah"
+              width={128}
+              height={128}
+              className="rounded-full"
+              style={{
+                width: 128,
+                height: 128,
+                border: "3px solid #2DD4BF",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.45)",
+              }}
+            />
+          </div>
           <h1
             className="font-black leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(1.4rem, 7vw, 3.75rem)" }}
