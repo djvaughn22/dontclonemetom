@@ -166,24 +166,11 @@ function AdoptablePets() {
             <option value={100}>100 miles</option>
           </select>
         </label>
-        <label>
-          <span className="mb-1 block text-xs font-black uppercase tracking-wide text-[#94a3b8]">Type</span>
-          <select
-            value={species}
-            onChange={(e) => setSpecies(e.target.value)}
-            aria-label="Species"
-            className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-3 text-sm font-bold text-[#e8edf5] outline-none focus:border-[#2DD4BF]"
-          >
-            <option value="dogs">Dogs</option>
-            <option value="cats">Cats</option>
-            <option value="any">Any</option>
-          </select>
-        </label>
         <button
           type="submit"
           className="rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.14em] text-[#0b1220] transition hover:opacity-90"
         >
-          Show me faces
+          Show real dog faces
         </button>
       </form>
 
@@ -208,8 +195,8 @@ function AdoptablePets() {
           <div className="mt-4 overflow-hidden rounded-2xl border border-[#26324c] bg-white">
             <iframe
               title="Real Petfinder dog faces"
-              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#fff;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" animal="Dog" species="Dog" type="dog" petType="dog" animalType="dog" location="${searchedZip}" distance="50" petfinderUrl="https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}" hideBreed="true" limit="3" petListTitle=""></pet-scroller></body></html>`}
-              className="h-[620px] w-full bg-white"
+              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;background:#fff;font-family:system-ui,sans-serif}</style></head><body><script src="https://www.petfinder.com/pet-scroller.bundle.js"></script><pet-scroller type='["dog"]' age='[]' limit="6" hidebreed status="adoptable" petlisttitle="" location="${searchedZip}" distance="50" apibase="https://api.petfinder.com" petfinderurl="https://www.petfinder.com/search/dogs-for-adoption/?location=${searchedZip}&distance=5050"></pet-scroller></body></html>`}
+              className="h-[720px] w-full bg-white"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
             />
           </div>
@@ -377,7 +364,7 @@ export default function DontCloneMeTom() {
               if (navigator.share) {
                 navigator.share({
                   title: "DontCloneMeTom.com",
-                  text: "Find real adoptable dogs near you. Don&apos;t clone me. Find me.",
+                  text: "Find real adoptable dogs near you. Don't clone me. Find me.",
                   url: window.location.href,
                 });
               } else {
