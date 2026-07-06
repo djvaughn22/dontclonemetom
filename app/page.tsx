@@ -60,11 +60,14 @@ function FindDogs() {
         st.id = "dcmt-2col";
         st.textContent =
           "@media(min-width:640px){.grid-col_result{flex:0 0 48% !important;max-width:48% !important;box-sizing:border-box}}" +
-          // Filter dropdowns render white-on-white by default — force readable text.
+          // Filter/pagination dropdowns render white-on-white by default — force readable text on white.
           ".multiselect-popup,.multiselect-popup-list,.multiselect-popup-list_single{background:#ffffff !important;}" +
-          ".multiselect-listItem,.multiselect-listItem *,.multiselect-popup-list *{color:#111827 !important;}" +
+          ".multiselect-popup,.multiselect-popup *,.multiselect-popup-list,.multiselect-popup-list *,.multiselect-listItem,.multiselect-listItem *{color:#111827 !important;}" +
           ".multiselect-listItem:hover,.multiselect-listItem[aria-selected=\"true\"]{background:#f1f5f9 !important;}" +
-          ".multiselect-field,.multiselect-field-selection,.multiselect-field-selection *,.multiselectLabel{color:#111827 !important;}";
+          ".multiselect-field,.multiselect-field-selection,.multiselect-field-selection *,.multiselectLabel{color:#111827 !important;}" +
+          // Let dropdown popups (esp. the page selector) escape instead of being clipped.
+          ".pagination,.pagination .grid,.pagination .grid-col{overflow:visible !important;}" +
+          ".multiselect-popup{z-index:50 !important;}";
         sr.appendChild(st);
       }
       if (sr || ++tries > 40) clearInterval(iv);
@@ -106,7 +109,7 @@ function FindDogs() {
 
       {/* Petfinder's live adoptable-dog widget (dogs only) */}
       <div
-        className="mt-5 overflow-hidden rounded-2xl bg-white p-1"
+        className="mt-5 rounded-2xl bg-white p-1"
         dangerouslySetInnerHTML={{
           __html:
             `<pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization="[]" status="adoptable" petfinderUrl="https://www.petfinder.com/" type='["dog"]' hideBreed="false" limit="24" petListTitle=""></pet-scroller>`,
