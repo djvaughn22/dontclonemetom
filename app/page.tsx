@@ -343,7 +343,7 @@ export default function DontCloneMeTom() {
         {/* Disclaimer */}
         <section className="rounded-2xl border border-[#26324c] bg-[#141d2e] p-5 mb-6">
           <p className="text-xs font-semibold leading-6 text-[#94a3b8]">
-            <strong className="text-[#94a3b8]">Disclaimer:</strong> Don&apos;t Clone Me, Tom is an
+            <strong className="text-[#94a3b8]">Disclaimer:</strong> DontCloneMeTom.com is an
             independent dog-rescue awareness project. It is not affiliated with, sponsored by, or
             endorsed by Tom Brady, Colossal Biosciences, ViaGen Pets, the NFL, the New England
             Patriots, the Tampa Bay Buccaneers, or any related trademark owner. No celebrity
