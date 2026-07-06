@@ -173,7 +173,9 @@ export default function DontCloneMeTom() {
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base font-bold text-[#2DD4BF] sm:text-lg">
-            Good dogs looking for homes near you.
+            Good boys and girls near you
+            <br />
+            looking for good homes
           </p>
           <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
             Real, adoptable, and closer than you think.
