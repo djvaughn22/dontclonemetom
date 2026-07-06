@@ -1,5 +1,16 @@
 "use client";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CANONICAL SOURCE — Open Mirror satellite nav (Stage A of the reusable-
+// component plan, docs/openmirror-audit/04-reusable-component-plan.md).
+//
+// Edit ONLY here: hub repo → packages/openmirror-ui/OpenMirrorNav.tsx
+// Then run: scripts/sync-ui.sh (copies this file into every satellite repo,
+// overwriting the copies there — never edit the copies in site repos).
+//
+// The hub's own full-family menu is separate: src/components/OpenMirrorNav.tsx
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { useEffect, useRef, useState } from "react";
 
 type Item = { label: string; href: string; note?: string; blank?: boolean };
@@ -25,7 +36,7 @@ export default function OpenMirrorNav() {
   }, [open]);
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid #26324c", background: "rgba(12,12,12,0.95)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, borderBottom: "1px solid #26324c", background: "#0b1220" }}>
       <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 20px" }}>
         <a href="https://openmirrorllc.com" style={{ display: "inline-flex", alignItems: "baseline", gap: 8, fontSize: 16, fontWeight: 900, letterSpacing: "-0.01em", color: "#e8edf5", textDecoration: "none" }}>
           <span>Open Mirror LLC</span>
