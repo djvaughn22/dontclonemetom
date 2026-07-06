@@ -364,22 +364,6 @@ export default function DontCloneMeTom() {
           </p>
         </section>
 
-        {/* Footer back to hub */}
-        <div className="text-center">
-          <p className="mb-3 text-sm font-black tracking-tight">
-            <span className="text-[#94a3b8]">DontCloneMeTom</span>
-            <span className="text-[#2DD4BF]">.com</span>
-          </p>
-          <a
-            href="https://openmirrorllc.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-black uppercase tracking-[0.2em] text-[#94a3b8] hover:text-[#94a3b8] transition"
-          >
-            ← Back to Open Mirror LLC
-          </a>
-        </div>
-
       </div>
     </main>
   );

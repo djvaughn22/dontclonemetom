@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import OpenMirrorFooter from "./OpenMirrorFooter";
 
 export const metadata: Metadata = {
   title: "DontCloneMeTom.com — Rescue Dogs Are Already Here",
@@ -10,7 +11,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="antialiased">
-      <body>{children}</body>
+      <body>
+        {children}
+        <OpenMirrorFooter siteName="DontCloneMeTom.com" tagline="Rescue dogs are already here" />
+      </body>
     </html>
   );
 }
