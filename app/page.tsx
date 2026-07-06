@@ -59,7 +59,12 @@ function FindDogs() {
         const st = document.createElement("style");
         st.id = "dcmt-2col";
         st.textContent =
-          "@media(min-width:640px){.grid-col_result{flex:0 0 48% !important;max-width:48% !important;box-sizing:border-box}}";
+          "@media(min-width:640px){.grid-col_result{flex:0 0 48% !important;max-width:48% !important;box-sizing:border-box}}" +
+          // Filter dropdowns render white-on-white by default — force readable text.
+          ".multiselect-popup,.multiselect-popup-list,.multiselect-popup-list_single{background:#ffffff !important;}" +
+          ".multiselect-listItem,.multiselect-listItem *,.multiselect-popup-list *{color:#111827 !important;}" +
+          ".multiselect-listItem:hover,.multiselect-listItem[aria-selected=\"true\"]{background:#f1f5f9 !important;}" +
+          ".multiselect-field,.multiselect-field-selection,.multiselect-field-selection *,.multiselectLabel{color:#111827 !important;}";
         sr.appendChild(st);
       }
       if (sr || ++tries > 40) clearInterval(iv);
@@ -246,24 +251,62 @@ export default function DontCloneMeTom() {
           <h2 className="text-xl font-black text-[#e8edf5] mb-4">More ways to help.</h2>
           <div className="flex flex-col gap-3">
             {[
-              { label: "Find local shelters", href: "https://www.petfinder.com" },
-              { label: "Search adoptable dogs", href: "https://www.adoptapet.com" },
-              { label: "Support a rescue", href: "https://www.aspca.org/donate" },
               {
-                label: "Foster if you can",
-                href: "https://www.humanesociety.org/resources/how-foster-dog",
+                emoji: "🏠",
+                label: "Local shelters (St. Louis area)",
+                links: [
+                  { label: "Open Door Animal Sanctuary", href: "https://odas.org/" },
+                  { label: "APA Adoption Center", href: "https://apamo.org/" },
+                  { label: "Humane Society of Missouri", href: "https://hsmo.org/adopt/" },
+                ],
               },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-between rounded-xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-sm font-black text-[#e8edf5] hover:border-[#26324c] hover:text-[#5eead4] transition"
-              >
-                <span>{item.label}</span>
-                <span className="text-[#94a3b8]">→</span>
-              </a>
+              {
+                emoji: "🔎",
+                label: "Adoption agencies",
+                links: [
+                  { label: "Petfinder", href: "https://www.petfinder.com/" },
+                  { label: "Adopt-a-Pet", href: "https://www.adoptapet.com/" },
+                  { label: "ASPCA — Adopt a Pet", href: "https://www.aspca.org/adopt-pet" },
+                  { label: "Best Friends Animal Society", href: "https://bestfriends.org/" },
+                ],
+              },
+              {
+                emoji: "❤️",
+                label: "Support a pet",
+                links: [
+                  { label: "ASPCA — Donate", href: "https://www.aspca.org/donate" },
+                  { label: "Best Friends — Donate", href: "https://bestfriends.org/donate" },
+                  { label: "The Humane Society of the United States", href: "https://www.humanesociety.org/" },
+                ],
+              },
+              {
+                emoji: "🐾",
+                label: "Foster, if you can",
+                links: [
+                  { label: "How to foster a dog (Humane Society)", href: "https://www.humanesociety.org/resources/how-foster-dog" },
+                  { label: "Foster with Best Friends", href: "https://bestfriends.org/adopt-or-foster/foster" },
+                ],
+              },
+            ].map((cat) => (
+              <details key={cat.label} className="group rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5">
+                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-black text-[#e8edf5]">
+                  <span>{cat.emoji} {cat.label}</span>
+                  <span className="text-[#94a3b8] transition group-open:rotate-180">▾</span>
+                </summary>
+                <div className="mt-3 flex flex-col gap-2.5 border-t border-[#26324c] pt-3">
+                  {cat.links.map((l) => (
+                    <a
+                      key={l.href}
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold text-[#2DD4BF] transition hover:text-[#5eead4] hover:underline"
+                    >
+                      {l.label} →
+                    </a>
+                  ))}
+                </div>
+              </details>
             ))}
           </div>
           <p className="mt-4 text-xs font-semibold text-[#94a3b8]">
