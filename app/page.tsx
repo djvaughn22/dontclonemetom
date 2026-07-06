@@ -45,7 +45,7 @@ function FindDogs() {
   const [zip, setZip] = useState("63040");
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
-  const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=30`;
+  const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=50`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
   const openNearMe = () => window.open(petfinderUrl, "_blank", "noopener,noreferrer");
 
@@ -117,7 +117,7 @@ function FindDogs() {
         }}
       />
 
-      {/* Wider local searches (dogs only, within 30 miles of the typed ZIP). */}
+      {/* Wider local searches (dogs only, within 50 miles of the typed ZIP). */}
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <a
           href={petfinderUrl}
@@ -125,7 +125,7 @@ function FindDogs() {
           rel="noopener noreferrer"
           className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
         >
-          <span>More dogs within 30 mi (Petfinder)</span>
+          <span>More dogs within 50 mi (Petfinder)</span>
           <span className="text-[#94a3b8]">→</span>
         </a>
         <a
@@ -207,7 +207,7 @@ export default function DontCloneMeTom() {
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why these sources?</p>
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
-            <li>🐾 We send you to adoptable dogs <strong className="text-[#e8edf5]">within 30 miles of your ZIP</strong> on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> — both original adoption sources — so every dog is one you could actually go meet.</li>
+            <li>🐾 We send you to adoptable dogs <strong className="text-[#e8edf5]">within 50 miles of your ZIP</strong> on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> — both original adoption sources — so every dog is one you could actually go meet.</li>
             <li>🐾 Photos and details come from real rescue and shelter partners on those sites.</li>
             <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
           </ul>
