@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import OpenMirrorNav from "./OpenMirrorNav";
 
 // St. Louis-area rescue organizations (Petfinder org IDs). Scoping the live
 // widget to these keeps the dogs on the page local to the 63040 area — real
@@ -145,7 +144,6 @@ function FindDogs() {
 export default function DontCloneMeTom() {
   return (
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
-      <OpenMirrorNav />
       <div className="mx-auto max-w-3xl px-5 py-10">
 
         {/* Hero — the domain is the whole hook (…Tom.com) */}
