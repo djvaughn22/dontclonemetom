@@ -2,11 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-// St. Louis-area rescue organizations (Petfinder org IDs). Scoping the live
-// widget to these keeps the dogs on the page local to the 63040 area — real
-// adoptable faces, no API key required.
-const LOCAL_RESCUE_ORGS = ["MO519", "MO760", "MO654", "MO603", "MO652"];
-
 const shareLines = [
   "There’s a good dog near you looking for a home.",
   "Adopt if you can. Foster if you can. Share if you can.",
@@ -40,47 +35,55 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
+type Dog = {
+  id: string;
+  name: string;
+  breed: string;
+  age: string;
+  sex: string;
+  photo: string | null;
+  city: string;
+  distance: number | null;
+  url: string;
+};
+
 function FindDogs() {
   const [zip, setZip] = useState("63040");
+  const [dogs, setDogs] = useState<Dog[] | null>(null);
+  const [status, setStatus] = useState<"loading" | "ok" | "fallback">("loading");
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=50`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
   const openNearMe = () => window.open(petfinderUrl, "_blank", "noopener,noreferrer");
 
-  // Load Petfinder's widget script once, then style its shadow DOM (2-per-row on
-  // desktop; readable dropdowns). The widget below is scoped to local rescues.
+  // Live dogs near the typed ZIP (RescueGroups.org, 30-mile radius).
+  // Falls back to the search links below if the API is unavailable.
   useEffect(() => {
-    if (!document.querySelector("script[data-pet-scroller]")) {
-      const s = document.createElement("script");
-      s.src = "https://www.petfinder.com/pet-scroller.bundle.js";
-      s.async = true;
-      s.setAttribute("data-pet-scroller", "true");
-      document.body.appendChild(s);
-    }
-    let tries = 0;
-    const iv = setInterval(() => {
-      const el = document.querySelector("pet-scroller") as
-        | (HTMLElement & { shadowRoot: ShadowRoot | null })
-        | null;
-      const sr = el?.shadowRoot;
-      if (sr && !sr.getElementById("dcmt-2col")) {
-        const st = document.createElement("style");
-        st.id = "dcmt-2col";
-        st.textContent =
-          "@media(min-width:640px){.grid-col_result{flex:0 0 48% !important;max-width:48% !important;box-sizing:border-box}}" +
-          ".multiselect-popup,.multiselect-popup-list,.multiselect-popup-list_single{background:#ffffff !important;}" +
-          ".multiselect-popup,.multiselect-popup *,.multiselect-popup-list,.multiselect-popup-list *,.multiselect-listItem,.multiselect-listItem *{color:#111827 !important;}" +
-          ".multiselect-listItem:hover,.multiselect-listItem[aria-selected=\"true\"]{background:#f1f5f9 !important;}" +
-          ".multiselect-field,.multiselect-field-selection,.multiselect-field-selection *,.multiselectLabel{color:#111827 !important;}" +
-          ".pagination,.pagination .grid,.pagination .grid-col{overflow:visible !important;}" +
-          ".multiselect-popup{z-index:50 !important;}";
-        sr.appendChild(st);
-      }
-      if (sr || ++tries > 40) clearInterval(iv);
-    }, 500);
-    return () => clearInterval(iv);
-  }, []);
+    let dead = false;
+    setStatus("loading");
+    const t = setTimeout(() => {
+      fetch(`/api/adoptable-pets?zip=${clean}`)
+        .then((r) => r.json())
+        .then((j) => {
+          if (dead) return;
+          if (j?.dogs?.length) {
+            setDogs(j.dogs);
+            setStatus("ok");
+          } else {
+            setDogs(null);
+            setStatus("fallback");
+          }
+        })
+        .catch(() => {
+          if (!dead) setStatus("fallback");
+        });
+    }, 400);
+    return () => {
+      dead = true;
+      clearTimeout(t);
+    };
+  }, [clean]);
 
   return (
     <div>
@@ -104,17 +107,50 @@ function FindDogs() {
         </button>
       </div>
       <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
-        These are real adoptable dogs from <strong className="text-[#e8edf5]">St. Louis–area rescues</strong> — close to home. Type your ZIP to search dogs in your own area.
+        Real adoptable dogs <strong className="text-[#e8edf5]">within 30 miles of your ZIP</strong> — live from the rescues themselves. Tap a dog to meet them.
       </p>
 
-      {/* Live adoptable dogs, scoped to local rescue organizations (dogs only). */}
-      <div
-        className="mt-5 rounded-2xl bg-white p-1"
-        dangerouslySetInnerHTML={{
-          __html:
-            `<pet-scroller s3Url="https://dbw3zep4prcju.cloudfront.net/" apiBase="https://psl.petfinder.com/graphql" organization='${JSON.stringify(LOCAL_RESCUE_ORGS)}' status="adoptable" petfinderUrl="https://www.petfinder.com/" type='["dog"]' hideBreed="false" limit="24" petListTitle=""></pet-scroller>`,
-        }}
-      />
+      {/* Live adoptable dogs near the ZIP (dogs only). */}
+      {status === "loading" && (
+        <p className="mt-5 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
+          Fetching good dogs near {clean}…
+        </p>
+      )}
+      {status === "ok" && dogs && (
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {dogs.map((d) => (
+            <a
+              key={d.id}
+              href={d.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] transition hover:border-[#2DD4BF]"
+            >
+              {d.photo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={d.photo} alt={d.name} loading="lazy" className="h-36 w-full object-cover" />
+              ) : (
+                <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
+              )}
+              <div className="px-3 py-2.5">
+                <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
+                <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
+                <p className="mt-1 text-xs font-semibold text-[#94a3b8]">
+                  {[d.age, d.sex].filter(Boolean).join(" · ")}
+                  {d.distance !== null && (
+                    <span className="text-[#5eead4]"> · {Math.round(d.distance)} mi</span>
+                  )}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+      {status === "fallback" && (
+        <p className="mt-5 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
+          No dogs loaded for {clean} right now — use the searches below, every dog there is real and nearby.
+        </p>
+      )}
 
       {/* Wider local searches (dogs only, within 50 miles of the typed ZIP). */}
       <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
