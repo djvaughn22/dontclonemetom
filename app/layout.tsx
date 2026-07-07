@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <OpenMirrorNav site="DontCloneMeTom.com" />
         {children}
-        <OpenMirrorFooter siteName="DontCloneMeTom.com" tagline="Rescue dogs are already here" />
+        <OpenMirrorFooter siteName="DontCloneMeTom.com" tagline="Rescue dogs are already here" accent="#2DD4BF" />
       </body>
     </html>
   );
