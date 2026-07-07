@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
 
   const p = req.nextUrl.searchParams;
   const zip = /^\d{5}$/.test(p.get("zip") ?? "") ? (p.get("zip") as string) : "63040";
-  const miles = Math.min(100, Math.max(5, parseInt(p.get("miles") ?? "30", 10) || 30));
+  const miles = Math.min(250, Math.max(5, parseInt(p.get("miles") ?? "50", 10) || 50));
 
   const cacheKey = `${zip}:${miles}`;
   const hit = cache.get(cacheKey);
