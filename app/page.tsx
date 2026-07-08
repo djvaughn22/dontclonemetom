@@ -196,7 +196,7 @@ function FindDogs() {
             >
               {d.photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={d.photo} alt={d.name} loading="lazy" className="h-36 w-full object-cover" />
+                <img src={d.photo} alt={d.name} loading="lazy" className="h-40 w-full object-cover" style={{ objectPosition: "50% 25%" }} />
               ) : (
                 <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
               )}
@@ -233,7 +233,7 @@ function FindDogs() {
             <div className="relative">
               {detail.photos.length > 0 ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={detail.photos[photoIdx]} alt={detail.name} className="h-72 w-full object-cover" />
+                <img src={detail.photos[photoIdx]} alt={detail.name} className="h-80 w-full bg-[#0b1220] object-contain" />
               ) : (
                 <div className="flex h-72 w-full items-center justify-center bg-[#0b1220] text-6xl">🐶</div>
               )}
