@@ -60,6 +60,61 @@ const LOCAL_RESCUE_ORGS = ["MO519", "MO760", "MO654", "MO603", "MO652"];
 
 const RADIUS_OPTIONS = [50, 100, 250];
 
+// Share menu — CrossHeartPray-style capabilities: social, email, text, copy.
+// Opens a bottom sheet on phones, centered on desktop. No silent failures.
+function ShareMenu({ label, title, text, url, className }: {
+  label: string; title: string; text: string; url: string; className: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [canNative, setCanNative] = useState(false);
+  useEffect(() => { setCanNative(typeof navigator !== "undefined" && !!navigator.share); }, []);
+  const full = `${text}\n${url}`;
+  const enc = encodeURIComponent;
+  const itemCls = "flex items-center justify-center gap-2 rounded-xl border border-[#26324c] bg-[#0b1220] px-3 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF]";
+  async function copyLink() {
+    try { await navigator.clipboard.writeText(full); } catch {
+      const ta = document.createElement("textarea");
+      ta.value = full; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); ta.remove();
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)} className={className}>{label}</button>
+      {open && (
+        <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 p-4 sm:items-center" onClick={() => setOpen(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-[#26324c] bg-[#141d2e] p-4" onClick={(e) => e.stopPropagation()}>
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm font-black text-[#e8edf5]">{title}</p>
+              <button type="button" aria-label="Close" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0b1220] text-sm font-black text-[#94a3b8]">✕</button>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <a className={itemCls} href={`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`} target="_blank" rel="noopener noreferrer">📘 Facebook</a>
+              <a className={itemCls} href={`https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`} target="_blank" rel="noopener noreferrer">𝕏 Post</a>
+              <a className={itemCls} href={`https://wa.me/?text=${enc(full)}`} target="_blank" rel="noopener noreferrer">💚 WhatsApp</a>
+              <a className={itemCls} href={`sms:?&body=${enc(full)}`}>💬 Text</a>
+              <a className={itemCls} href={`mailto:?subject=${enc(title)}&body=${enc(full)}`}>✉️ Email</a>
+              <button type="button" className={itemCls} onClick={copyLink}>{copied ? "✅ Copied!" : "🔗 Copy link"}</button>
+            </div>
+            {canNative && (
+              <button
+                type="button"
+                className={`${itemCls} mt-2 w-full`}
+                onClick={() => { navigator.share({ title, text, url }).catch(() => {}); setOpen(false); }}
+              >
+                📲 More apps…
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function FindDogs() {
   const [zip, setZip] = useState("63040");
   const [miles, setMiles] = useState(50);
@@ -68,8 +123,25 @@ function FindDogs() {
   const [showMore, setShowMore] = useState(false);
   const [detail, setDetail] = useState<Dog | null>(null);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [pendingDog, setPendingDog] = useState<string | null>(null);
+
+  // Shared dog links land here: /?zip=63040&miles=50&dog=123 reopens that dog.
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const z = sp.get("zip"), m = sp.get("miles"), d = sp.get("dog");
+    if (z && /^\d{5}$/.test(z)) setZip(z);
+    if (m && RADIUS_OPTIONS.includes(parseInt(m, 10))) setMiles(parseInt(m, 10));
+    if (d) setPendingDog(d);
+  }, []);
+  useEffect(() => {
+    if (!pendingDog || !dogs) return;
+    const d = dogs.find((x) => x.id === pendingDog);
+    if (d) { setDetail(d); setPhotoIdx(0); }
+    setPendingDog(null);
+  }, [dogs, pendingDog]);
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
+  const origin = typeof window !== "undefined" ? window.location.origin : "https://dontclonemetom.com";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=${miles}`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
   const openNearMe = () => window.open(petfinderUrl, "_blank", "noopener,noreferrer");
@@ -301,15 +373,24 @@ function FindDogs() {
                     💌 Ask about {detail.name}
                   </a>
                 )}
-                <a
-                  href={detail.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
-                >
-                  <span>Visit {detail.org || "the rescue"}</span>
-                  <span className="text-[#94a3b8]">→</span>
-                </a>
+                <div className="grid grid-cols-2 gap-3">
+                  <ShareMenu
+                    label={`📣 Share ${detail.name}`}
+                    title={`Meet ${detail.name} 🐶`}
+                    text={`Meet ${detail.name} — ${detail.breed}, ${detail.distance !== null ? `${Math.round(detail.distance)} miles away ` : ""}with ${detail.org}. Real adoptable dog looking for a home!`}
+                    url={`${origin}/?zip=${clean}&miles=${miles}&dog=${detail.id}`}
+                    className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+                  />
+                  <a
+                    href={detail.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+                  >
+                    <span className="truncate">Visit {detail.org ? "the rescue" : "site"}</span>
+                    <span className="ml-2 text-[#94a3b8]">→</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -472,22 +553,13 @@ export default function DontCloneMeTom() {
           <p className="text-sm font-semibold leading-7 text-[#94a3b8] mb-5">
             Can&apos;t adopt right now? Sharing this helps a dog near someone else get noticed. That counts too.
           </p>
-          <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: "DontCloneMeTom.com",
-                  text: "Good dogs looking for homes near you — take a look.",
-                  url: window.location.href,
-                });
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-              }
-            }}
+          <ShareMenu
+            label="📣 Share"
+            title="DontCloneMeTom.com 🐶"
+            text="Good dogs looking for homes near you — real adoptable dogs, right on the page. Take a look:"
+            url="https://dontclonemetom.com"
             className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#2DD4BF] hover:border-[#2DD4BF] transition"
-          >
-            Share
-          </button>
+          />
         </section>
 
         {/* Shareable Lines */}
