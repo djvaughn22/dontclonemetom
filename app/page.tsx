@@ -45,6 +45,7 @@ type Dog = {
   city: string;
   distance: number | null;
   url: string;
+  org: string;
 };
 
 // St. Louis-area rescue organizations (Petfinder org IDs) for the optional
@@ -201,6 +202,11 @@ function FindDogs() {
                     <span className="text-[#5eead4]"> · {Math.round(d.distance)} mi</span>
                   )}
                 </p>
+                {d.org && (
+                  <p className="mt-0.5 truncate text-[11px] font-semibold text-[#94a3b8]">
+                    {d.org}
+                  </p>
+                )}
               </div>
             </a>
           ))}

@@ -13,6 +13,7 @@ type Dog = {
   city: string;
   distance: number | null;
   url: string;
+  org: string;
 };
 
 type RGResource = {
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      "https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=24&include=pictures,locations",
+      "https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=24&include=pictures,locations,orgs",
       {
         method: "POST",
         headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
@@ -63,6 +64,11 @@ export async function GET(req: NextRequest) {
       const pic = picRef ? (included.get(`pictures:${picRef.id}`) as Record<string, { url?: string }> | undefined) : undefined;
       const locRef = a.relationships?.locations?.data?.[0];
       const loc = locRef ? (included.get(`locations:${locRef.id}`) as Record<string, string> | undefined) : undefined;
+      const orgRef = a.relationships?.orgs?.data?.[0];
+      const org = orgRef ? (included.get(`orgs:${orgRef.id}`) as Record<string, string> | undefined) : undefined;
+      // Prefer the rescue's real website — the per-animal url points at the
+      // org's RescueGroups-hosted mini-site, which some rescues abandoned.
+      const orgUrl = typeof org?.url === "string" && org.url.startsWith("http") ? org.url : null;
       return {
         id: a.id,
         name: String(at.name ?? "Good dog"),
@@ -72,7 +78,8 @@ export async function GET(req: NextRequest) {
         photo: pic?.large?.url ?? pic?.small?.url ?? pic?.original?.url ?? null,
         city: loc?.citystate ?? "",
         distance: typeof at.distance === "number" ? at.distance : null,
-        url: String(at.url ?? `https://www.rescuegroups.org`),
+        url: orgUrl ?? String(at.url ?? "https://www.rescuegroups.org"),
+        org: String(org?.name ?? ""),
       };
     });
     dogs.sort((x, y) => (x.distance ?? 999) - (y.distance ?? 999));
