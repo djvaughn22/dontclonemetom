@@ -60,26 +60,134 @@ const LOCAL_RESCUE_ORGS = ["MO519", "MO760", "MO654", "MO603", "MO652"];
 
 const RADIUS_OPTIONS = [50, 100, 250];
 
-// Share menu — CrossHeartPray-style capabilities: social, email, text, copy.
-// Opens a bottom sheet on phones, centered on desktop. No silent failures.
-function ShareMenu({ label, title, text, url, className }: {
+// Share = copy-paste + a downloadable social image (square or portrait)
+// with the site link on it — CrossHeartPray-style, no app buttons.
+const CARD_BG = "#0b1220", CARD_PANEL = "#141d2e", CARD_TEXT = "#e8edf5",
+  CARD_SUB = "#94a3b8", CARD_ACCENT = "#2DD4BF", CARD_BORDER = "#26324c";
+
+function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number, maxLines: number) {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    const probe = cur ? `${cur} ${w}` : w;
+    if (ctx.measureText(probe).width <= maxWidth || !cur) cur = probe;
+    else { lines.push(cur); cur = w; if (lines.length === maxLines - 1) break; }
+  }
+  if (cur && lines.length < maxLines) lines.push(cur);
+  if (lines.length === maxLines && words.join(" ") !== lines.join(" ")) {
+    lines[maxLines - 1] = lines[maxLines - 1].replace(/\s+\S*$/, "") + "…";
+  }
+  return lines;
+}
+
+async function makeShareCard(kind: "square" | "portrait", o: {
+  photo: string | null; heading: string; lines: string[]; fileName: string;
+}) {
+  const W = 1080, H = kind === "square" ? 1080 : 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = CARD_BG;
+  ctx.fillRect(0, 0, W, H);
+
+  // photo (proxied same-origin) or a big friendly dog panel
+  const photoH = Math.round(H * (o.photo ? 0.56 : 0.34));
+  let drewPhoto = false;
+  if (o.photo) {
+    try {
+      const img = await new Promise<HTMLImageElement>((ok, err) => {
+        const i = new Image();
+        i.onload = () => ok(i);
+        i.onerror = err;
+        i.src = `/api/photo?u=${encodeURIComponent(o.photo!)}`;
+      });
+      const scale = Math.max(W / img.width, photoH / img.height);
+      const sw = W / scale, sh = photoH / scale;
+      ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) * 0.25, sw, sh, 0, 0, W, photoH);
+      drewPhoto = true;
+    } catch { /* fall through to panel */ }
+  }
+  if (!drewPhoto) {
+    ctx.fillStyle = CARD_PANEL;
+    ctx.fillRect(0, 0, W, photoH);
+    ctx.font = "220px serif";
+    ctx.textAlign = "center";
+    ctx.fillText("🐶", W / 2, photoH / 2 + 80);
+  }
+
+  // text block
+  ctx.textAlign = "left";
+  let y = photoH + 92;
+  ctx.fillStyle = CARD_TEXT;
+  ctx.font = "900 68px system-ui, sans-serif";
+  for (const line of wrapLines(ctx, o.heading, W - 128, 2)) {
+    ctx.fillText(line, 64, y);
+    y += 80;
+  }
+  y += 8;
+  ctx.fillStyle = CARD_SUB;
+  ctx.font = "600 40px system-ui, sans-serif";
+  for (const raw of o.lines) {
+    for (const line of wrapLines(ctx, raw, W - 128, 2)) {
+      ctx.fillText(line, 64, y);
+      y += 54;
+    }
+    y += 6;
+  }
+
+  // footer with the site link
+  const fy = H - 150;
+  ctx.strokeStyle = CARD_BORDER;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(64, fy); ctx.lineTo(W - 64, fy); ctx.stroke();
+  ctx.fillStyle = CARD_ACCENT;
+  ctx.font = "900 54px system-ui, sans-serif";
+  ctx.fillText("🐶 DontCloneMeTom.com", 64, fy + 74);
+  ctx.fillStyle = CARD_SUB;
+  ctx.font = "700 30px system-ui, sans-serif";
+  ctx.fillText("Real adoptable dogs near you — adopt, foster, share.", 64, fy + 122);
+
+  const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/png"));
+  if (!blob) throw new Error("card failed");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${o.fileName}-${kind}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+async function copyText(value: string) {
+  try { await navigator.clipboard.writeText(value); } catch {
+    const ta = document.createElement("textarea");
+    ta.value = value; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }
+}
+
+function ShareMenu({ label, title, text, url, className, photo = null, imgLines = [] }: {
   label: string; title: string; text: string; url: string; className: string;
+  photo?: string | null; imgLines?: string[];
 }) {
   const [open, setOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [canNative, setCanNative] = useState(false);
-  useEffect(() => { setCanNative(typeof navigator !== "undefined" && !!navigator.share); }, []);
-  const full = `${text}\n${url}`;
-  const enc = encodeURIComponent;
-  const itemCls = "flex items-center justify-center gap-2 rounded-xl border border-[#26324c] bg-[#0b1220] px-3 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF]";
-  async function copyLink() {
-    try { await navigator.clipboard.writeText(full); } catch {
-      const ta = document.createElement("textarea");
-      ta.value = full; document.body.appendChild(ta); ta.select();
-      document.execCommand("copy"); ta.remove();
+  const [flash, setFlash] = useState("");
+  const caption = `${text}\n${url}`;
+  const fileName = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48) || "dontclonemetom";
+  const itemCls = "flex w-full items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF]";
+  function note(msg: string) {
+    setFlash(msg);
+    setTimeout(() => setFlash(""), 2600);
+  }
+  async function saveImage(kind: "square" | "portrait") {
+    try {
+      await makeShareCard(kind, { photo, heading: title.replace(/\s*🐶\s*$/, ""), lines: imgLines, fileName });
+      await copyText(caption);
+      note("✅ Image saved + caption copied — paste both anywhere.");
+    } catch {
+      note("Couldn't build the image — Copy still works.");
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
   }
   return (
     <>
@@ -87,27 +195,25 @@ function ShareMenu({ label, title, text, url, className }: {
       {open && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70 p-4 sm:items-center" onClick={() => setOpen(false)}>
           <div className="w-full max-w-sm rounded-2xl border border-[#26324c] bg-[#141d2e] p-4" onClick={(e) => e.stopPropagation()}>
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-1 flex items-center justify-between">
               <p className="text-sm font-black text-[#e8edf5]">{title}</p>
               <button type="button" aria-label="Close" onClick={() => setOpen(false)} className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0b1220] text-sm font-black text-[#94a3b8]">✕</button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <a className={itemCls} href={`https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`} target="_blank" rel="noopener noreferrer">📘 Facebook</a>
-              <a className={itemCls} href={`https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`} target="_blank" rel="noopener noreferrer">𝕏 Post</a>
-              <a className={itemCls} href={`https://wa.me/?text=${enc(full)}`} target="_blank" rel="noopener noreferrer">💚 WhatsApp</a>
-              <a className={itemCls} href={`sms:?&body=${enc(full)}`}>💬 Text</a>
-              <a className={itemCls} href={`mailto:?subject=${enc(title)}&body=${enc(full)}`}>✉️ Email</a>
-              <button type="button" className={itemCls} onClick={copyLink}>{copied ? "✅ Copied!" : "🔗 Copy link"}</button>
-            </div>
-            {canNative && (
-              <button
-                type="button"
-                className={`${itemCls} mt-2 w-full`}
-                onClick={() => { navigator.share({ title, text, url }).catch(() => {}); setOpen(false); }}
-              >
-                📲 More apps…
+            <p className="mb-3 text-xs font-semibold text-[#94a3b8]">
+              Save an image for any social app — the caption with the link copies itself. Paste both.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button type="button" className={itemCls} onClick={async () => { await copyText(caption); note("✅ Copied — paste anywhere."); }}>
+                <span>🔗 Copy text + link</span><span className="text-[#94a3b8]">→</span>
               </button>
-            )}
+              <button type="button" className={itemCls} onClick={() => saveImage("square")}>
+                <span>⬜ Square image <span className="text-[#94a3b8]">1080×1080</span></span><span className="text-[#94a3b8]">↓</span>
+              </button>
+              <button type="button" className={itemCls} onClick={() => saveImage("portrait")}>
+                <span>📱 Portrait image <span className="text-[#94a3b8]">1080×1350</span></span><span className="text-[#94a3b8]">↓</span>
+              </button>
+            </div>
+            {flash && <p className="mt-3 text-xs font-black text-[#5eead4]">{flash}</p>}
           </div>
         </div>
       )}
@@ -379,6 +485,8 @@ function FindDogs() {
                     title={`Meet ${detail.name} 🐶`}
                     text={`Meet ${detail.name} — ${detail.breed}, ${detail.distance !== null ? `${Math.round(detail.distance)} miles away ` : ""}with ${detail.org}. Real adoptable dog looking for a home!`}
                     url={`${origin}/?zip=${clean}&miles=${miles}&dog=${detail.id}`}
+                    photo={detail.photo}
+                    imgLines={[detail.breed, [detail.age, detail.sex].filter(Boolean).join(" · ") + (detail.org ? ` · ${detail.org}` : "")]}
                     className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                   />
                   <a
@@ -555,9 +663,10 @@ export default function DontCloneMeTom() {
           </p>
           <ShareMenu
             label="📣 Share"
-            title="DontCloneMeTom.com 🐶"
+            title="Good dogs near you 🐶"
             text="Good dogs looking for homes near you — real adoptable dogs, right on the page. Take a look:"
             url="https://dontclonemetom.com"
+            imgLines={["Real adoptable dogs by ZIP, right on the page.", "Adopt. Foster. Share. Don't clone."]}
             className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#2DD4BF] hover:border-[#2DD4BF] transition"
           />
         </section>
