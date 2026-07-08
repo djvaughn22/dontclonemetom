@@ -9,12 +9,34 @@ type Dog = {
   breed: string;
   age: string;
   sex: string;
+  size: string;
   photo: string | null;
+  photos: string[];
   city: string;
   distance: number | null;
   url: string;
   org: string;
+  orgCity: string;
+  email: string | null;
+  desc: string;
+  facts: string[];
 };
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+\n/g, "\n")
+    .replace(/[ \t]{2,}/g, " ");
+}
+
+function flag(v: unknown, yes: string, no: string): string | null {
+  return v === true ? yes : v === false ? no : null;
+}
 
 type RGResource = {
   type: string;
@@ -60,8 +82,13 @@ export async function GET(req: NextRequest) {
 
     const dogs: Dog[] = (json.data ?? []).map((a) => {
       const at = a.attributes;
-      const picRef = a.relationships?.pictures?.data?.[0];
-      const pic = picRef ? (included.get(`pictures:${picRef.id}`) as Record<string, { url?: string }> | undefined) : undefined;
+      const pics = (a.relationships?.pictures?.data ?? [])
+        .map((ref) => included.get(`pictures:${ref.id}`) as Record<string, { url?: string }> & { order?: number } | undefined)
+        .filter(Boolean) as (Record<string, { url?: string }> & { order?: number })[];
+      pics.sort((x, y) => (Number(x.order) || 0) - (Number(y.order) || 0));
+      const photos = pics
+        .map((p) => p.large?.url ?? p.small?.url ?? p.original?.url)
+        .filter((u): u is string => typeof u === "string");
       const locRef = a.relationships?.locations?.data?.[0];
       const loc = locRef ? (included.get(`locations:${locRef.id}`) as Record<string, string> | undefined) : undefined;
       const orgRef = a.relationships?.orgs?.data?.[0];
@@ -69,17 +96,29 @@ export async function GET(req: NextRequest) {
       // Prefer the rescue's real website — the per-animal url points at the
       // org's RescueGroups-hosted mini-site, which some rescues abandoned.
       const orgUrl = typeof org?.url === "string" && org.url.startsWith("http") ? org.url : null;
+      const email = typeof org?.email === "string" && org.email.includes("@") ? org.email : null;
       return {
         id: a.id,
         name: String(at.name ?? "Good dog"),
         breed: String(at.breedString ?? "Mixed"),
-        age: String(at.ageGroup ?? ""),
+        age: String(at.ageString ?? at.ageGroup ?? ""),
         sex: String(at.sex ?? ""),
-        photo: pic?.large?.url ?? pic?.small?.url ?? pic?.original?.url ?? null,
+        size: String(at.sizeGroup ?? ""),
+        photo: photos[0] ?? null,
+        photos,
         city: loc?.citystate ?? "",
         distance: typeof at.distance === "number" ? at.distance : null,
         url: orgUrl ?? String(at.url ?? "https://www.rescuegroups.org"),
         org: String(org?.name ?? ""),
+        orgCity: org?.citystate ?? "",
+        email,
+        desc: decodeEntities(String(at.descriptionText ?? "")).trim(),
+        facts: [
+          flag(at.isHousetrained, "Housetrained", "Not housetrained yet"),
+          flag(at.isDogsOk, "Good with dogs", "Prefers to be the only dog"),
+          flag(at.isCatsOk, "Good with cats", "No cats, please"),
+          flag(at.isKidsOk, "Good with kids", "Better without young kids"),
+        ].filter((f): f is string => f !== null),
       };
     });
     dogs.sort((x, y) => (x.distance ?? 999) - (y.distance ?? 999));

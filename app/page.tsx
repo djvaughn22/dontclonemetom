@@ -41,11 +41,17 @@ type Dog = {
   breed: string;
   age: string;
   sex: string;
+  size: string;
   photo: string | null;
+  photos: string[];
   city: string;
   distance: number | null;
   url: string;
   org: string;
+  orgCity: string;
+  email: string | null;
+  desc: string;
+  facts: string[];
 };
 
 // St. Louis-area rescue organizations (Petfinder org IDs) for the optional
@@ -60,6 +66,8 @@ function FindDogs() {
   const [dogs, setDogs] = useState<Dog[] | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "fallback">("loading");
   const [showMore, setShowMore] = useState(false);
+  const [detail, setDetail] = useState<Dog | null>(null);
+  const [photoIdx, setPhotoIdx] = useState(0);
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=${miles}`;
@@ -180,12 +188,11 @@ function FindDogs() {
       {status === "ok" && dogs && (
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {dogs.map((d) => (
-            <a
+            <button
               key={d.id}
-              href={d.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] transition hover:border-[#2DD4BF]"
+              type="button"
+              onClick={() => { setDetail(d); setPhotoIdx(0); }}
+              className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]"
             >
               {d.photo ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -197,7 +204,7 @@ function FindDogs() {
                 <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
                 <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
                 <p className="mt-1 text-xs font-semibold text-[#94a3b8]">
-                  {[d.age, d.sex].filter(Boolean).join(" · ")}
+                  {[d.age.split(" ").slice(0, 2).join(" "), d.sex].filter(Boolean).join(" · ")}
                   {d.distance !== null && (
                     <span className="text-[#5eead4]"> · {Math.round(d.distance)} mi</span>
                   )}
@@ -208,8 +215,104 @@ function FindDogs() {
                   </p>
                 )}
               </div>
-            </a>
+            </button>
           ))}
+        </div>
+      )}
+
+      {/* In-page dog detail — meet them without leaving tom.com */}
+      {detail && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+          onClick={() => setDetail(null)}
+        >
+          <div
+            className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#26324c] bg-[#141d2e]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              {detail.photos.length > 0 ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={detail.photos[photoIdx]} alt={detail.name} className="h-72 w-full object-cover" />
+              ) : (
+                <div className="flex h-72 w-full items-center justify-center bg-[#0b1220] text-6xl">🐶</div>
+              )}
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={() => setDetail(null)}
+                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+              >
+                ✕
+              </button>
+              {detail.photos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Previous photo"
+                    onClick={() => setPhotoIdx((photoIdx + detail.photos.length - 1) % detail.photos.length)}
+                    className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Next photo"
+                    onClick={() => setPhotoIdx((photoIdx + 1) % detail.photos.length)}
+                    className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+                  >
+                    ›
+                  </button>
+                  <span className="absolute bottom-3 right-3 rounded-full bg-black/60 px-2.5 py-1 text-xs font-bold text-white">
+                    {photoIdx + 1}/{detail.photos.length}
+                  </span>
+                </>
+              )}
+            </div>
+            <div className="p-5">
+              <h3 className="text-2xl font-black text-[#e8edf5]">{detail.name}</h3>
+              <p className="mt-1 text-sm font-semibold text-[#94a3b8]">
+                {detail.breed}
+              </p>
+              <p className="mt-1 text-xs font-semibold text-[#94a3b8]">
+                {detail.org}{detail.orgCity ? ` · ${detail.orgCity}` : ""}
+                {detail.distance !== null && (
+                  <span className="text-[#5eead4]"> · {Math.round(detail.distance)} mi away</span>
+                )}
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {[detail.age, detail.sex, detail.size, ...detail.facts].filter(Boolean).map((f) => (
+                  <span key={f} className="rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-xs font-bold text-[#e8edf5]">
+                    {f}
+                  </span>
+                ))}
+              </div>
+              {detail.desc && (
+                <p className="mt-4 whitespace-pre-line text-sm font-medium leading-6 text-[#94a3b8]">
+                  {detail.desc}
+                </p>
+              )}
+              <div className="mt-5 flex flex-col gap-3">
+                {detail.email && (
+                  <a
+                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on DontCloneMeTom.com and would love to learn more!\n\nThank you!`)}`}
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
+                  >
+                    💌 Ask about {detail.name}
+                  </a>
+                )}
+                <a
+                  href={detail.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+                >
+                  <span>Visit {detail.org || "the rescue"}</span>
+                  <span className="text-[#94a3b8]">→</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       )}
       {status === "fallback" && (
