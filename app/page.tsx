@@ -340,15 +340,19 @@ function FindDogs() {
         />
       )}
 
-      {/* Even more, on the original sources (honors the ZIP + radius above). */}
-      <div className="mt-4 flex flex-col gap-3">
+      {/* Still looking? Two more national networks (honor the ZIP + radius). */}
+      <p className="mb-2 mt-5 text-xs font-black uppercase tracking-[0.12em] text-[#94a3b8]">
+        Still looking? Two more big adoption networks:
+      </p>
+      <div className="grid grid-cols-2 gap-3">
         <a
           href={petfinderUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
+          className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
         >
-          🐶 Adopt a dog — even more within {miles} mi →
+          <span>Petfinder</span>
+          <span className="text-[#94a3b8]">→</span>
         </a>
         <a
           href={adoptapetUrl}
@@ -356,7 +360,7 @@ function FindDogs() {
           rel="noopener noreferrer"
           className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
         >
-          <span>Dogs near you (Adopt-a-Pet)</span>
+          <span>Adopt-a-Pet</span>
           <span className="text-[#94a3b8]">→</span>
         </a>
       </div>
