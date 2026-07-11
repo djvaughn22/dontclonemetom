@@ -637,6 +637,7 @@ export default function DontCloneMeTom() {
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
             <li>🐾 We send you to adoptable dogs <strong className="text-[#e8edf5]">within 50, 100, or 250 miles of your ZIP</strong> — you pick — on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong>, both original adoption sources, so every dog is one you could actually go meet.</li>
             <li>🐾 Photos and details come from real rescue and shelter partners on those sites.</li>
+            <li>🐾 The live dog cards come from <strong className="text-[#e8edf5]">RescueGroups.org</strong>. Each card links to that dog&apos;s own listing when the rescue publishes one; some rescues don&apos;t, so those cards link to the rescue&apos;s adoptable-dogs page or website instead.</li>
             <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
           </ul>
           <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share. Don&apos;t clone.</p>
