@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const res = await fetch(
-      "https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=24&include=pictures,locations,orgs",
+      "https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=222&include=pictures,locations,orgs",
       {
         method: "POST",
         headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
