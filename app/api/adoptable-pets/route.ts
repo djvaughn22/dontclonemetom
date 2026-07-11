@@ -93,9 +93,13 @@ export async function GET(req: NextRequest) {
       const loc = locRef ? (included.get(`locations:${locRef.id}`) as Record<string, string> | undefined) : undefined;
       const orgRef = a.relationships?.orgs?.data?.[0];
       const org = orgRef ? (included.get(`orgs:${orgRef.id}`) as Record<string, string> | undefined) : undefined;
-      // Prefer the rescue's real website — the per-animal url points at the
-      // org's RescueGroups-hosted mini-site, which some rescues abandoned.
-      const orgUrl = typeof org?.url === "string" && org.url.startsWith("http") ? org.url : null;
+      // Link to this dog's own listing page. Not every animal record has one
+      // (only rescues with a RescueGroups mini-site), so fall back to the
+      // rescue's adoptable-dogs page, then its homepage.
+      const httpUrl = (v: unknown) =>
+        typeof v === "string" && v.startsWith("http") ? v : null;
+      const dogUrl = httpUrl(at.url);
+      const orgUrl = httpUrl(org?.adoptionUrl) ?? httpUrl(org?.url);
       const email = typeof org?.email === "string" && org.email.includes("@") ? org.email : null;
       return {
         id: a.id,
@@ -108,7 +112,7 @@ export async function GET(req: NextRequest) {
         photos,
         city: loc?.citystate ?? "",
         distance: typeof at.distance === "number" ? at.distance : null,
-        url: orgUrl ?? String(at.url ?? "https://www.rescuegroups.org"),
+        url: dogUrl ?? orgUrl ?? "https://www.rescuegroups.org",
         org: String(org?.name ?? ""),
         orgCity: org?.citystate ?? "",
         email,
