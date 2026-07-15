@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import DogShareActions from "../components/DogShareActions";
 import { buildDogOfTheDay, dogCityLabel } from "../lib/dogOfTheDay";
 import { chicagoDateKey } from "../lib/dailySocialCore";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -44,12 +45,12 @@ export default async function TodayPage() {
           Today&apos;s dog can&apos;t be loaded right now ({unavailableReason}).
           The adoptable dogs near you are still one search away.
         </p>
-        <a
+        <Link
           href="/"
           className="mt-8 inline-flex items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-3 font-black text-[#0b1220]"
         >
           Meet adoptable dogs near you →
-        </a>
+        </Link>
       </main>
     );
   }
@@ -104,9 +105,9 @@ export default async function TodayPage() {
         <a href={post.pagePath} className="font-bold text-[#2DD4BF]">
           {dog.name}&apos;s permanent page →
         </a>
-        <a href="/" className="font-bold text-[#2DD4BF]">
+        <Link href="/" className="font-bold text-[#2DD4BF]">
           Find more adoptable dogs near you →
-        </a>
+        </Link>
         <p className="max-w-md text-xs font-semibold leading-5 text-[#94a3b8]">
           A new dog is featured every day at midnight Central Time. This page
           always matches the day&apos;s Instagram post.

@@ -235,6 +235,7 @@ function FindDogs() {
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
     const z = sp.get("zip"), m = sp.get("miles"), d = sp.get("dog");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- URL params are client-only; read after mount so hydration matches
     if (z && /^\d{5}$/.test(z)) setZip(z);
     if (m && RADIUS_OPTIONS.includes(parseInt(m, 10))) setMiles(parseInt(m, 10));
     if (d) setPendingDog(d);
@@ -242,6 +243,7 @@ function FindDogs() {
   useEffect(() => {
     if (!pendingDog || !dogs) return;
     const d = dogs.find((x) => x.id === pendingDog);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- apply the pending deep-linked dog once the list arrives
     if (d) { setDetail(d); setPhotoIdx(0); }
     setPendingDog(null);
   }, [dogs, pendingDog]);
@@ -256,6 +258,7 @@ function FindDogs() {
   // Falls back to the search links below if the API is unavailable.
   useEffect(() => {
     let dead = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch effect: show the loading state for the request this effect starts
     setStatus("loading");
     const t = setTimeout(() => {
       fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`)

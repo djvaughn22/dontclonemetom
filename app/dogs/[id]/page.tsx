@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import DogShareActions from "../../components/DogShareActions";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -43,12 +44,12 @@ export default async function DogPage({ params }: PageProps) {
             ? "Good news might be the reason — many dogs leave the listings because they found a home. The listing for this dog is no longer available from the rescue."
             : `We couldn't reach the adoption listings (${reason ?? "unknown"}). Please try again soon.`}
         </p>
-        <a
+        <Link
           href="/"
           className="mt-8 inline-flex items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-3 font-black text-[#0b1220]"
         >
           Meet more adoptable dogs near you →
-        </a>
+        </Link>
       </main>
     );
   }
@@ -118,9 +119,9 @@ export default async function DogPage({ params }: PageProps) {
         campaign and is not affiliated with the rescue or RescueGroups.org.
       </p>
 
-      <a href="/" className="mt-6 inline-block font-bold text-[#2DD4BF]">
+      <Link href="/" className="mt-6 inline-block font-bold text-[#2DD4BF]">
         ← Find more adoptable dogs near you
-      </a>
+      </Link>
     </main>
   );
 }
