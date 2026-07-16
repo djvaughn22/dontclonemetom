@@ -7,8 +7,8 @@ import Script from "next/script";
 export const metadata: Metadata = {
   metadataBase: new URL("https://dontclonemetom.com"),
   title: {
-    default: "DontCloneMeTom.com — Rescue Dogs Are Already Here",
-    template: "%s",
+    default: "DontCloneMeTom",
+    template: "%s | DontCloneMeTom",
   },
   description:
     "DontCloneMeTom.com — a rescue-first campaign reminding the world that original dogs are waiting for homes today. Independent, unaffiliated, and tail-wagging.",
