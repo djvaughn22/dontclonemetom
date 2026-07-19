@@ -3,3 +3,7 @@ node_modules
 .vercel
 .microsurgery-backups/
 .env*
+
+# local agent tooling + build cache
+.claude/
+*.tsbuildinfo
