@@ -34,7 +34,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html suppressHydrationWarning lang="en" className="antialiased">
       <body>
-        <OpenMirrorNav site="DontCloneMeTom.com" />
+        <OpenMirrorNav
+          site="DontCloneMeTom.com"
+          accent="#2DD4BF"
+          links={[
+            { emoji: "🐶", name: "Meet the Dogs", href: "/" },
+            { emoji: "🌅", name: "Dog of the Day", href: "/today" },
+            { emoji: "ℹ️", name: "About DontCloneMeTom", href: "/about" },
+          ]}
+        />
         {children}
         <OpenMirrorFooter siteName="DontCloneMeTom.com" tagline="Rescue dogs are already here" accent="#2DD4BF" />
         <Script
