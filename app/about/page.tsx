@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "About DontCloneMeTom",
   description:
-    "A joke about a cloned dog that gets real dogs adopted. Real adoptable dogs, right on the page — adopt, foster, share.",
+    "A rescue-first campaign inspired by a cloned-dog headline. Meet real adoptable dogs already waiting for homes.",
 };
 
 const A = "#2DD4BF";
@@ -15,31 +15,57 @@ export default function AboutPage() {
         <h1 style={{ fontSize: 26, fontWeight: 900, margin: "0 0 12px" }}>
           About DontCloneMeTom<span style={{ color: A }}>.com</span>
         </h1>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 16px" }}>
+          DontCloneMeTom.com turns attention from cloning one dog toward helping the real dogs
+          already waiting for homes.
+        </p>
+        <p style={{ background: "#141d2e", border: `1px solid ${A}44`, borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, fontStyle: "italic", margin: "0 0 16px" }}>
+          &ldquo;Don&rsquo;t clone me, Tom. I&rsquo;m already here. I don&rsquo;t need a double.
+          I need a home.&rdquo;
+        </p>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 16px" }}>
+          The name speaks from a rescue dog&rsquo;s point of view. The project was inspired by
+          the public story about Tom Brady&rsquo;s cloned dog. It is not about a dog named Tom,
+          and it is not an attack on Tom Brady — it is a rescue-first invitation to adopt,
+          foster, or help a dog get seen.
+        </p>
         <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 28px" }}>
-          It started as a joke about cloning a very good dog named Tom. It became a simple
-          rescue page: real adoptable dogs, right here, looking for homes. Rescue first.
+          Isaiah, a rescue dog who once faced a kill shelter, is the face of the project.
         </p>
 
         <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>What you can do here</h2>
         <ul style={{ fontSize: 15, lineHeight: 1.8, color: "#94a3b8", margin: "0 0 28px", paddingLeft: 18 }}>
-          <li>Meet real adoptable dogs from rescue organizations, right on the page.</li>
+          <li>Find real adoptable dogs near your ZIP code.</li>
+          <li>Visit the rescue organization handling each adoption.</li>
           <li>See the Dog of the Day.</li>
-          <li>Search adoptable dogs near your own ZIP code.</li>
-          <li>Share a dog with someone who has room on the couch.</li>
+          <li>Share a dog — or the project — with someone who may be able to help.</li>
         </ul>
 
-        <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>The honest part</h2>
-        <p style={{ background: "#141d2e", border: "1px solid #26324c", borderRadius: 14, padding: "14px 16px", fontSize: 15, lineHeight: 1.65, margin: "0 0 28px" }}>
-          Free to use, no account, nothing saved. Dog listings come from the rescue
-          organizations themselves — adoption always happens with the rescue, not here.
+        <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>How it works</h2>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 12px" }}>
+          DontCloneMeTom does not perform adoptions. Dog listings come from rescue organizations
+          and adoption networks (RescueGroups.org and Petfinder), and the rescue or shelter makes
+          every adoption decision.
+        </p>
+        <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 28px" }}>
+          No account. The ZIP code you type is used only to run the dog search — this site
+          doesn&rsquo;t keep it. Your light-or-dark choice is saved on your device.
         </p>
 
-        <p style={{ fontSize: 13, lineHeight: 1.7, color: "#64748b", margin: 0 }}>
-          DontCloneMeTom is an{" "}
-          <a href="https://openmirrorllc.com" style={{ color: A, textDecoration: "none" }}>
-            Open Mirror LLC
-          </a>{" "}
-          project.
+        <a
+          href="/"
+          style={{ display: "inline-block", background: A, color: "#06231e", borderRadius: 50, padding: "13px 26px", fontSize: 15, fontWeight: 900, textDecoration: "none", marginBottom: 28 }}
+        >
+          🐶 Meet adoptable dogs
+        </a>
+
+        <p style={{ fontSize: 12.5, lineHeight: 1.7, color: "#64748b", margin: 0 }}>
+          DontCloneMeTom is an independent dog-rescue awareness project by{" "}
+          <a href="https://openmirrorllc.com" style={{ color: A, textDecoration: "none" }}>Open Mirror LLC</a>.
+          It is not affiliated with, sponsored by, or endorsed by Tom Brady, Colossal
+          Biosciences, ViaGen Pets, the NFL, the New England Patriots, the Tampa Bay Buccaneers,
+          or any related trademark owner. The full statement is on the{" "}
+          <a href="/" style={{ color: "#94a3b8" }}>home page</a>.
         </p>
       </div>
     </main>
