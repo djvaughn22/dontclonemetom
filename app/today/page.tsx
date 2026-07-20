@@ -96,6 +96,7 @@ export default async function TodayPage() {
             cardPath={post.imagePath}
             cardFileName={post.imageFileName}
             adoptionUrl={dog.url}
+            isOwnListing={dog.profileUrl !== null}
             viewEvent="dcmt_today_viewed"
           />
         </div>

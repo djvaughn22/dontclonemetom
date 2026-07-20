@@ -27,6 +27,8 @@ function dog(overrides: Partial<Dog>): Dog {
     photos: ["https://cdn.rescuegroups.org/billy.jpg"],
     city: "Wildwood, MO",
     distance: 3,
+    profileUrl: "https://rescue.example.org/billy",
+    orgUrl: "https://rescue.example.org/",
     url: "https://rescue.example.org/billy",
     org: "Wildwood Rescue",
     orgCity: "Wildwood, MO",

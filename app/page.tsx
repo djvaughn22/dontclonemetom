@@ -46,6 +46,8 @@ type Dog = {
   photos: string[];
   city: string;
   distance: number | null;
+  profileUrl: string | null;
+  orgUrl: string | null;
   url: string;
   org: string;
   orgCity: string;
@@ -492,15 +494,18 @@ function FindDogs() {
                     imgLines={[detail.breed, [detail.age, detail.sex].filter(Boolean).join(" · ") + (detail.org ? ` · ${detail.org}` : "")]}
                     className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                   />
-                  <a
-                    href={detail.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
-                  >
-                    <span className="truncate">{detail.url.includes("AnimalID=") ? `${detail.name}’s listing` : "Visit the rescue"}</span>
-                    <span className="ml-2 text-[#94a3b8]">→</span>
-                  </a>
+                  {detail.url && (
+                    <a
+                      href={detail.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={detail.profileUrl ? `Open ${detail.name}’s adoption listing` : `Visit ${detail.org || "the rescue"}’s website`}
+                      className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
+                    >
+                      <span className="truncate">{detail.profileUrl ? `${detail.name}’s listing` : "Visit the rescue"}</span>
+                      <span className="ml-2 text-[#94a3b8]">→</span>
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

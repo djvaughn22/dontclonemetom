@@ -109,6 +109,7 @@ export default async function DogPage({ params }: PageProps) {
           cardPath={`/api/social/dog-card/${dog.id}.png`}
           cardFileName={`dontclonemetom-${dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-card.png`}
           adoptionUrl={dog.url}
+          isOwnListing={dog.profileUrl !== null}
           viewEvent="dcmt_dog_viewed"
         />
       </div>

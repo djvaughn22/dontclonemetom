@@ -11,6 +11,10 @@ type DogShareActionsProps = {
   cardPath: string; // site-relative card PNG path
   cardFileName: string;
   adoptionUrl: string;
+  // True when adoptionUrl is this dog's own listing page; false when it is
+  // the rescue's site (fallback) — the button must never claim a dog-specific
+  // listing it doesn't open.
+  isOwnListing: boolean;
   viewEvent: string; // GA page-view event, e.g. "dcmt_today_viewed"
 };
 
@@ -26,6 +30,7 @@ export default function DogShareActions({
   cardPath,
   cardFileName,
   adoptionUrl,
+  isOwnListing,
   viewEvent,
 }: DogShareActionsProps) {
   const [copied, setCopied] = useState<string | null>(null);
@@ -74,17 +79,20 @@ export default function DogShareActions({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-2">
-        <a
-          href={adoptionUrl}
-          target="_blank"
-          rel="noreferrer"
-          onClick={() => track("dcmt_adoption_listing_opened", { dog_id: dogId })}
-          className="inline-flex items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-2.5 text-sm font-black text-[#0b1220] transition hover:opacity-90"
-        >
-          Open the adoption listing →
-        </a>
-      </div>
+      {adoptionUrl && (
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={adoptionUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={isOwnListing ? `Open ${dogName}’s adoption listing` : "Visit the rescue that listed this dog"}
+            onClick={() => track("dcmt_adoption_listing_opened", { dog_id: dogId })}
+            className="inline-flex items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-2.5 text-sm font-black text-[#0b1220] transition hover:opacity-90"
+          >
+            {isOwnListing ? "Open the adoption listing →" : "Visit the rescue →"}
+          </a>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-2">
         <a

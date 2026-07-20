@@ -14,6 +14,11 @@ export type Dog = {
   photos: string[];
   city: string;
   distance: number | null;
+  // profileUrl = this dog's own listing page; orgUrl = the rescue's
+  // adoptable-dogs page or website. url = the resolved card destination
+  // (see resolveDogUrl). Never let orgUrl stand in for profileUrl.
+  profileUrl: string | null;
+  orgUrl: string | null;
   url: string;
   org: string;
   orgCity: string;
@@ -21,6 +26,42 @@ export type Dog = {
   desc: string;
   facts: string[];
 };
+
+// Accept only real fetchable web URLs. Rescues sometimes publish their
+// address without a scheme ("www.nttsars.com") — repair that instead of
+// throwing the whole link away, but reject anything non-http(s),
+// placeholder-ish, or unparseable.
+export function normalizeHttpUrl(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  let s = value.trim();
+  if (!s) return null;
+  if (!/^https?:\/\//i.test(s)) {
+    // Scheme-less host like "www.example.org" or "example.org/adopt".
+    if (!/^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#]|$)/i.test(s)) return null;
+    s = `https://${s}`;
+  }
+  try {
+    const parsed = new URL(s);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return null;
+    if (!parsed.hostname.includes(".")) return null;
+    return parsed.href;
+  } catch {
+    return null;
+  }
+}
+
+// One place decides where a dog card points: the dog's own listing first,
+// the rescue's page only as a fallback. An org URL must never override an
+// individual profile URL.
+export function resolveDogUrl(dog: Pick<Dog, "profileUrl" | "orgUrl">): string {
+  return dog.profileUrl ?? dog.orgUrl ?? "";
+}
+
+// True when the destination is the dog's own listing (drives honest link
+// labels: "Bella's listing" vs "Visit the rescue").
+export function hasOwnListing(dog: Pick<Dog, "profileUrl">): boolean {
+  return dog.profileUrl !== null;
+}
 
 function decodeEntities(s: string): string {
   return s
@@ -45,7 +86,27 @@ type RGResource = {
   relationships?: Record<string, { data?: { type: string; id: string }[] }>;
 };
 
-function normalizeDog(
+// Hand-verified corrections (2026-07-19) for upstream records that are
+// demonstrably wrong. Keyed by RescueGroups org id. Remove an entry once the
+// org fixes its data.
+//
+// 8121 STRAY PAWS RESCUE: their RescueGroups mini-site answers every animal
+//   URL with a generic "Site Down" page, and their listed adoptionUrl
+//   redirects to their homepage. Their real adoptable-animals list:
+// 3085 St Charles County Humane Services: scchealth.org is gone (redirects
+//   to the county public-health site). Their official adoptable-dogs list
+//   (linked from sccmo.org/825/Pet-Adoptions):
+const ORG_URL_OVERRIDES: Record<string, string> = {
+  "8121": "https://www.straypawsrescue.com/animals",
+  "3085": "https://24petconnect.com/STCHAdopt?at=DOG",
+};
+
+// Profile hosts currently serving a generic "site down" page for every
+// animal — treat their per-dog URLs as absent so cards fall back to the
+// rescue honestly instead of claiming a listing that doesn't load.
+const DEAD_PROFILE_HOSTS = new Set(["straypawsrescue.rescuegroups.org"]);
+
+export function normalizeDog(
   a: RGResource,
   included: Map<string, Record<string, unknown>>,
 ): Dog {
@@ -61,13 +122,17 @@ function normalizeDog(
   const loc = locRef ? (included.get(`locations:${locRef.id}`) as Record<string, string> | undefined) : undefined;
   const orgRef = a.relationships?.orgs?.data?.[0];
   const org = orgRef ? (included.get(`orgs:${orgRef.id}`) as Record<string, string> | undefined) : undefined;
-  // Link to this dog's own listing page. Not every animal record has one
-  // (only rescues with a RescueGroups mini-site), so fall back to the
-  // rescue's adoptable-dogs page, then its homepage.
-  const httpUrl = (v: unknown) =>
-    typeof v === "string" && v.startsWith("http") ? v : null;
-  const dogUrl = httpUrl(at.url);
-  const orgUrl = httpUrl(org?.adoptionUrl) ?? httpUrl(org?.url);
+  // This dog's own listing page. Not every animal record has one (only
+  // rescues with a RescueGroups mini-site publish them), so the org's
+  // adoptable-dogs page, then its homepage, is kept separately as a fallback.
+  let profileUrl = normalizeHttpUrl(at.url);
+  if (profileUrl && DEAD_PROFILE_HOSTS.has(new URL(profileUrl).hostname.toLowerCase())) {
+    profileUrl = null;
+  }
+  const orgUrl =
+    (orgRef ? ORG_URL_OVERRIDES[orgRef.id] : undefined) ??
+    normalizeHttpUrl(org?.adoptionUrl) ??
+    normalizeHttpUrl(org?.url);
   const email = typeof org?.email === "string" && org.email.includes("@") ? org.email : null;
   return {
     id: a.id,
@@ -80,7 +145,9 @@ function normalizeDog(
     photos,
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
-    url: dogUrl ?? orgUrl ?? "",
+    profileUrl,
+    orgUrl,
+    url: resolveDogUrl({ profileUrl, orgUrl }),
     org: String(org?.name ?? ""),
     orgCity: org?.citystate ?? "",
     email,
