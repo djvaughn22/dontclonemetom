@@ -15,6 +15,22 @@ button, a { touch-action: manipulation; }
   border-radius: 4px;
 }
 
+/* ── PRINT / PDF (dog profile pages) ─────────────────────────────────
+   Clean black-on-white sheet: chrome and interactive controls hidden,
+   cards keep their borders, the photo stays a sane size. */
+@media print {
+  header, footer, .no-print { display: none !important; }
+  html, body, main, .print-sheet,
+  .print-sheet [class*="bg-["] {
+    background: #ffffff !important;
+    color: #111827 !important;
+  }
+  .print-sheet * { color: #111827 !important; box-shadow: none !important; }
+  .print-card { border: 1px solid #d1d5db !important; break-inside: avoid; }
+  .print-sheet img { max-height: 60vh; width: auto; margin: 0 auto; }
+  .print-sheet a { text-decoration: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

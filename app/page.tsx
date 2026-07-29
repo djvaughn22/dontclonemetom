@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 const shareLines = [
   "There’s a good dog near you looking for a home.",
@@ -572,13 +573,14 @@ export default function DontCloneMeTom() {
 
         {/* Hero — the domain is the whole hook (…Tom.com) */}
         <section className="text-center mb-10">
-          <div className="mb-4 flex justify-center">
+          <Link href="/dogs/isaiah" className="group mb-4 inline-flex flex-col items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/isaiah-icon.jpg"
-              alt="A rescued dog"
+              alt="Isaiah, a black-and-white dog — tap to meet him"
               width={128}
               height={128}
-              className="rounded-full"
+              className="rounded-full transition group-hover:scale-[1.04]"
               style={{
                 width: 128,
                 height: 128,
@@ -586,7 +588,11 @@ export default function DontCloneMeTom() {
                 boxShadow: "0 10px 30px rgba(0,0,0,0.45)",
               }}
             />
-          </div>
+            <span className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-black text-[#e8edf5] transition group-hover:border-[#2DD4BF]">
+              Isaiah · <span className="text-[#2DD4BF]">The Dark Zay</span>
+              <span className="ml-2 text-[#94a3b8]">Meet Isaiah →</span>
+            </span>
+          </Link>
           <h1
             className="font-black leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(1.4rem, 7vw, 3.75rem)" }}
@@ -624,7 +630,7 @@ export default function DontCloneMeTom() {
             className="mx-auto mt-4 flex max-w-md items-center justify-between gap-3 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] px-5 py-3.5 text-left transition hover:border-[#2DD4BF]"
           >
             <span className="text-sm font-bold leading-6 text-[#e8edf5]">
-              🏠 This good boy came from <strong className="text-[#2DD4BF]">Home 2 Home Canine Orphanage</strong> — near St. Louis? Meet their dogs.
+              🏠 Isaiah came from <strong className="text-[#2DD4BF]">Home 2 Home Canine Orphanage</strong> — near St. Louis? Meet their dogs.
             </span>
             <span className="text-[#2DD4BF] font-black">→</span>
           </a>

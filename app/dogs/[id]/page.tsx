@@ -4,7 +4,9 @@
 
 import type { Metadata } from "next";
 import DogShareActions from "../../components/DogShareActions";
+import DogProfileView from "../../components/profile/DogProfileView";
 import { fetchDogById } from "../../lib/rescueDogs";
+import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
 import Link from "next/link";
 
@@ -14,6 +16,30 @@ type PageProps = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
+
+  // Structured profiles (named slugs) own their own metadata.
+  const profile = getDogProfile(id);
+  if (profile) {
+    const image = { url: profile.primaryImage, width: 805, height: 1038 };
+    return {
+      title: profile.seoTitle,
+      description: profile.seoDescription,
+      openGraph: {
+        title: profile.seoTitle,
+        description: profile.seoDescription,
+        url: `https://dontclonemetom.com/dogs/${profile.slug}`,
+        type: "article",
+        images: [image],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: profile.seoTitle,
+        description: profile.seoDescription,
+        images: [profile.primaryImage],
+      },
+    };
+  }
+
   const { dog } = await fetchDogById(id);
   if (!dog) return { title: "Adoptable dog" };
 
@@ -26,6 +52,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DogPage({ params }: PageProps) {
   const { id } = await params;
+
+  // Named slugs are permanent structured profiles; numeric ids stay live
+  // rescue listings.
+  const profile = getDogProfile(id);
+  if (profile) return <DogProfileView profile={profile} />;
+
   const { dog, gone, reason } = await fetchDogById(id);
   const verifiedAt = new Date().toLocaleString("en-US", {
     timeZone: "America/Chicago",
