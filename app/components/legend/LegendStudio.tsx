@@ -58,7 +58,7 @@ const RISK_BADGE: Record<NicknameCandidate["rightsRisk"], { label: string; title
 };
 
 const chip = (active: boolean) =>
-  `rounded-full border px-3.5 py-1.5 text-sm font-bold transition ${
+  `rounded-full border px-4 py-2.5 text-sm font-bold transition ${
     active ? "border-[#2DD4BF] bg-[#2DD4BF] text-[#0b1220]" : "border-[#26324c] bg-[#0b1220] text-[#e8edf5] hover:border-[#2DD4BF]"
   }`;
 
@@ -155,8 +155,7 @@ export default function LegendStudio({
           Your dog, but famous.
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-          Type the real name, hit shuffle, and get names that rhyme with movie
-          stars and sports legends. Free, no account, and your photo never
+          Type the name. Spin. Save the winners. Free — your photo never
           leaves your device.
         </p>
       </section>
@@ -168,7 +167,7 @@ export default function LegendStudio({
           <input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} placeholder="Nickname, if any (sharpens the rhymes)" aria-label="Existing nickname" className={inputCls} />
           <div className="flex flex-wrap items-center gap-3">
             <button type="button" onClick={() => fileRef.current?.click()} className={chip(!!photoUrl)}>
-              {photoUrl ? "Change photo" : "Add a photo for the poster (stays on your device)"}
+              {photoUrl ? "Change photo" : "Add a photo for the poster"}
             </button>
             {photoUrl && (
               <>

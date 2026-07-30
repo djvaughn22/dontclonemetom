@@ -125,9 +125,23 @@ describe("filters and boundaries", () => {
   });
 
   it("locking a word keeps it in every result", () => {
-    const { candidates } = generateCandidates(input({ lockedWord: "brady" }), 6);
+    const { candidates } = generateCandidates(input({ lockedWord: "swayze" }), 6);
     expect(candidates.length).toBeGreaterThan(0);
-    for (const c of candidates) expect(c.nickname.toLowerCase()).toContain("brady");
+    for (const c of candidates) expect(c.nickname.toLowerCase()).toContain("swayze");
+  });
+
+  it("swap-banned names never get machine-swapped — no Bom Hanks, no Barlett Johansson", () => {
+    const shownIds: string[] = [];
+    for (let step = 0; step < 30; step++) {
+      const { candidates } = generateCandidates(input({ step, shownIds: [...shownIds] }), 8);
+      for (const c of candidates) {
+        shownIds.push(c.id);
+        expect(c.nickname).not.toBe("Bom Hanks");
+        expect(c.nickname).not.toBe("Barlett Johansson");
+        expect(c.nickname).not.toBe("Bordon Ramsay");
+        expect(c.nickname).not.toBe("Bionel Messi");
+      }
+    }
   });
 });
 

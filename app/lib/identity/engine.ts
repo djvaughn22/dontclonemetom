@@ -94,24 +94,30 @@ function finishCandidate(d: Draft, realName: string, shownKeys: Set<string>): Ni
 
 // ── the two families ────────────────────────────────────────────────────────
 
+// A handful of substrings that must never appear inside a swapped word —
+// dog-name onsets are arbitrary, so the machine checks what it builds.
+const UGLY_SWAPS = ["fuck", "fuk", "shit", "shat", "piss", "dick", "cock", "tit", "boob", "sex", "penis", "anus"];
+
 /** "Biscuit" + "Patrick Swayze" → "Batrick Swayze" — a perfect rhyme with
- *  the star, in the dog's own sound. Skipped when the swap wouldn't change
- *  anything (that would just be the real person's name). */
+ *  the star, in the dog's own sound. Only `swap`-flagged names are used:
+ *  their rimes read naturally with any onset, which is what keeps
+ *  "Bom Hanks"-style clunkers out of the deck. */
 function rhymedFamousDrafts(onset: string, real: string, lanes: Set<InspirationLane>): Draft[] {
   if (!onset) return [];
   const out: Draft[] = [];
   for (const f of FAMOUS_SOURCES) {
-    if (!lanes.has(f.lane)) continue;
+    if (!f.swap || !lanes.has(f.lane)) continue;
     const rime = rimeOf(f.first);
-    if (rime.length < 2) continue;
+    if (rime.length < 3) continue;
     const swapped = `${onset}${rime}`;
     if (swapped.toLowerCase() === f.first.toLowerCase()) continue;
+    if (UGLY_SWAPS.some((u) => swapped.toLowerCase().includes(u))) continue;
     out.push({
       nickname: `${swapped} ${f.last}`,
       lane: f.lane,
       family: "rhymed-famous",
       archetype: f.archetype,
-      wordplay: `Rhymes with ${f.first} ${f.last} — the ${f.archetype}. Now it's ${real}'s.`,
+      wordplay: `Rhymes with ${f.first} ${f.last}. Suits ${real}.`,
       nearBrand: false,
       uniqueness: 0.8,
     });
