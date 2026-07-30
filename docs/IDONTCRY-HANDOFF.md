@@ -6,8 +6,8 @@ iDontCry repo.** The engine was built to port cleanly.
 ## The product
 
 **Dog Nickname Picker** — completely free, colorful, fast,
-family-friendly, endlessly shuffleable, saves favorites, based on real
-owner-confirmed dog behavior. A real standalone game that links quietly to
+family-friendly, endlessly shuffleable, saves favorites: the dog's real
+name rhymed with movie stars and sports legends. A real standalone game that links quietly to
 the richer DontCloneMeTom profile + poster experience
 (`https://dontclonemetom.com/legend`) — iDontCry is NOT a storefront.
 
@@ -16,19 +16,16 @@ the richer DontCloneMeTom profile + poster experience
 From `~/DontCloneMeTom/dont-clone-me-tom/app/lib/identity/`:
 
 - `types.ts` — exported types: `IdentityInput`, `NicknameCandidate`,
-  `ConfirmedFact`, `FactKind`, `InspirationLane`, `INSPIRATION_LANES`,
-  `SPORT_LANES`, `PEOPLE_LANES`, `RightsRisk`, `FitLevel`,
-  `ActivityLevel`, `Pronouns`
+  `InspirationLane`, `INSPIRATION_LANES`, `SPORT_LANES`, `PEOPLE_LANES`,
+  `RightsRisk`, `FitLevel`
 - `random.ts` — `makeRng`, `seedToState`, `pick`, `shuffled`, `stableId`
-- `lexicon.ts` — all inspiration data (data-only)
+- `lexicon.ts` — `FAMOUS_SOURCES` (stars + legends) and `PUNNED_FAMOUS`
+  (hand-written dog puns) — the whole inspiration surface, data-only
 - `engine.ts` — `generateCandidates`, `nearDupKey`, `shortForm`,
-  `syllableTail`
+  `onsetOf`, `rimeOf`
 - `shuffle.ts` — `newSession`, `deal`, `resetSession`, `saveFavorite`,
   `unsaveFavorite`, `removeSuggestion`, `restoreSuggestion`,
-  `setLaneFilter`, `setMoodFilter`, `setBehaviorFilter`, `lockWord`,
-  `surpriseMe`, `HISTORY_LIMIT`
-- `behaviors.ts` — `BEHAVIOR_CATALOG`, `MOOD_CATALOG`,
-  `SITUATION_CATALOG`, `factFromCatalog`, `factFromOwnerText`
+  `setLaneFilter`, `lockWord`, `surpriseMe`, `HISTORY_LIMIT`
 - `rights.ts` — `classifyRights` (keep it: honest badges even in a free
   game; iDontCry only needs `playEligible`/badge display)
 
@@ -59,7 +56,7 @@ unchanged (vitest, plain node env, no DOM).
 
 ```ts
 let session = newSession(Date.now());
-const base = { realName: "Biscuit", facts: [factFromCatalog(BEHAVIOR_CATALOG[0])] };
+const base = { realName: "Biscuit" };
 ({ session, candidates } = deal(session, base, 6));   // shuffle again = call again
 session = saveFavorite(session, candidates[0]);        // favorites API
 session = removeSuggestion(session, candidates[1]);    // stays gone until restore
@@ -68,10 +65,9 @@ session = lockWord(session, "Biscuit");                // keep a word while resh
 session = resetSession(session);                       // clears history, keeps favorites
 ```
 
-Behavior picker: render `BEHAVIOR_CATALOG` / `MOOD_CATALOG` /
-`SITUATION_CATALOG` as tap chips + one free-text input through
-`factFromOwnerText` (60-char cap, source recorded). Never present an
-unconfirmed behavior as fact.
+The game is name-in → rhymes-out ("Bobby" → "Batrick Swayze",
+"Baylor Swift"); there is no behavior picker anymore (owner decision,
+Jul 29 2026 — simplicity won).
 
 ## Recommended iDontCry UI & integration
 
@@ -91,10 +87,9 @@ unconfirmed behavior as fact.
 ## Tests to recreate (minimum)
 
 Deterministic seed ⇒ deterministic deal; step advances change the deal;
-no exact dupes in a hand; near-dup suppression across a long session
-(punctuation/filler variants count as dupes); bounded history; reset
-keeps favorites; removed stays removed until restored; lane filters
-(sport + celebrity) narrow deals; locked word appears in every result;
-excluded words never appear; owner-entered facts carry
-`source: "owner-entered"`; no real person's full name is ever emitted;
-structured candidate fields all present.
+no exact dupes in a hand; near-dup suppression across a session; bounded
+history; reset keeps favorites; removed stays removed until restored;
+lane filters (sport + movie-star) narrow deals; locked word appears in
+every result; excluded words never appear; no real person's full name is
+ever emitted; every name ≤ 5 words / 26 chars; structured candidate
+fields all present.

@@ -1,18 +1,17 @@
-// Dog Identity Engine — the inspiration lexicon.
+// Dog Identity Engine — the famous-name lexicon.
 //
-// This is DATA, and it is deliberately wide: the generator composes names
-// from patterns, so the variety comes from combinations, not from a small
-// fixed list. Famous names here are TRANSFORMATION SOURCES for wordplay —
-// the engine never outputs a real person's full name verbatim, and results
-// that keep a real surname are honestly labeled for manual review before
-// any commercial use.
+// This is DATA: movie stars, musicians, sports legends, and historical
+// greats the generator rhymes against, plus hand-written dog puns on those
+// names. Famous names are rhyme SOURCES — the engine never outputs a real
+// person's full name, and results that keep a real surname are honestly
+// labeled for manual review before any commercial use.
 //
-// Adding a sport / lane: add entries tagged with the lane below — nothing
-// else changes. Adding a naming pattern: see patterns in engine.ts.
+// Adding a star: one FAMOUS_SOURCES line. Adding a great pun you thought
+// of in the shower: one PUNNED_FAMOUS line.
 
 import type { InspirationLane } from "./types";
 
-/** A famous-name wordplay source. `real` = a real person (stricter rights). */
+/** A famous name to rhyme against. `real` = a real person (stricter rights). */
 export type FamousSource = {
   first: string;
   last: string;
@@ -22,15 +21,8 @@ export type FamousSource = {
 };
 
 export const FAMOUS_SOURCES: FamousSource[] = [
-  // celebrities / actors
-  { first: "Taylor", last: "Swift", lane: "musicians", archetype: "pop icon", real: true },
-  { first: "Dolly", last: "Parton", lane: "musicians", archetype: "country legend", real: true },
-  { first: "Elvis", last: "Presley", lane: "musicians", archetype: "rock legend", real: true },
-  { first: "Aretha", last: "Franklin", lane: "musicians", archetype: "soul queen", real: true },
-  { first: "Johnny", last: "Cash", lane: "musicians", archetype: "outlaw balladeer", real: true },
-  { first: "Beyonce", last: "Knowles", lane: "musicians", archetype: "stage headliner", real: true },
-  { first: "Willie", last: "Nelson", lane: "musicians", archetype: "road troubadour", real: true },
-  { first: "Stevie", last: "Wonder", lane: "musicians", archetype: "keyboard genius", real: true },
+  // movie & TV stars
+  { first: "Patrick", last: "Swayze", lane: "actors", archetype: "dance legend", real: true },
   { first: "Keanu", last: "Reeves", lane: "actors", archetype: "quiet action hero", real: true },
   { first: "Meryl", last: "Streep", lane: "actors", archetype: "award collector", real: true },
   { first: "Denzel", last: "Washington", lane: "actors", archetype: "commanding lead", real: true },
@@ -39,26 +31,50 @@ export const FAMOUS_SOURCES: FamousSource[] = [
   { first: "Morgan", last: "Freeman", lane: "actors", archetype: "the narrator", real: true },
   { first: "Tom", last: "Hanks", lane: "actors", archetype: "everyman hero", real: true },
   { first: "Emma", last: "Stone", lane: "actors", archetype: "comedy lead", real: true },
+  { first: "Brad", last: "Pitt", lane: "actors", archetype: "leading man", real: true },
+  { first: "Tom", last: "Cruise", lane: "actors", archetype: "stunt maniac", real: true },
+  { first: "Matt", last: "Damon", lane: "actors", archetype: "capable everyman", real: true },
+  { first: "Julia", last: "Roberts", lane: "actors", archetype: "megawatt smile", real: true },
+  { first: "Jennifer", last: "Lawrence", lane: "actors", archetype: "action lead", real: true },
+  { first: "Scarlett", last: "Johansson", lane: "actors", archetype: "action star", real: true },
+  { first: "Chris", last: "Hemsworth", lane: "actors", archetype: "hammer guy", real: true },
+  { first: "Zendaya", last: "Coleman", lane: "actors", archetype: "generational talent", real: true },
+  { first: "Al", last: "Pacino", lane: "actors", archetype: "intense legend", real: true },
+  { first: "Robert", last: "De Niro", lane: "actors", archetype: "screen heavyweight", real: true },
+  { first: "Clint", last: "Eastwood", lane: "actors", archetype: "squinting cowboy", real: true },
+  { first: "Eddie", last: "Murphy", lane: "comedy", archetype: "comedy legend", real: true },
+  { first: "Jim", last: "Carrey", lane: "comedy", archetype: "rubber face", real: true },
+  { first: "Will", last: "Ferrell", lane: "comedy", archetype: "comedy anchor", real: true },
+  { first: "Kevin", last: "Hart", lane: "comedy", archetype: "pocket dynamo", real: true },
+  { first: "Adam", last: "Sandler", lane: "comedy", archetype: "comfy-clothes king", real: true },
   { first: "Oprah", last: "Winfrey", lane: "celebrity", archetype: "talk-show royalty", real: true },
-  { first: "Martha", last: "Stewart", lane: "celebrity", archetype: "household perfectionist", real: true },
   { first: "Gordon", last: "Ramsay", lane: "celebrity", archetype: "kitchen commander", real: true },
   { first: "David", last: "Attenborough", lane: "broadcasters", archetype: "nature narrator", real: true },
-  // historical
-  { first: "Abraham", last: "Lincoln", lane: "historical", archetype: "steady statesman", real: true },
-  { first: "Winston", last: "Churchill", lane: "historical", archetype: "bulldog statesman", real: true },
-  { first: "Amelia", last: "Earhart", lane: "historical", archetype: "fearless aviator", real: true },
-  { first: "Leonardo", last: "Vinci", lane: "historical", archetype: "renaissance mind", real: true },
-  { first: "Cleopatra", last: "Philopator", lane: "historical", archetype: "ancient royalty", real: true },
-  { first: "Napoleon", last: "Bonaparte", lane: "historical", archetype: "small general", real: true },
-  { first: "Teddy", last: "Roosevelt", lane: "historical", archetype: "rough rider", real: true },
+  // musicians
+  { first: "Taylor", last: "Swift", lane: "musicians", archetype: "pop icon", real: true },
+  { first: "Dolly", last: "Parton", lane: "musicians", archetype: "country legend", real: true },
+  { first: "Elvis", last: "Presley", lane: "musicians", archetype: "rock legend", real: true },
+  { first: "Aretha", last: "Franklin", lane: "musicians", archetype: "soul queen", real: true },
+  { first: "Johnny", last: "Cash", lane: "musicians", archetype: "outlaw balladeer", real: true },
+  { first: "Willie", last: "Nelson", lane: "musicians", archetype: "road troubadour", real: true },
+  { first: "Stevie", last: "Wonder", lane: "musicians", archetype: "keyboard genius", real: true },
+  { first: "Bruno", last: "Mars", lane: "musicians", archetype: "showman", real: true },
+  { first: "Katy", last: "Perry", lane: "musicians", archetype: "pop headliner", real: true },
+  { first: "Billie", last: "Eilish", lane: "musicians", archetype: "genre bender", real: true },
+  { first: "Bruce", last: "Springsteen", lane: "musicians", archetype: "the boss", real: true },
+  { first: "Mick", last: "Jagger", lane: "musicians", archetype: "strutting frontman", real: true },
+  { first: "Snoop", last: "Dogg", lane: "musicians", archetype: "laid-back legend", real: true },
   // football
-  { first: "Tom", last: "Brady", lane: "football", archetype: "quarterback", real: true },
-  { first: "Patrick", last: "Mahomes", lane: "football", archetype: "quarterback", real: true },
-  { first: "Jerry", last: "Rice", lane: "football", archetype: "wide receiver", real: true },
-  { first: "Barry", last: "Sanders", lane: "football", archetype: "running back", real: true },
-  { first: "Walter", last: "Payton", lane: "football", archetype: "running back", real: true },
-  { first: "Deion", last: "Sanders", lane: "football", archetype: "shutdown corner", real: true },
-  { first: "Travis", last: "Kelce", lane: "football", archetype: "tight end", real: true },
+  { first: "Tom", last: "Brady", lane: "football", archetype: "quarterback goat", real: true },
+  { first: "Patrick", last: "Mahomes", lane: "football", archetype: "no-look magician", real: true },
+  { first: "Jerry", last: "Rice", lane: "football", archetype: "route perfectionist", real: true },
+  { first: "Barry", last: "Sanders", lane: "football", archetype: "ankle breaker", real: true },
+  { first: "Walter", last: "Payton", lane: "football", archetype: "sweetness himself", real: true },
+  { first: "Deion", last: "Sanders", lane: "football", archetype: "prime time", real: true },
+  { first: "Travis", last: "Kelce", lane: "football", archetype: "touchdown celebrator", real: true },
+  { first: "Peyton", last: "Manning", lane: "football", archetype: "audible caller", real: true },
+  { first: "Joe", last: "Montana", lane: "football", archetype: "comeback king", real: true },
+  { first: "Dan", last: "Marino", lane: "football", archetype: "laser arm", real: true },
   // basketball
   { first: "Michael", last: "Jordan", lane: "basketball", archetype: "clutch scorer", real: true },
   { first: "LeBron", last: "James", lane: "basketball", archetype: "all-around force", real: true },
@@ -66,12 +82,17 @@ export const FAMOUS_SOURCES: FamousSource[] = [
   { first: "Shaquille", last: "O'Neal", lane: "basketball", archetype: "unstoppable center", real: true },
   { first: "Caitlin", last: "Clark", lane: "basketball", archetype: "logo shooter", real: true },
   { first: "Kevin", last: "Durant", lane: "basketball", archetype: "smooth scorer", real: true },
+  { first: "Larry", last: "Bird", lane: "basketball", archetype: "trash-talk sniper", real: true },
+  { first: "Magic", last: "Johnson", lane: "basketball", archetype: "showtime maestro", real: true },
+  { first: "Giannis", last: "Antetokounmpo", lane: "basketball", archetype: "greek freak", real: true },
   // baseball
   { first: "Babe", last: "Ruth", lane: "baseball", archetype: "slugger", real: true },
   { first: "Jackie", last: "Robinson", lane: "baseball", archetype: "barrier breaker", real: true },
   { first: "Shohei", last: "Ohtani", lane: "baseball", archetype: "two-way star", real: true },
   { first: "Derek", last: "Jeter", lane: "baseball", archetype: "captain shortstop", real: true },
   { first: "Yogi", last: "Berra", lane: "baseball", archetype: "quotable catcher", real: true },
+  { first: "Aaron", last: "Judge", lane: "baseball", archetype: "towering slugger", real: true },
+  { first: "Mike", last: "Trout", lane: "baseball", archetype: "five-tool machine", real: true },
   // hockey
   { first: "Wayne", last: "Gretzky", lane: "hockey", archetype: "the great one", real: true },
   { first: "Sidney", last: "Crosby", lane: "hockey", archetype: "captain center", real: true },
@@ -81,11 +102,15 @@ export const FAMOUS_SOURCES: FamousSource[] = [
   { first: "Cristiano", last: "Ronaldo", lane: "soccer", archetype: "goal poacher", real: true },
   { first: "Megan", last: "Rapinoe", lane: "soccer", archetype: "big-game winger", real: true },
   { first: "Kylian", last: "Mbappe", lane: "soccer", archetype: "speed striker", real: true },
+  { first: "David", last: "Beckham", lane: "soccer", archetype: "free-kick artist", real: true },
+  { first: "Neymar", last: "Junior", lane: "soccer", archetype: "flair merchant", real: true },
   // tennis
   { first: "Serena", last: "Williams", lane: "tennis", archetype: "power server", real: true },
+  { first: "Venus", last: "Williams", lane: "tennis", archetype: "trailblazing champion", real: true },
   { first: "Roger", last: "Federer", lane: "tennis", archetype: "elegant baseliner", real: true },
   { first: "Rafael", last: "Nadal", lane: "tennis", archetype: "clay grinder", real: true },
   { first: "Coco", last: "Gauff", lane: "tennis", archetype: "rising ace", real: true },
+  { first: "Novak", last: "Djokovic", lane: "tennis", archetype: "iron champion", real: true },
   // golf
   { first: "Tiger", last: "Woods", lane: "golf", archetype: "major hunter", real: true },
   { first: "Jack", last: "Nicklaus", lane: "golf", archetype: "golden bear", real: true },
@@ -113,189 +138,77 @@ export const FAMOUS_SOURCES: FamousSource[] = [
   { first: "Phil", last: "Jackson", lane: "coaches", archetype: "zen master", real: true },
   { first: "Dawn", last: "Staley", lane: "coaches", archetype: "champion builder", real: true },
   { first: "John", last: "Madden", lane: "broadcasters", archetype: "booth legend", real: true },
+  // historical greats
+  { first: "Abraham", last: "Lincoln", lane: "historical", archetype: "steady statesman", real: true },
+  { first: "Winston", last: "Churchill", lane: "historical", archetype: "bulldog statesman", real: true },
+  { first: "Amelia", last: "Earhart", lane: "historical", archetype: "fearless aviator", real: true },
+  { first: "Napoleon", last: "Bonaparte", lane: "historical", archetype: "small general", real: true },
+  { first: "Teddy", last: "Roosevelt", lane: "historical", archetype: "rough rider", real: true },
 ];
 
 /**
- * Fictional/archetype transforms. These are prefix/suffix wordplay hooks,
- * not character names. Anything that leans on a famous franchise sound is
- * marked `nearBrand: true` and gets manual review before merch.
+ * Curated dog-pun celebrity names — the "Pawtrick Swayze" register. These
+ * are hand-written puns, not mechanical blends, so every one reads out
+ * loud. `risk` is the honest floor: real-person surnames and franchise
+ * sounds stay manualReview before any paid use; long-dead historical and
+ * public-domain figures play safe.
  */
-export type ArchetypeTransform = {
-  /** template with {Base} and optionally {Real} */
-  template: string;
+export type PunnedFamous = {
+  pun: string;
+  source: string;
   lane: InspirationLane;
   archetype: string;
-  nearBrand: boolean;
-  heroSuitable: boolean;
+  risk: "playSafe" | "manualReview";
 };
 
-export const ARCHETYPE_TRANSFORMS: ArchetypeTransform[] = [
-  { template: "Bat{Base}", lane: "superheroes", archetype: "masked guardian", nearBrand: true, heroSuitable: true },
-  { template: "Super{Base}", lane: "superheroes", archetype: "caped flyer", nearBrand: true, heroSuitable: true },
-  { template: "Spider{Base}", lane: "superheroes", archetype: "wall crawler", nearBrand: true, heroSuitable: true },
-  { template: "Captain {Base}", lane: "superheroes", archetype: "shield captain", nearBrand: false, heroSuitable: true },
-  { template: "The Incredible {Base}", lane: "superheroes", archetype: "gentle giant", nearBrand: true, heroSuitable: true },
-  { template: "{Base} the Mighty", lane: "superheroes", archetype: "hammer bearer", nearBrand: false, heroSuitable: true },
-  { template: "Darth{Base}der", lane: "villains", archetype: "dramatic dark lord", nearBrand: true, heroSuitable: true },
-  { template: "{Base}zilla", lane: "villains", archetype: "city-sized menace", nearBrand: true, heroSuitable: true },
-  { template: "Dr. {Base}", lane: "villains", archetype: "scheming mastermind", nearBrand: false, heroSuitable: true },
-  { template: "{Base} the Terrible", lane: "villains", archetype: "storybook tyrant", nearBrand: false, heroSuitable: true },
-  { template: "{Base}nator", lane: "action-movies", archetype: "unstoppable machine", nearBrand: true, heroSuitable: true },
-  { template: "{Base} Vice", lane: "action-movies", archetype: "80s cop show", nearBrand: false, heroSuitable: false },
-  { template: "Agent {Base}", lane: "action-movies", archetype: "secret agent", nearBrand: false, heroSuitable: true },
-  { template: "{Base}: Impossible", lane: "action-movies", archetype: "impossible missions", nearBrand: true, heroSuitable: false },
-  { template: "Fast & {Base}rious", lane: "action-movies", archetype: "street racer", nearBrand: true, heroSuitable: false },
-  { template: "{Base} McGroovin", lane: "comedy", archetype: "sketch character", nearBrand: false, heroSuitable: false },
-  { template: "Anchordog {Base}", lane: "comedy", archetype: "news anchor", nearBrand: false, heroSuitable: false },
-  { template: "{Base} the Entertainer", lane: "comedy", archetype: "stage comic", nearBrand: false, heroSuitable: false },
+export const PUNNED_FAMOUS: PunnedFamous[] = [
+  // actors
+  { pun: "Pawtrick Swayze", source: "Patrick Swayze", lane: "actors", archetype: "dance legend", risk: "manualReview" },
+  { pun: "Brad Sitt", source: "Brad Pitt", lane: "actors", archetype: "leading man", risk: "manualReview" },
+  { pun: "Jennifer Pawrence", source: "Jennifer Lawrence", lane: "actors", archetype: "action lead", risk: "manualReview" },
+  { pun: "Keanu Retrieves", source: "Keanu Reeves", lane: "actors", archetype: "quiet action hero", risk: "manualReview" },
+  { pun: "Sandra Bulldog", source: "Sandra Bullock", lane: "actors", archetype: "america's sweetheart", risk: "manualReview" },
+  { pun: "Denzel Waggington", source: "Denzel Washington", lane: "actors", archetype: "commanding lead", risk: "manualReview" },
+  { pun: "Will Furrell", source: "Will Ferrell", lane: "comedy", archetype: "comedy anchor", risk: "manualReview" },
+  { pun: "Harrison Furred", source: "Harrison Ford", lane: "actors", archetype: "reluctant adventurer", risk: "manualReview" },
+  { pun: "Rover Downey Jr.", source: "Robert Downey Jr.", lane: "actors", archetype: "comeback king", risk: "manualReview" },
+  // musicians
+  { pun: "Dolly Pawton", source: "Dolly Parton", lane: "musicians", archetype: "country legend", risk: "manualReview" },
+  { pun: "Elvis Pawsley", source: "Elvis Presley", lane: "musicians", archetype: "rock legend", risk: "manualReview" },
+  { pun: "Bruno Barks", source: "Bruno Mars", lane: "musicians", archetype: "showman", risk: "manualReview" },
+  { pun: "Katy Pawry", source: "Katy Perry", lane: "musicians", archetype: "pop headliner", risk: "manualReview" },
+  { pun: "Ed Sheddin'", source: "Ed Sheeran", lane: "musicians", archetype: "singer-songwriter", risk: "manualReview" },
+  { pun: "Billie Howlish", source: "Billie Eilish", lane: "musicians", archetype: "genre bender", risk: "manualReview" },
+  { pun: "Kanye Westie", source: "Kanye West", lane: "musicians", archetype: "producer mogul", risk: "manualReview" },
+  { pun: "50 Scent", source: "50 Cent", lane: "musicians", archetype: "rap heavyweight", risk: "manualReview" },
+  { pun: "The Notorious D.O.G.", source: "The Notorious B.I.G.", lane: "musicians", archetype: "rap legend", risk: "manualReview" },
+  // sports legends
+  { pun: "Tiger Woofs", source: "Tiger Woods", lane: "golf", archetype: "major hunter", risk: "manualReview" },
+  { pun: "Roger Fetcher", source: "Roger Federer", lane: "tennis", archetype: "elegant baseliner", risk: "manualReview" },
+  { pun: "Novak Dogovic", source: "Novak Djokovic", lane: "tennis", archetype: "iron champion", risk: "manualReview" },
+  { pun: "Coco Ruff", source: "Coco Gauff", lane: "tennis", archetype: "rising ace", risk: "manualReview" },
+  { pun: "Lionel Messy", source: "Lionel Messi", lane: "soccer", archetype: "dribbling maestro", risk: "manualReview" },
+  { pun: "Wayne Fetchky", source: "Wayne Gretzky", lane: "hockey", archetype: "the great one", risk: "manualReview" },
+  { pun: "Babe Woof", source: "Babe Ruth", lane: "baseball", archetype: "slugger", risk: "manualReview" },
+  { pun: "Scottie Puppen", source: "Scottie Pippen", lane: "basketball", archetype: "elite wingman", risk: "manualReview" },
+  { pun: "Barky Bonds", source: "Barry Bonds", lane: "baseball", archetype: "home-run king", risk: "manualReview" },
+  // historical & public domain — long-gone figures, wordplay plays safe
+  { pun: "Napoleon Bone-aparte", source: "Napoleon Bonaparte", lane: "historical", archetype: "small general", risk: "playSafe" },
+  { pun: "Droolius Caesar", source: "Julius Caesar", lane: "historical", archetype: "roman ruler", risk: "playSafe" },
+  { pun: "Cleopawtra", source: "Cleopatra", lane: "historical", archetype: "ancient royalty", risk: "playSafe" },
+  { pun: "Alexander the Grrreat", source: "Alexander the Great", lane: "historical", archetype: "conqueror", risk: "playSafe" },
+  { pun: "Winston Furchill", source: "Winston Churchill", lane: "historical", archetype: "bulldog statesman", risk: "manualReview" },
+  { pun: "Bark Twain", source: "Mark Twain", lane: "historical", archetype: "wit on the river", risk: "playSafe" },
+  { pun: "Abraham Lick-in", source: "Abraham Lincoln", lane: "historical", archetype: "steady statesman", risk: "playSafe" },
+  { pun: "Sherlock Bones", source: "Sherlock Holmes", lane: "fictional", archetype: "great detective", risk: "playSafe" },
+  { pun: "Vincent Van Dog", source: "Vincent van Gogh", lane: "historical", archetype: "wild-eyed painter", risk: "playSafe" },
+  { pun: "Leonardo da Fetchi", source: "Leonardo da Vinci", lane: "historical", archetype: "renaissance mind", risk: "playSafe" },
+  { pun: "Woofgang A. Mozart", source: "Wolfgang Amadeus Mozart", lane: "historical", archetype: "prodigy composer", risk: "playSafe" },
+  // franchise-flavored — fun in the game, honest review floor for merch
+  { pun: "Mary Puppins", source: "Mary Poppins", lane: "fictional", archetype: "magical caretaker", risk: "manualReview" },
+  { pun: "Chewbarka", source: "Chewbacca", lane: "fictional", archetype: "loyal co-pilot", risk: "manualReview" },
+  { pun: "Indiana Bones", source: "Indiana Jones", lane: "action-movies", archetype: "treasure hunter", risk: "manualReview" },
+  { pun: "James Bone", source: "James Bond", lane: "action-movies", archetype: "secret agent", risk: "manualReview" },
+  { pun: "Winnie the Pooch", source: "Winnie the Pooh", lane: "fictional", archetype: "honey enthusiast", risk: "manualReview" },
+  { pun: "Hairy Pawter", source: "Harry Potter", lane: "fictional", archetype: "boy wizard", risk: "manualReview" },
 ];
-
-/** Titles for "title + trait" and formal identities. Generic, play-safe. */
-export const TITLES: { title: string; lane: InspirationLane }[] = [
-  { title: "Sir", lane: "royalty" },
-  { title: "Lady", lane: "royalty" },
-  { title: "Lord", lane: "royalty" },
-  { title: "Duke", lane: "royalty" },
-  { title: "Duchess", lane: "royalty" },
-  { title: "Count", lane: "royalty" },
-  { title: "Baron", lane: "royalty" },
-  { title: "Princess", lane: "royalty" },
-  { title: "King", lane: "royalty" },
-  { title: "Queen", lane: "royalty" },
-  { title: "His Royal Highness", lane: "royalty" },
-  { title: "General", lane: "military-titles" },
-  { title: "Sergeant", lane: "military-titles" },
-  { title: "Commander", lane: "military-titles" },
-  { title: "Colonel", lane: "military-titles" },
-  { title: "Major", lane: "military-titles" },
-  { title: "Admiral", lane: "military-titles" },
-  { title: "Captain", lane: "military-titles" },
-  { title: "Private First Class", lane: "military-titles" },
-  { title: "Professor", lane: "professions" },
-  { title: "Doctor", lane: "professions" },
-  { title: "Chancellor", lane: "professions" },
-  { title: "Inspector", lane: "professions" },
-  { title: "Detective", lane: "professions" },
-  { title: "Sheriff", lane: "professions" },
-  { title: "Mayor", lane: "professions" },
-  { title: "Chief Executive", lane: "professions" },
-  { title: "Foreman", lane: "professions" },
-  { title: "Chef", lane: "professions" },
-  { title: "Coach", lane: "coaches" },
-];
-
-/** Sports positions/roles for "position + behavior" wordplay. */
-export const SPORT_ROLES: { role: string; lane: InspirationLane }[] = [
-  { role: "Quarterback", lane: "football" },
-  { role: "Free Safety", lane: "football" },
-  { role: "Linebacker", lane: "football" },
-  { role: "Tight End", lane: "football" },
-  { role: "Kick Returner", lane: "football" },
-  { role: "Point Guard", lane: "basketball" },
-  { role: "Sixth Man", lane: "basketball" },
-  { role: "Shot Blocker", lane: "basketball" },
-  { role: "Cleanup Hitter", lane: "baseball" },
-  { role: "Closer", lane: "baseball" },
-  { role: "Shortstop", lane: "baseball" },
-  { role: "Enforcer", lane: "hockey" },
-  { role: "Goalie", lane: "hockey" },
-  { role: "Striker", lane: "soccer" },
-  { role: "Sweeper", lane: "soccer" },
-  { role: "Midfielder", lane: "soccer" },
-  { role: "Baseliner", lane: "tennis" },
-  { role: "Caddie", lane: "golf" },
-  { role: "Pit Crew Chief", lane: "racing" },
-  { role: "Pace Car", lane: "racing" },
-  { role: "Heavyweight Champion", lane: "combat-sports" },
-  { role: "Cornerman", lane: "combat-sports" },
-  { role: "Anchor Leg", lane: "track-and-field" },
-  { role: "Hurdler", lane: "track-and-field" },
-  { role: "Downhiller", lane: "skiing" },
-  { role: "Halfpipe Specialist", lane: "extreme-sports" },
-  { role: "Play-by-Play Announcer", lane: "broadcasters" },
-  { role: "Head Coach", lane: "coaches" },
-  { role: "Team Captain", lane: "sports-language" },
-  { role: "Franchise Player", lane: "sports-language" },
-  { role: "MVP", lane: "sports-language" },
-  { role: "Rookie of the Year", lane: "sports-language" },
-  { role: "Hall of Famer", lane: "sports-language" },
-  { role: "Undisputed Champion", lane: "sports-language" },
-];
-
-/** Generic mood/vibe adjectives, keyed by lane. All play-safe. */
-export const LANE_WORDS: Partial<Record<InspirationLane, string[]>> = {
-  food: ["Biscuit", "Meatball", "Noodle", "Pickles", "Waffles", "Nacho", "Tater", "Dumpling", "Pretzel", "Gravy", "Butterbean", "Mochi"],
-  household: ["Roomba", "Doorbell", "Slipper", "Blanket", "Recliner", "Thermostat", "Lampshade", "Spatula", "Welcome Mat", "Throw Pillow"],
-  weather: ["Thunder", "Tornado", "Blizzard", "Monsoon", "Heatwave", "Drizzle", "Fog Bank", "Tailwind", "Avalanche", "Sunbeam"],
-  speed: ["Turbo", "Nitro", "Rocket", "Blur", "Mach One", "Zoomies", "Slipstream", "Afterburner", "Lightning", "Warp"],
-  sleep: ["Snooze", "Nap Commander", "Pillow", "Dozer", "Hibernation", "Snore", "Dreamboat", "Lullaby", "Sunday Morning"],
-  chaos: ["Mayhem", "Havoc", "Ruckus", "Hurricane", "Demolition", "Rampage", "Wrecking Ball", "Anarchy", "Kaboom"],
-  bravery: ["Fearless", "Valiant", "Braveheart", "Guardian", "Sentinel", "Defender", "Lionheart", "Stalwart"],
-  mischief: ["Bandit", "Rascal", "Scoundrel", "Trickster", "Smuggler", "Outlaw", "Heist", "Sneak", "Loophole"],
-  affection: ["Velcro", "Snuggle", "Cuddlebug", "Sweetheart", "Heartthrob", "Smooch", "Marshmallow", "Honeybun"],
-};
-
-/** Rhyme/assonance bank — fun words grouped by their ending sound. */
-export const RHYME_BANK: string[] = [
-  "Papaya", "Bonanza", "Fiesta", "Tsunami", "Origami", "Salami", "Pastrami",
-  "Confetti", "Spaghetti", "Machete", "Graffiti", "Zucchini", "Martini",
-  "Bambino", "Torpedo", "Tornado", "Avocado", "Desperado", "Tuxedo",
-  "Calzone", "Cyclone", "Cologne", "Trombone", "Doggone",
-  "Kazoo", "Voodoo", "Bamboo", "Tattoo", "Hullabaloo",
-  "Jamboree", "Pedigree", "Referee", "Jubilee",
-  "Hooligan", "Shenanigan", "Cardigan",
-  "Dynamo", "Domino", "Buffalo", "Piccolo",
-];
-
-/** Vocabulary the behavior patterns draw from, keyed by behavior id. */
-export type BehaviorVocab = {
-  /** the object or scene of the crime */
-  noun: string;
-  /** what the dog becomes, as an agent */
-  agent: string;
-  /** where it happens */
-  place: string;
-};
-
-export const BEHAVIOR_VOCAB: Record<string, BehaviorVocab> = {
-  "sock-thief": { noun: "Sock", agent: "Sock Bandit", place: "the laundry room" },
-  "couch-guardian": { noun: "Couch", agent: "Couch Guardian", place: "the living room" },
-  "delivery-alarm": { noun: "Doorbell", agent: "Package Inspector", place: "the front door" },
-  "vacuum-coward": { noun: "Vacuum", agent: "Vacuum Evader", place: "under the bed" },
-  "bath-escape": { noun: "Bathtub", agent: "Escape Artist", place: "the bathroom" },
-  "dramatic-beggar": { noun: "Dinner", agent: "Snack Negotiator", place: "the kitchen floor" },
-  "upside-down-sleeper": { noun: "Pillow", agent: "Upside-Down Dreamer", place: "the good couch" },
-  "zoomies": { noun: "Zoomies", agent: "Living-Room Comet", place: "the hallway" },
-  "lap-dog": { noun: "Lap", agent: "Lap Commander", place: "your lap" },
-  "food-inspector": { noun: "Crumb", agent: "Food Inspector", place: "the kitchen" },
-  "toy-destroyer": { noun: "Squeaker", agent: "Toy Surgeon", place: "the toy bin" },
-  "blanket-burrower": { noun: "Blanket", agent: "Blanket Burrower", place: "the bed" },
-  "window-watcher": { noun: "Window", agent: "Neighborhood Watch", place: "the front window" },
-  "mud-finder": { noun: "Mud", agent: "Mud Cartographer", place: "the backyard" },
-  "door-greeter": { noun: "Welcome", agent: "Chief Greeter", place: "the front hall" },
-  "snorer": { noun: "Snore", agent: "Freight Train", place: "the foot of the bed" },
-  "shadow-follower": { noun: "Shadow", agent: "Personal Escort", place: "two feet behind you" },
-  "backyard-patrol": { noun: "Fence", agent: "Perimeter Patrol", place: "the backyard" },
-  "car-ride-enthusiast": { noun: "Shotgun", agent: "Co-Pilot", place: "the passenger seat" },
-  "squirrel-suspicious": { noun: "Squirrel", agent: "Squirrel Analyst", place: "the oak tree" },
-};
-
-/** Fallback vocab for owner-entered custom behaviors. */
-export function customVocab(text: string): BehaviorVocab {
-  const short = text.length > 24 ? text.slice(0, 24).trim() : text;
-  return { noun: short, agent: "Specialist", place: "home" };
-}
-
-/** Mood → storybook archetype pairings. Generic, play-safe. */
-export const MOOD_ARCHETYPES: Record<string, string[]> = {
-  sleepy: ["the Serene", "the Hibernator", "of the Eternal Nap", "the Pillow Sage"],
-  hungry: ["the Ever-Hungry", "the Crumb Seeker", "of the Bottomless Bowl"],
-  goofy: ["the Jester", "the Unserious", "of Infinite Wiggles"],
-  cuddly: ["the Gentle", "the Velcro-Hearted", "of the Warm Lap"],
-  dramatic: ["the Theatrical", "the Misunderstood", "of the Heavy Sigh"],
-  wild: ["the Untamed", "the Zoomer", "of the Backyard Steppe"],
-  brave: ["the Bold", "the Unflinching", "Guardian of the Yard"],
-  grumpy: ["the Unimpressed", "the Skeptic", "of the Side-Eye"],
-  proud: ["the Magnificent", "the Distinguished", "of the High Head"],
-  sneaky: ["the Silent", "the Untraceable", "of the Missing Snacks"],
-};

@@ -117,8 +117,9 @@ export type IdentityInput = {
   existingNickname?: string;
   /** only when the owner supplied it */
   pronouns?: Pronouns;
-  /** confirmed behaviors, moods, habits, quirks, situations (kind on each) */
-  facts: ConfirmedFact[];
+  /** confirmed facts, kept for the design record; names come from the
+   *  famous-name rhymes, not from here */
+  facts?: ConfirmedFact[];
   activityLevel?: ActivityLevel;
   favoriteThings?: string[];
   /** only when the owner supplied them */

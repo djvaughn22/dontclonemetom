@@ -1,8 +1,8 @@
 # Dog Identity Engine
 
-The reusable system behind the free Dog Legend experience: real dog + real
-behavior + current mood + inspiration lane = fitting identity. The system
-suggests names; **the owner confirms which names actually fit.** The
+The reusable system behind the free Dog Legend experience: the dog's real
+name, rhymed with movie stars and sports legends. The system suggests
+names; **the owner confirms which names actually fit.** The
 technology stays behind the curtain — nothing public markets this as an AI
 product (and the engine is in fact deterministic code, no AI APIs).
 
@@ -12,12 +12,11 @@ Pure engine (no React, no Next, no browser APIs) — `app/lib/identity/`:
 
 | File | Role |
 |---|---|
-| `types.ts` | All shared types: `IdentityInput`, `NicknameCandidate`, `ConfirmedFact`, lanes, rights levels |
+| `types.ts` | All shared types: `IdentityInput`, `NicknameCandidate`, lanes, rights levels |
 | `random.ts` | Seeded deterministic PRNG (mulberry32), `stableId` hashing |
-| `lexicon.ts` | Inspiration DATA: famous-name transform sources, archetype templates, titles, sport roles, lane word banks, behavior vocab, mood archetypes, rhyme bank |
-| `engine.ts` | `generateCandidates(input, count)` — pattern families composed over the lexicon |
-| `shuffle.ts` | `ShuffleSession` + `deal/save/remove/restore/reset/filters/lockWord` |
-| `behaviors.ts` | Owner-confirmation catalogs + `factFromCatalog` / `factFromOwnerText` |
+| `lexicon.ts` | DATA: `FAMOUS_SOURCES` (movie stars, musicians, sports legends, historical greats) + `PUNNED_FAMOUS` (hand-written dog puns) |
+| `engine.ts` | `generateCandidates(input, count)` — the two rhyme families over the lexicon |
+| `shuffle.ts` | `ShuffleSession` + `deal/save/remove/restore/reset/laneFilter/lockWord` |
 | `rights.ts` | `classifyRights` → `playSafe` / `manualReview` / `blockedForMerch` |
 | `designSpec.ts` | `DesignSpecV1` — one approved design reused across products, with revision audit trail |
 | `commerce.ts` | Provider abstraction (Shopify / Etsy / Printify / Canva), products, donation gate |
@@ -31,12 +30,10 @@ UI (DontCloneMeTom-specific, **not** part of the portable engine):
 
 ## Input / output schemas
 
-`IdentityInput` (see `types.ts`): realName (required), existingNickname,
-pronouns (only when supplied), `facts: ConfirmedFact[]` (behavior / mood /
-habit / quirk / situation — each with `source: owner-selected |
-owner-entered`), activityLevel, favoriteThings, dislikes, physicalFeatures,
-lanes, excludedWords, shownIds/shownKeys, favoriteIds, lockedWord, seed,
-step, commercialSafety.
+`IdentityInput` (see `types.ts`): realName (required), existingNickname
+(sharpens the rhymes), lanes, excludedWords/dislikes, shownIds/shownKeys,
+lockedWord, seed, step, commercialSafety. `facts` remains in the type for
+the design record but does not drive generation.
 
 `NicknameCandidate`: stable id, nickname, heroSuitable, lane, archetype,
 matchedFactId/Text, wordplay explanation, situational label, shareText,
@@ -54,22 +51,28 @@ anything. Profile-side, `findUnverifiedClaims` + `findBannedHeroSpellings`
 
 ## Generation & shuffle strategy
 
-Pattern families (each capped at 2 per deal so hands stay varied):
-`famous-sub` (first-name / surname / double sound substitution),
-`archetype-transform` (Bat{Base}, {Base}nator…), `title` (formal + titled
-specialist from confirmed facts), `sport-role` (position + behavior),
-`vibe` (lane word pairings), `mood-epithet`, `the-title`, `situational`,
-`rhyme`. Lane cap: max(2, count/3) per deal.
+One job, done well (owner decision, Jul 29 2026): spin names that rhyme
+with movie stars and sports legends. Two families, mixed in every hand:
 
-Dedup: `nearDupKey` normalizes case, punctuation and filler words
-("The Big Zay!" ≡ "Zay"). Inside a deal: no repeated keys. Across the
-session: shown ids −2.5 score, shown keys −1.5; bounded history
-(`HISTORY_LIMIT` 400). Deterministic: same seed + step ⇒ same deal; each
-"shuffle again" advances `step`.
+- `rhymed-famous` — the dog's name onset swapped into a famous first
+  name, keeping the perfect rhyme: "Bobby" → **Batrick Swayze**,
+  **Baylor Swift**, **BeBron James**; "Zay" → **Zelvis Presley**.
+- `punned-famous` — hand-written dog puns from `PUNNED_FAMOUS`:
+  **Pawtrick Swayze**, **Sandra Bulldog**, **Napoleon Bone-aparte**.
+  The best jokes are written, not computed.
+
+Names are short by law: max 5 words / 26 characters. Confirmed facts are
+kept on the design record but do not drive name generation anymore.
+
+Dedup: `nearDupKey` normalizes case, punctuation and filler words.
+Inside a deal: no repeated keys. Across the session: shown ids −2.5
+score, shown keys −1.5; bounded history (`HISTORY_LIMIT` 400).
+Deterministic: same seed + step ⇒ same deal; "shuffle again" advances
+`step`. The rhyme pool per dog is finite by design — a long session of
+fresh hands, not infinity.
 
 Session ops: `resetSession` (keeps favorites), `removeSuggestion` /
-`restoreSuggestion`, `setLaneFilter` / `setMoodFilter` /
-`setBehaviorFilter`, `lockWord` (part locking), `surpriseMe`.
+`restoreSuggestion`, `setLaneFilter`, `lockWord`, `surpriseMe`.
 
 ## Rights-risk classification
 
@@ -103,7 +106,7 @@ caption (`HeroIdentityContext`); the real name always stays separate.
 
 ## Free preview lifecycle & watermark
 
-`/legend`: name → confirm facts → shuffle → save favorites → pick a hero →
+`/legend`: name → shuffle → save favorites → pick the poster name →
 watermarked poster preview → share/download → truthful purchase links.
 Everything free, no account. The poster is drawn on a client canvas
 (1080×1350). The photo is a local object URL — **it never leaves the
@@ -157,12 +160,11 @@ recorded. Never "tax deductible", never an implied official partnership.
 
 - **New curated alias/identity:** add to `heroIdentities` in the profile
   record in `dogProfiles.ts` (id, name, subtitle, tagline, kind).
-- **New behavior category:** add to `BEHAVIOR_CATALOG` (+ optional
-  `BEHAVIOR_VOCAB` entry in `lexicon.ts` for richer wordplay).
+- **New star or legend:** one `FAMOUS_SOURCES` line in `lexicon.ts`.
+- **New pun you thought of in the shower:** one `PUNNED_FAMOUS` line
+  (with its honest `risk` floor).
 - **New sport:** add the lane to `INSPIRATION_LANES`/`SPORT_LANES` in
-  `types.ts`, then tag `FAMOUS_SOURCES` / `SPORT_ROLES` entries with it.
-- **New naming pattern:** add a draft function in `engine.ts` with its own
-  `family` tag and include it in `generateCandidates`.
+  `types.ts`, then tag `FAMOUS_SOURCES` entries with it.
 
 ## Privacy & image handling
 

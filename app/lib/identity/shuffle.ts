@@ -21,10 +21,6 @@ export type ShuffleSession = {
   lockedWord?: string;
   filters: {
     lanes?: InspirationLane[];
-    /** mood fact ids the owner wants riffs on right now */
-    moodIds?: string[];
-    /** behavior fact ids the owner wants riffs on right now */
-    behaviorIds?: string[];
   };
 };
 
@@ -47,13 +43,9 @@ export type DealResult = { session: ShuffleSession; candidates: NicknameCandidat
  */
 export function deal(session: ShuffleSession, baseInput: Omit<IdentityInput, "seed" | "step" | "shownIds" | "shownKeys" | "lockedWord">, count = 6): DealResult {
   const removedIds = new Set(session.removed.map((c) => c.id));
-  const facts = baseInput.facts ?? [];
-  const focusIds = [...(session.filters.moodIds ?? []), ...(session.filters.behaviorIds ?? [])];
-  const focusedFacts = focusIds.length ? facts.filter((f) => focusIds.includes(f.id)) : facts;
 
   const input: IdentityInput = {
     ...baseInput,
-    facts: focusedFacts,
     lanes: session.filters.lanes,
     seed: session.seed,
     step: session.step,
@@ -97,14 +89,6 @@ export function restoreSuggestion(s: ShuffleSession, id: string): ShuffleSession
 
 export function setLaneFilter(s: ShuffleSession, lanes?: InspirationLane[]): ShuffleSession {
   return { ...s, filters: { ...s.filters, lanes: lanes && lanes.length ? lanes : undefined } };
-}
-
-export function setMoodFilter(s: ShuffleSession, moodIds?: string[]): ShuffleSession {
-  return { ...s, filters: { ...s.filters, moodIds: moodIds && moodIds.length ? moodIds : undefined } };
-}
-
-export function setBehaviorFilter(s: ShuffleSession, behaviorIds?: string[]): ShuffleSession {
-  return { ...s, filters: { ...s.filters, behaviorIds: behaviorIds && behaviorIds.length ? behaviorIds : undefined } };
 }
 
 export function lockWord(s: ShuffleSession, word?: string): ShuffleSession {
