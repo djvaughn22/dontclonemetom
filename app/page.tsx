@@ -634,6 +634,16 @@ export default function DontCloneMeTom() {
             </span>
             <span className="text-[#2DD4BF] font-black">→</span>
           </a>
+          {/* Free legend studio — fun on-ramp, adoption stays the mission */}
+          <Link
+            href="/legend"
+            className="mx-auto mt-3 flex max-w-md items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-left transition hover:border-[#2DD4BF]"
+          >
+            <span className="text-sm font-bold leading-6 text-[#e8edf5]">
+              🦸 Got a dog? Build their legend — endless nicknames + a free poster, approved by Isaiah.
+            </span>
+            <span className="text-[#2DD4BF] font-black">→</span>
+          </Link>
         </section>
 
         {/* Live adoptable dogs by ZIP */}

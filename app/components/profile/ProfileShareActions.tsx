@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { track } from "../../lib/analytics";
+import { useHeroIdentity } from "./HeroIdentityContext";
 
 // Share + print controls for structured dog profiles: copy link, native
 // share where supported, email, text, Facebook, and a print/PDF view.
+// When a hero identity is chosen on the page, the share caption follows it.
 export default function ProfileShareActions({
   slug,
-  title,
-  shareText,
+  title: baseTitle,
+  shareText: baseShareText,
   pageUrl,
 }: {
   slug: string;
@@ -17,6 +19,9 @@ export default function ProfileShareActions({
   pageUrl: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const hero = useHeroIdentity();
+  const shareText = hero?.shareText ?? baseShareText;
+  const title = hero && hero.identity.id !== hero.defaultHeroId ? hero.identity.name : baseTitle;
 
   useEffect(() => {
     track("dcmt_profile_viewed", { dog_slug: slug });

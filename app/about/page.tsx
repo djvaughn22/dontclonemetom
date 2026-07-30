@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import AboutDestinationCard from "../components/AboutDestinationCard";
 import { BE_PREPARED_CARD } from "../lib/destinations";
 
@@ -54,12 +55,12 @@ export default function AboutPage() {
           doesn&rsquo;t keep it. Your light-or-dark choice is saved on your device.
         </p>
 
-        <a
+        <Link
           href="/"
           style={{ display: "inline-block", background: A, color: "#06231e", borderRadius: 50, padding: "13px 26px", fontSize: 15, fontWeight: 900, textDecoration: "none", marginBottom: 28 }}
         >
           🐶 Meet adoptable dogs
-        </a>
+        </Link>
 
         {/* The one quiet destination card — after the site's own story.
             A pet household is still a household; the reminder fits here. */}
@@ -73,7 +74,7 @@ export default function AboutPage() {
           It is not affiliated with, sponsored by, or endorsed by Tom Brady, Colossal
           Biosciences, ViaGen Pets, the NFL, the New England Patriots, the Tampa Bay Buccaneers,
           or any related trademark owner. The full statement is on the{" "}
-          <a href="/" style={{ color: "#94a3b8" }}>home page</a>.
+          <Link href="/" style={{ color: "#94a3b8" }}>home page</Link>.
         </p>
       </div>
     </main>

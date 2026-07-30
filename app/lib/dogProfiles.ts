@@ -8,6 +8,14 @@
 // on the names and facts the owner actually provided — findUnverifiedClaims
 // enforces that boundary and the test suite runs it on every profile.
 
+import {
+  BANNED_HERO_SPELLINGS,
+  ISAIAH_HERO_ID,
+  ISAIAH_HERO_NAME,
+  ISAIAH_SUBTITLE,
+  type HeroIdentity,
+} from "./identity/heroIdentity";
+
 export type ProfileFact = { label: string; source: "owner" | "rescue" };
 export type NicknameGroup = { title: string; names: string[] };
 export type SituationalName = { when: string; name: string };
@@ -19,6 +27,12 @@ export type DogProfileV1 = {
   slug: string;
   realName: string;
   displayTitle: string;
+  /** the current chosen hero identity's name (e.g. "Bruzer Zayne");
+   *  displayTitle then reads as the legend subtitle */
+  heroName?: string;
+  defaultHeroId?: string;
+  /** the chooser's deck: curated + behavior + mood identities */
+  heroIdentities?: HeroIdentity[];
   profileType: "family" | "adoptable";
   adoptionStatus: "home" | "adoptable";
   primaryImage: string;
@@ -86,6 +100,7 @@ function humorStrings(p: DogProfileV1): string[] {
   return [
     ...p.intro,
     ...p.aliases,
+    ...(p.heroIdentities ?? []).flatMap((h) => [h.name, h.subtitle ?? "", h.tagline ?? ""]),
     ...p.nicknameGroups.flatMap((g) => [g.title, ...g.names]),
     ...p.situationalNames.flatMap((s) => [s.when, s.name]),
     ...p.characterCards.flatMap((c) => [c.name, c.tagline]),
@@ -113,11 +128,33 @@ export function findBannedPublicPhrases(p: DogProfileV1): string[] {
   return BANNED_PUBLIC_PHRASES.filter((phrase) => all.includes(phrase));
 }
 
+// The canonical hero spelling is "Bruzer Zayne" — the historical
+// misspellings must never reappear anywhere in any profile.
+export function findBannedHeroSpellings(p: DogProfileV1): string[] {
+  const all = JSON.stringify(p).toLowerCase();
+  return BANNED_HERO_SPELLINGS.filter((s) => all.includes(s));
+}
+
 const isaiah: DogProfileV1 = {
   version: 1,
   slug: "isaiah",
   realName: "Isaiah",
-  displayTitle: "The Dark Zay",
+  // Canonical hero identity (owner-corrected): BRUZER ZAYNE, subtitle
+  // "The Dark Zay", known in ordinary life as Isaiah.
+  displayTitle: ISAIAH_SUBTITLE,
+  heroName: ISAIAH_HERO_NAME,
+  defaultHeroId: ISAIAH_HERO_ID,
+  heroIdentities: [
+    { id: ISAIAH_HERO_ID, name: ISAIAH_HERO_NAME, subtitle: ISAIAH_SUBTITLE, tagline: "The flagship. The legend. The reason you're here.", kind: "curated" },
+    { id: "batdog", name: "Batdog", subtitle: "The hero this living room deserves", tagline: "No one has ever seen Isaiah and Batdog in the same room.", kind: "curated" },
+    { id: "the-dark-zayne", name: "The Dark Zayne", subtitle: "Formal occasions", tagline: "Same dog, longer cape.", kind: "curated" },
+    { id: "darthzayder", name: "DarthZayder", subtitle: "After dinner", tagline: "Appears after dinner. Ask the couch.", kind: "behavior" },
+    { id: "spiderzay", name: "SpiderZay", subtitle: "Your friendly neighborhood Zay", tagline: "Climbs nothing. Claims everything.", kind: "curated" },
+    { id: "superzay", name: "SuperZay", subtitle: "Mild-mannered Isaiah is the disguise", tagline: "Faster than a dropped meatball.", kind: "curated" },
+    { id: "zenzaya", name: "ZenZaya", subtitle: "Nap time", tagline: "Inner peace. Outer sprawl.", kind: "mood" },
+    { id: "zay-train", name: "Zay Train", subtitle: "Zoomies o'clock", tagline: "All aboard. No brakes.", kind: "mood" },
+    { id: "isaiah-papaya", name: "Isaiah Papaya", subtitle: "The rhyme department", tagline: "It rhymes. That's the whole case.", kind: "recent" },
+  ],
   profileType: "family",
   adoptionStatus: "home",
   primaryImage: "/isaiah.jpg",
@@ -141,7 +178,7 @@ const isaiah: DogProfileV1 = {
     "Zay-Zay",
     "Big Zay",
     "Batdog",
-    "Bruce Zayne",
+    "Bruzer Zayne",
     "The Dark Zay",
     "The Dark Zayne",
     "Isaiah Papaya",
@@ -166,7 +203,7 @@ const isaiah: DogProfileV1 = {
     },
   ],
   situationalNames: [
-    { when: "By day", name: "Bruce Zayne" },
+    { when: "By day", name: "Bruzer Zayne" },
     { when: "After dinner", name: "DarthZayder" },
     { when: "Nap time", name: "ZenZaya" },
     { when: "Formal occasions", name: "The Dark Zayne" },
@@ -174,7 +211,7 @@ const isaiah: DogProfileV1 = {
   ],
   characterCards: [
     { name: "Batdog", tagline: "The hero this living room deserves." },
-    { name: "Bruce Zayne", tagline: "Respectable daytime identity. Suspiciously calm." },
+    { name: "Bruzer Zayne", tagline: "Respectable daytime identity. Suspiciously calm." },
     { name: "The Dark Zay", tagline: "The flagship. The legend. The reason you're here." },
     { name: "The Dark Zayne", tagline: "Same dog, longer cape." },
     { name: "DarthZayder", tagline: "Appears after dinner. Ask the couch." },
@@ -212,7 +249,7 @@ const isaiah: DogProfileV1 = {
     {
       title: "Evidence Collected",
       lines: [
-        "Exhibit A: the tag clearly says ISAIAH. The eyes say Bruce Zayne.",
+        "Exhibit A: the tag clearly says ISAIAH. The eyes say Bruzer Zayne.",
         "Exhibit B: no one has ever seen Isaiah and Batdog in the same room.",
       ],
     },
@@ -220,10 +257,10 @@ const isaiah: DogProfileV1 = {
   shelter: { name: "Home 2 Home Canine Orphanage", url: "https://home2homecanineorphanage.org/adopt" },
   location: "St. Louis area",
   shareText:
-    "Meet Isaiah — a.k.a. The Dark Zay. 18 aliases, one very good boy. He already has a home; lots of dogs near you still need one.",
-  seoTitle: "The Dark Zay",
+    "Meet Isaiah — a.k.a. Bruzer Zayne, The Dark Zay. 18 aliases, one very good boy. He already has a home; lots of dogs near you still need one.",
+  seoTitle: "Bruzer Zayne — The Dark Zay",
   seoDescription:
-    "Isaiah: family dog, 18 known aliases, zero available for adoption. Meet the Dark Zay — then meet a dog who still needs a home.",
+    "Isaiah: family dog, 18 known aliases, zero available for adoption. Meet Bruzer Zayne, The Dark Zay — then meet a dog who still needs a home.",
   theme: { accent: "#2DD4BF" },
 };
 

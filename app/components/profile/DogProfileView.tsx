@@ -1,6 +1,9 @@
 import Link from "next/link";
 import type { DogProfileV1 } from "../../lib/dogProfiles";
+import type { HeroIdentity } from "../../lib/identity/heroIdentity";
 import AliasStrip from "./AliasStrip";
+import HeroIdentityProvider from "./HeroIdentityContext";
+import ProfileHero from "./ProfileHero";
 import ProfileShareActions from "./ProfileShareActions";
 import QuoteCards from "./QuoteCards";
 import NameIdeasHelper from "./NameIdeasHelper";
@@ -35,7 +38,23 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
   const accent = p.theme.accent;
   const pageUrl = `https://dontclonemetom.com/dogs/${p.slug}`;
 
+  // Every profile gets a hero-identity source; profiles without a curated
+  // deck simply get their display title as the one (unclickable-equivalent)
+  // identity, so unknown ids still resolve safely.
+  const identities: HeroIdentity[] =
+    p.heroIdentities && p.heroIdentities.length > 0
+      ? p.heroIdentities
+      : [{ id: "default", name: p.heroName ?? p.displayTitle, subtitle: p.displayTitle, kind: "curated" }];
+  const defaultHeroId = p.defaultHeroId ?? identities[0].id;
+
   return (
+    <HeroIdentityProvider
+      slug={p.slug}
+      realName={p.realName}
+      defaultHeroId={defaultHeroId}
+      identities={identities}
+      baseShareText={p.shareText}
+    >
     <main className="print-sheet min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-10">
         {/* Hero */}
@@ -45,15 +64,23 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
             <img src={p.primaryImage} alt={p.primaryImageAlt} className="block w-full" />
           </div>
           <h1 className="mt-6 text-lg font-black uppercase tracking-[0.3em] text-[#94a3b8]">{p.realName}</h1>
-          <p
-            className="mt-1 font-black leading-[1.05] tracking-tight"
-            style={{ fontSize: "clamp(2.2rem, 9vw, 4rem)", color: accent }}
-          >
-            {p.displayTitle}
-          </p>
-          <div className="mt-4">
-            <AliasStrip aliases={p.aliases} accent={accent} />
-          </div>
+          {p.heroIdentities && p.heroIdentities.length > 0 ? (
+            <div className="mt-1">
+              <ProfileHero aliases={p.aliases} accent={accent} slug={p.slug} subtitle={p.displayTitle} />
+            </div>
+          ) : (
+            <>
+              <p
+                className="mt-1 font-black leading-[1.05] tracking-tight"
+                style={{ fontSize: "clamp(2.2rem, 9vw, 4rem)", color: accent }}
+              >
+                {p.displayTitle}
+              </p>
+              <div className="mt-4">
+                <AliasStrip aliases={p.aliases} accent={accent} />
+              </div>
+            </>
+          )}
           {p.intro.length > 0 && (
             <div className="mx-auto mt-5 max-w-md">
               {p.intro.map((line) => (
@@ -181,6 +208,22 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
           </section>
         )}
 
+        {/* Free poster preview CTA — prominent, not pushy */}
+        <section className="no-print print-card mb-8 rounded-2xl border p-6 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
+          <SectionTitle accent={accent}>Your dog has a legend too</SectionTitle>
+          <p className="mx-auto max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
+            Build it free: real name, real habits, endless nickname shuffle, and a
+            poster preview approved by Isaiah himself.
+          </p>
+          <Link
+            href="/legend"
+            className="mt-4 inline-flex justify-center rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] transition hover:opacity-90"
+            style={{ background: accent }}
+          >
+            Make your dog&apos;s legend — free
+          </Link>
+        </section>
+
         {/* Share + print */}
         <section className="mb-10">
           <SectionTitle accent={accent}>Pass {p.realName} around</SectionTitle>
@@ -244,5 +287,6 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
         </p>
       </div>
     </main>
+    </HeroIdentityProvider>
   );
 }

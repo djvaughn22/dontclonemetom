@@ -3,6 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   BANNED_PUBLIC_PHRASES,
+  findBannedHeroSpellings,
   findBannedPublicPhrases,
   findUnverifiedClaims,
   getDogProfile,
@@ -43,9 +44,31 @@ describe("dog profile registry", () => {
   it("carries the full 18-alias universe", () => {
     const p = getDogProfile("isaiah")!;
     expect(p.aliases).toHaveLength(18);
-    for (const name of ["The Dark Zay", "Bruce Zayne", "DarthZayder", "Isaiah Papaya", "Izzy Smalls"]) {
+    for (const name of ["The Dark Zay", "Bruzer Zayne", "DarthZayder", "Isaiah Papaya", "Izzy Smalls"]) {
       expect(p.aliases).toContain(name);
     }
+  });
+
+  it("isaiah's canonical hero identity is Bruzer Zayne with The Dark Zay as subtitle", () => {
+    const p = getDogProfile("isaiah")!;
+    expect(p.heroName).toBe("Bruzer Zayne");
+    expect(p.displayTitle).toBe("The Dark Zay");
+    expect(p.defaultHeroId).toBe("bruzer-zayne");
+    expect(p.realName).toBe("Isaiah"); // real name stays separate
+    const defaultIdentity = p.heroIdentities!.find((h) => h.id === p.defaultHeroId)!;
+    expect(defaultIdentity.name).toBe("Bruzer Zayne");
+    expect(defaultIdentity.subtitle).toBe("The Dark Zay");
+  });
+
+  it("the misspellings never appear anywhere in any profile", () => {
+    for (const p of listDogProfiles()) {
+      expect(findBannedHeroSpellings(p)).toEqual([]);
+    }
+  });
+
+  it("the spelling detector actually catches the old mistakes", () => {
+    const doctored: DogProfileV1 = { ...getDogProfile("isaiah")!, aliases: ["Bruce Zayne"] };
+    expect(findBannedHeroSpellings(doctored)).toEqual(["bruce zayne"]);
   });
 });
 
@@ -87,7 +110,13 @@ describe("profile rendering", () => {
     const html = renderToStaticMarkup(
       createElement(DogProfileView, { profile: getDogProfile("isaiah")! }),
     );
-    expect(html).toContain("The Dark Zay");
+    expect(html).toContain("Bruzer Zayne"); // hero name in lights
+    expect(html).toContain("The Dark Zay"); // the legend subtitle stays
+    expect(html).toContain("Known in ordinary life as Isaiah");
+    expect(html).toContain("/legend"); // free-preview CTA present
+    expect(html.toLowerCase()).not.toContain("bruce zayne");
+    expect(html.toLowerCase()).not.toContain("bruze zayne");
+    expect(html.toLowerCase()).not.toContain("bruiser");
     expect(html).toContain("Isaiah already has a home.");
     expect(html).toContain("Meet a dog who still needs one.");
     expect(html).toContain("/isaiah.jpg");
