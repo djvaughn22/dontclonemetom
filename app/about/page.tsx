@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import AboutDestinationCard from "../components/AboutDestinationCard";
-import { BE_PREPARED_CARD } from "../lib/destinations";
 
 export const metadata: Metadata = {
   title: "About DontCloneMeTom",
@@ -61,12 +59,6 @@ export default function AboutPage() {
         >
           🐶 Meet adoptable dogs
         </Link>
-
-        {/* The one quiet destination card — after the site's own story.
-            A pet household is still a household; the reminder fits here. */}
-        <div style={{ margin: "0 0 28px" }}>
-          <AboutDestinationCard card={BE_PREPARED_CARD} />
-        </div>
 
         <p style={{ fontSize: 12.5, lineHeight: 1.7, color: "#64748b", margin: 0 }}>
           DontCloneMeTom is an independent dog-rescue awareness project by{" "}
