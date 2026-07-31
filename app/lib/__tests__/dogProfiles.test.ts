@@ -58,11 +58,17 @@ describe("dog profile registry", () => {
     }
   });
 
-  it("the family names survive in the deck, correctly spelled", () => {
+  it("the locked deck names are exactly as specified", () => {
     const names = getDogProfile("isaiah")!.cards.map((c) => c.nickname);
-    expect(names).toContain("Big Zay");
-    expect(names).toContain("Bruzer Zayne"); // the ONLY correct spelling
-    expect(names).toContain("The Dark Zay");
+    expect(names).toEqual([
+      "Batdog",
+      "The Dark Zay",
+      "Bruce Zayne",
+      "Darth Zayder",
+      "Isaiah Papaya",
+      "Izzy Osbourne",
+      "Zayaplaya",
+    ]);
   });
 
   it("the misspellings never appear anywhere in any profile", () => {
@@ -71,12 +77,12 @@ describe("dog profile registry", () => {
     }
   });
 
-  it("the spelling detector actually catches the old mistakes", () => {
+  it("the spelling detector catches bruze (with z) misspelling", () => {
     const doctored: DogProfileV1 = {
       ...getDogProfile("isaiah")!,
-      cards: [{ nickname: "Bruce Zayne", sayings: ["nope"] }],
+      cards: [{ nickname: "Bruze Zayne", sayings: ["nope"] }],
     };
-    expect(findBannedHeroSpellings(doctored)).toEqual(["bruce zayne"]);
+    expect(findBannedHeroSpellings(doctored)).toEqual(["bruze zayne"]);
   });
 });
 

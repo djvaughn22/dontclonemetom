@@ -1,8 +1,16 @@
-import { CARD_THEMES, type DogCardFace } from "../../lib/cards/tradingCards";
+"use client";
 
-// One collectible dog trading card. Presentational only — the spinner
-// decides which face to show. Flat and colorful: the frame + nickname take
-// the card's theme color, everything else stays the site's dark panel.
+import { useRef } from "react";
+import { CARD_THEMES, type DogCardFace } from "../../lib/cards/tradingCards";
+import { clampSpec, FIT_WHOLE_DOG, photoImgStyle, type PhotoSpec } from "../../lib/cards/photoFraming";
+
+// One collectible dog trading card. Presentational — the spinner decides
+// which face to show. The photo window is portrait 4:5 with smart framing:
+// Fit Whole Dog (contain + blurred fill) by default, or a stored focal
+// position (Isaiah's is owner-tuned). Never a blind centered crop.
+//
+// When `onPhotoSpecChange` is provided (the maker's Center Your Dog step),
+// the photo can be dragged to move the focus point.
 
 export type CardAttribution = {
   org: string;
@@ -15,14 +23,43 @@ export default function TradingCard({
   photoAlt,
   face,
   attribution,
+  photoSpec = FIT_WHOLE_DOG,
+  onPhotoSpecChange,
 }: {
   realName: string;
   photoUrl?: string;
   photoAlt: string;
   face: DogCardFace;
   attribution?: CardAttribution;
+  photoSpec?: PhotoSpec;
+  onPhotoSpecChange?: (spec: PhotoSpec) => void;
 }) {
   const color = CARD_THEMES[face.themeIndex % CARD_THEMES.length];
+  const spec = clampSpec(photoSpec);
+  const dragging = useRef<{ x: number; y: number } | null>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const editable = !!onPhotoSpecChange && spec.fit === "focal";
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (!editable) return;
+    dragging.current = { x: e.clientX, y: e.clientY };
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!editable || !dragging.current || spec.fit !== "focal") return;
+    const rect = frameRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const dx = (e.clientX - dragging.current.x) / rect.width;
+    const dy = (e.clientY - dragging.current.y) / rect.height;
+    dragging.current = { x: e.clientX, y: e.clientY };
+    onPhotoSpecChange!(
+      clampSpec({ fit: "focal", x: spec.x - dx, y: spec.y - dy, zoom: spec.zoom }),
+    );
+  }
+  function onPointerUp() {
+    dragging.current = null;
+  }
+
   return (
     <div
       key={face.cardNumber}
@@ -38,12 +75,38 @@ export default function TradingCard({
           No. {face.cardNumber}
         </span>
       </div>
-      <div className="mt-3 overflow-hidden rounded-2xl border-2" style={{ borderColor: color }}>
+      <div
+        ref={frameRef}
+        className={`relative mt-3 aspect-[4/5] overflow-hidden rounded-2xl border-2 bg-[#0b1220] ${editable ? "cursor-move touch-none" : ""}`}
+        style={{ borderColor: color }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
         {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photoUrl} alt={photoAlt} className="block aspect-square w-full bg-[#0b1220] object-cover" />
+          <>
+            {spec.fit === "contain" && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoUrl}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-xl"
+                draggable={false}
+              />
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={photoUrl}
+              alt={photoAlt}
+              className="absolute inset-0 h-full w-full select-none"
+              style={photoImgStyle(spec)}
+              draggable={false}
+            />
+          </>
         ) : (
-          <div className="flex aspect-square w-full items-center justify-center bg-[#0b1220] text-7xl" aria-label={photoAlt}>
+          <div className="flex h-full w-full items-center justify-center text-7xl" aria-label={photoAlt}>
             🐶
           </div>
         )}

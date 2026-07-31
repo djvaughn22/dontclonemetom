@@ -36,7 +36,7 @@ function ShareCard({ line }: { line: string }) {
   );
 }
 
-type Dog = {
+export type Dog = {
   id: string;
   name: string;
   breed: string;
@@ -224,6 +224,50 @@ function ShareMenu({ label, title, text, url, className, photo = null, imgLines 
   );
 }
 
+// One dog in the results grid. The whole tile opens the dog's detail; the
+// card chip hands the dog — name, photo, deck, attribution — straight to
+// the card maker without replacing the real adoption path.
+export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
+      className="cursor-pointer overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]"
+    >
+      {d.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={d.photo} alt={d.name} loading="lazy" className="h-40 w-full object-cover" style={{ objectPosition: "50% 25%" }} />
+      ) : (
+        <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
+      )}
+      <div className="px-3 py-2.5">
+        <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
+        <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
+        <p className="mt-1 text-xs font-semibold text-[#94a3b8]">
+          {[d.age.split(" ").slice(0, 2).join(" "), d.sex].filter(Boolean).join(" · ")}
+          {d.distance !== null && (
+            <span className="text-[#5eead4]"> · {Math.round(d.distance)} mi</span>
+          )}
+        </p>
+        {d.org && (
+          <p className="mt-0.5 truncate text-[11px] font-semibold text-[#94a3b8]">
+            {d.org}
+          </p>
+        )}
+        <Link
+          href={`/cards?dog=${d.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2 inline-block rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-[11px] font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
+        >
+          🃏 Make a Dog Card
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function FindDogs() {
   const [zip, setZip] = useState("63040");
   const [miles, setMiles] = useState(50);
@@ -372,34 +416,7 @@ function FindDogs() {
       {status === "ok" && dogs && (
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           {dogs.map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => { setDetail(d); setPhotoIdx(0); }}
-              className="overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]"
-            >
-              {d.photo ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={d.photo} alt={d.name} loading="lazy" className="h-40 w-full object-cover" style={{ objectPosition: "50% 25%" }} />
-              ) : (
-                <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
-              )}
-              <div className="px-3 py-2.5">
-                <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
-                <p className="truncate text-xs font-semibold text-[#94a3b8]">{d.breed}</p>
-                <p className="mt-1 text-xs font-semibold text-[#94a3b8]">
-                  {[d.age.split(" ").slice(0, 2).join(" "), d.sex].filter(Boolean).join(" · ")}
-                  {d.distance !== null && (
-                    <span className="text-[#5eead4]"> · {Math.round(d.distance)} mi</span>
-                  )}
-                </p>
-                {d.org && (
-                  <p className="mt-0.5 truncate text-[11px] font-semibold text-[#94a3b8]">
-                    {d.org}
-                  </p>
-                )}
-              </div>
-            </button>
+            <DogTile key={d.id} dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
           ))}
         </div>
       )}
@@ -477,6 +494,12 @@ function FindDogs() {
                 </p>
               )}
               <div className="mt-5 flex flex-col gap-3">
+                <Link
+                  href={`/cards?dog=${detail.id}`}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
+                >
+                  🃏 Make a Dog Card for {detail.name}
+                </Link>
                 {detail.email && (
                   <a
                     href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on DontCloneMeTom.com and would love to learn more!\n\nThank you!`)}`}

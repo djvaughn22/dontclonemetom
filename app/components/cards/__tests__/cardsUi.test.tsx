@@ -68,18 +68,16 @@ describe("TradingCard", () => {
 });
 
 describe("CardMaker", () => {
-  it("asks for the simple things and never lists the nicknames", () => {
+  it("asks for the simple things and never lists the nicknames before name entry", () => {
     const html = renderToStaticMarkup(createElement(CardMaker));
-    expect(html).toContain("Make a dog card.");
+    expect(html).toContain("Make a Dog Card");
     expect(html).toContain("Add a dog photo");
     expect(html).toContain("real name");
     expect(html).toContain("Pick a few");
     // No card until a name is typed, and no nickname pool ever renders.
     for (const p of buildDeck("Rex")) {
-      if (p.nickname === "Rex Jones") continue; // name-templated; base form checked below
       expect(html).not.toContain(p.nickname);
     }
-    expect(html).not.toContain("Jones");
     // The mission links stay.
     expect(html).toContain("/dogs/isaiah");
     expect(html).toContain("/#find");

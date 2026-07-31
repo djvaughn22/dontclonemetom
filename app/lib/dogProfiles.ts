@@ -3,16 +3,17 @@
 // future dog = add a record here + drop images in /public. Slugs must never
 // be all digits — numeric /dogs/[id] paths belong to live rescue listings.
 //
-// A profile is now a trading-card deck: a small set of nicknames worth
-// keeping, each with the sayings that fit it. The page shows ONE card at a
-// time — the full list never renders anywhere.
+// A profile carries the dog's LOCKED seven-card deck: exactly seven
+// nicknames, owner-curated, in owner order, hero card first. The page shows
+// ONE card at a time — the full seven never render anywhere.
 //
 // Truth rule: verifiedFacts are the only place for real-world claims, and
 // every fact names its source (owner / rescue). Nicknames and sayings may
 // only riff on what the owner actually supplied — findUnverifiedClaims
 // enforces that boundary and the test suite runs it on every profile.
 
-import type { CardPair } from "./cards/tradingCards";
+import { DECK_SIZE, findDeckProblems, type CardPair } from "./cards/tradingCards";
+import type { PhotoSpec } from "./cards/photoFraming";
 
 export type ProfileFact = { label: string; source: "owner" | "rescue" };
 
@@ -20,14 +21,16 @@ export type DogProfileV1 = {
   version: 1;
   slug: string;
   realName: string;
-  /** the name on the first card — cards[0].nickname */
+  /** the name on the hero card — cards[0].nickname, always first */
   featuredNickname: string;
-  /** the spin deck, in spin order; owner-curated, kept short */
+  /** the locked seven, in spin order; owner-curated, never generated */
   cards: CardPair[];
   profileType: "family" | "adoptable";
   adoptionStatus: "home" | "adoptable";
   primaryImage: string;
   primaryImageAlt: string;
+  /** manual framing for the card photo window; omitted = Fit Whole Dog */
+  photoSpec?: PhotoSpec;
   intro: string[];
   verifiedFacts: ProfileFact[];
   shelter?: { name: string; url?: string };
@@ -79,9 +82,11 @@ export const CLAIM_TERMS = [
   "crate trained",
 ];
 
-// The canonical family spelling is "Bruzer Zayne" — the historical
-// misspellings must never reappear anywhere in any profile.
-export const BANNED_HERO_SPELLINGS = ["bruce zayne", "bruze zayne", "bruiser"];
+// Historical misspellings of family names that must never reappear.
+// NOTE (owner correction, Jul 30 2026): "Bruce Zayne" IS a locked card —
+// Bruce Wayne wordplay, card three of Isaiah's seven — so it is no longer
+// banned. Only the true mistakes stay on this list.
+export const BANNED_HERO_SPELLINGS = ["bruze zayne", "bruiser"];
 
 function humorStrings(p: DogProfileV1): string[] {
   return [
@@ -113,9 +118,22 @@ export function findBannedHeroSpellings(p: DogProfileV1): string[] {
   return BANNED_HERO_SPELLINGS.filter((s) => all.includes(s));
 }
 
-// Isaiah — DJ's family dog, public by owner decision (Jul 2026). Featured
-// card: BATDOG. Every nickname below is one the family could actually keep
-// calling him; the deck stays short on purpose.
+// Deck problems for a profile — locked decks skip the name-connection rule
+// (a human made each name personal) but never the count/dupe/filler rules.
+export function findProfileDeckProblems(p: DogProfileV1): string[] {
+  const problems = findDeckProblems(p.cards, { realName: p.realName, locked: true });
+  if (p.cards.length !== DECK_SIZE) return problems; // count problem already reported
+  if (p.cards[0].nickname !== p.featuredNickname) {
+    problems.push(`hero card is ${p.cards[0].nickname}, expected ${p.featuredNickname}`);
+  }
+  return problems;
+}
+
+// Isaiah — DJ's family dog, public by owner decision (Jul 2026). The
+// permanent example: his LOCKED seven, exact spelling and order, set by the
+// owner on Jul 30 2026. Batdog is the permanent hero card and always opens
+// the deck. Never add, replace, rewrite, autocorrect, reorder, or generate
+// alternatives for these seven names.
 const isaiah: DogProfileV1 = {
   version: 1,
   slug: "isaiah",
@@ -123,20 +141,20 @@ const isaiah: DogProfileV1 = {
   featuredNickname: "Batdog",
   cards: [
     { nickname: "Batdog", sayings: ["Saving the neighborhood after nap time.", "No one has ever seen Isaiah and Batdog in the same room."] },
-    { nickname: "Big Zay", sayings: ["Adopted the family. Kept the couch.", "The floor is mine. All of it."] },
-    { nickname: "Isaiah Jones", sayings: ["Local legend. Ask anyone.", "Today's mission: find the treats."] },
-    { nickname: "Captain Couch", sayings: ["The couch is under my protection.", "Undefeated since breakfast."] },
-    { nickname: "The Treat Detective", sayings: ["I heard the snack bag.", "The case of the missing biscuit: solved."] },
-    { nickname: "Sir Barks-a-Lot", sayings: ["Someone had to say something.", "I heard that. And that."] },
-    { nickname: "Neighborhood Watchdog", sayings: ["Nothing gets past this porch.", "Fast enough to catch one squirrel. Probably."] },
-    { nickname: "Professor Paws", sayings: ["Professional blanket inspector.", "Currently grading your snack sharing."] },
-    { nickname: "Bruzer Zayne", sayings: ["Respectable daytime name. Suspiciously calm.", "It's on the tag. The other tag."] },
-    { nickname: "The Dark Zay", sayings: ["Quiet all day. Legendary after dinner.", "Same dog, longer cape."] },
+    { nickname: "The Dark Zay", sayings: ["Quiet all day. Legendary after dinner.", "The hero this living room deserves."] },
+    { nickname: "Bruce Zayne", sayings: ["Respectable daytime identity. Suspiciously calm.", "Definitely not Batdog. Stop asking."] },
+    { nickname: "Darth Zayder", sayings: ["The bark side is strong with this one.", "Appears after dinner. Ask the couch."] },
+    { nickname: "Isaiah Papaya", sayings: ["It rhymes. That's the whole case.", "Sweet, seedless, occasionally slippery."] },
+    { nickname: "Izzy Osbourne", sayings: ["Loud. Legendary. Slightly unhinged.", "Rocks the entire cul-de-sac."] },
+    { nickname: "Zayaplaya", sayings: ["Too smooth for the leash.", "It's not a phase. It's a lifestyle."] },
   ],
   profileType: "family",
   adoptionStatus: "home",
   primaryImage: "/isaiah.jpg",
   primaryImageAlt: "Isaiah, a black-and-white dog, sitting very still and looking directly at the camera",
+  // Owner-tuned framing: keeps the full head, both ears, and the front paws
+  // in the 4:5 window (photo is 805×1038; focus near the top of the frame).
+  photoSpec: { fit: "focal", x: 0.5, y: 0.12, zoom: 1 },
   intro: [
     "Family dog by day. Batdog after dinner.",
     "Real, rescued, and extremely not for adoption.",

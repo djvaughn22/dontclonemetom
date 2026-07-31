@@ -24,17 +24,26 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
       <div className="mx-auto max-w-3xl px-5 py-10">
         {/* The card */}
         <section className="mb-10">
-          <p className="mb-5 text-center text-xs font-black uppercase tracking-[0.3em] text-[#94a3b8]">
-            Fun Dog Trading Cards
-          </p>
+          <div className="mb-5 text-center">
+            <p className="text-xs font-black uppercase tracking-[0.3em] text-[#94a3b8]">
+              Fun Dog Trading Cards
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-[#e8edf5]">What would you nickname me?</h2>
+            <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
+              Spin through seven names made especially for {p.realName} and
+              share your favorite card.
+            </p>
+          </div>
           <CardSpinner
             realName={p.realName}
             photoUrl={p.primaryImage}
             photoAlt={p.primaryImageAlt}
             deck={p.cards}
+            photoSpec={p.photoSpec}
             shareUrl={pageUrl}
             fileName={p.slug}
             analyticsId={p.slug}
+            makerHref={`/cards?dog=${p.slug}`}
           />
           {p.intro.length > 0 && (
             <div className="mx-auto mt-6 max-w-md text-center">

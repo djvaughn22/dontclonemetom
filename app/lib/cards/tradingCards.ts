@@ -1,16 +1,25 @@
 // Fun Dog Trading Cards — the one simple idea behind the dog pages.
 //
 // A card shows one dog, one nickname, one short funny saying, and the day.
-// Every name and saying here was written by a person and is worth seeing —
-// there are no name mutations, no celebrity mashups, and no hidden pools of
-// thousands. The deck is small on purpose.
+// Every dog gets EXACTLY SEVEN names, and every one of the seven is built
+// for that dog — from its real name's sounds, shortenings, rhymes, and any
+// true things picked about it. There is no shared generic deck, no pool of
+// thousands, and no name that could be pasted onto just any dog.
+//
+// Isaiah is the permanent example: his seven live in dogProfiles.ts as an
+// owner-locked deck (Batdog first, always). This module generates the seven
+// for every other dog and enforces the quality bar for both.
 //
 // Pure logic + data. The UI spins through the deck one card at a time and
 // never shows the whole list.
 
-/** One nickname with the sayings that fit it. `{name}` in a nickname is
- *  replaced by the dog's real name. */
-export type CardPair = { nickname: string; sayings: string[] };
+export const DECK_SIZE = 7;
+
+/** Why a name belongs to this dog — validation keys off it. */
+export type CardBasis = "hero" | "family" | "rhyme" | "sound" | "trait";
+
+/** One nickname with the sayings that fit it. */
+export type CardPair = { nickname: string; sayings: string[]; basis?: CardBasis };
 
 /** What one spin of the deck shows. */
 export type DogCardFace = {
@@ -33,108 +42,237 @@ export const CARD_THEMES = [
   "#A3E635", // lime
 ] as const;
 
-/** True things a kid can pick about their dog. Each unlocks a card or two.
- *  Nicknames stay generic-playful — real-world claims live nowhere here. */
-export type CardTrait = { id: string; label: string; pairs: CardPair[] };
-
-export const CARD_TRAITS: CardTrait[] = [
-  {
-    id: "big",
-    label: "Big dog",
-    pairs: [{ nickname: "Big {name}", sayings: ["Built for comfort. Built for snacks.", "The floor is mine. All of it."] }],
-  },
-  {
-    id: "small",
-    label: "Small dog",
-    pairs: [{ nickname: "Little {name}", sayings: ["Small dog. Large opinions.", "I fit in every lap. That's the plan."] }],
-  },
-  {
-    id: "naps",
-    label: "Champion napper",
-    pairs: [{ nickname: "The Nap Champion", sayings: ["Undefeated since breakfast.", "Saving the neighborhood after nap time."] }],
-  },
-  {
-    id: "treats",
-    label: "Lives for treats",
-    pairs: [{ nickname: "Snack Patrol", sayings: ["Today's mission: find the treats.", "I heard the snack bag."] }],
-  },
-  {
-    id: "fetch",
-    label: "Loves fetch",
-    pairs: [{ nickname: "The Fetch Champ", sayings: ["Brings it back. Eventually.", "One more throw. Forever."] }],
-  },
-  {
-    id: "squirrels",
-    label: "Squirrel watcher",
-    pairs: [{ nickname: "Squirrel Patrol", sayings: ["Fast enough to catch one squirrel. Probably.", "The squirrels know my name."] }],
-  },
-  {
-    id: "barks",
-    label: "Big barker",
-    pairs: [{ nickname: "Sir Barks-a-Lot", sayings: ["I heard that. And that.", "Someone had to say something."] }],
-  },
-  {
-    id: "couch",
-    label: "Owns the couch",
-    pairs: [{ nickname: "Captain Couch", sayings: ["The couch is under my protection.", "Adopted the family. Kept the couch."] }],
-  },
-  {
-    id: "walks",
-    label: "Loves walks",
-    pairs: [{ nickname: "The Block Captain", sayings: ["Knows every mailbox personally.", "Same walk. New smells. Best day."] }],
-  },
-  {
-    id: "zoomies",
-    label: "Gets the zoomies",
-    pairs: [{ nickname: "The {name} Express", sayings: ["All aboard. No brakes.", "Three laps. No reason."] }],
-  },
+// Names that fail review on sight: they could be pasted onto nearly any
+// dog. None of these may ever appear in any deck.
+export const BANNED_GENERIC_NAMES = [
+  "sir barks-a-lot",
+  "professor paws",
+  "captain couch",
+  "neighborhood watchdog",
+  "the treat detective",
+  "ruff rider",
+  "good boy",
+  "fluffy",
+  "doggo",
+  "pupper",
 ];
 
-/** Cards every dog gets, no questions asked. */
-export const UNIVERSAL_PAIRS: CardPair[] = [
-  { nickname: "{name} Jones", sayings: ["Local legend. Ask anyone.", "Today's mission: find the treats."] },
-  { nickname: "Professor Paws", sayings: ["Professional blanket inspector.", "Currently grading your snack sharing."] },
-  { nickname: "The Treat Detective", sayings: ["I heard the snack bag.", "The case of the missing biscuit: solved."] },
-  { nickname: "Neighborhood Watchdog", sayings: ["Saving the neighborhood after nap time.", "Nothing gets past this porch."] },
-  { nickname: "Captain Couch", sayings: ["The couch is under my protection.", "Adopted the family. Kept the couch."] },
-  { nickname: "Sir Barks-a-Lot", sayings: ["Someone had to say something.", "I heard that. And that."] },
-];
+// ── Name material ────────────────────────────────────────────────────────
 
-function fillName(pair: CardPair, realName: string): CardPair {
-  return { ...pair, nickname: pair.nickname.replace("{name}", realName) };
+function cleanName(realName: string): string {
+  const first = realName.trim().split(/\s+/)[0] ?? "";
+  const letters = first.replace(/[^a-zA-Z'-]/g, "");
+  if (!letters) return "";
+  return letters[0].toUpperCase() + letters.slice(1).toLowerCase();
 }
 
-// Tiny stable string hash — gives each dog its own deck order without any
-// randomness, so the same dog always spins the same way.
+const isVowel = (c: string) => "aeiouy".includes(c.toLowerCase());
+
+/** First-syllable short form a family would actually say: "Biscuit"→"Bis",
+ *  "Charlie"→"Char", "Luna"→"Lu", "Rex"→"Rex". */
+export function shortForm(realName: string): string {
+  const name = cleanName(realName);
+  if (name.length <= 4) return name;
+  let i = 0;
+  while (i < name.length && !isVowel(name[i])) i++; // onset
+  while (i < name.length && isVowel(name[i])) i++; // first vowel group
+  if (i < name.length && !isVowel(name[i])) i++; // one trailing consonant
+  const short = name.slice(0, Math.max(2, i));
+  return short.length >= 2 ? short : name;
+}
+
+// Tiny stable string hash — per-dog variety without any randomness.
 function hash(s: string): number {
   let h = 5381;
   for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
   return h;
 }
 
+// ── The builders ─────────────────────────────────────────────────────────
+// Every builder bakes the dog's own name (or short form) into the nickname,
+// so two dogs can never end up with the same deck.
+
+type Ctx = { name: string; short: string; h: number };
+type Builder = { basis: CardBasis; make: (c: Ctx) => CardPair | null };
+
+// Hero identity — always the first card, like Batdog is for Isaiah.
+const HERO_STYLES: ((c: Ctx) => CardPair)[] = [
+  (c) => ({
+    basis: "hero",
+    nickname: `Super ${c.name}`,
+    sayings: ["Faster than a dropped meatball.", "Cape sold separately."],
+  }),
+  (c) => ({
+    basis: "hero",
+    nickname: `Captain ${c.name}`,
+    sayings: ["Reporting for duty. And snacks.", "The mission is lunch."],
+  }),
+  (c) => ({
+    basis: "hero",
+    nickname: `Mighty ${c.name}`,
+    sayings: ["Legendary around here.", "The legend does its own stunts."],
+  }),
+];
+
+// Sound-alike celebrity / character transformations. Each entry only fires
+// when the dog's name genuinely echoes the sound — the Izzy Osbourne rule.
+const SOUND_MATCHES: Builder[] = [
+  {
+    basis: "sound",
+    make: (c) =>
+      /izz|ozz/i.test(c.name) || /^i[sz]/i.test(c.name)
+        ? {
+            nickname: `${/izz|ozz/i.test(c.short) ? c.short : "Izzy"} Osbourne`,
+            sayings: ["Loud. Legendary. Slightly unhinged.", "Rocks the entire cul-de-sac."],
+          }
+        : null,
+  },
+  {
+    basis: "sound",
+    make: (c) =>
+      /(ay|ai|aye|ade)$/i.test(c.short) || /ay/i.test(c.short)
+        ? {
+            nickname: `Darth ${c.short}der`,
+            sayings: ["The bark side is strong with this one.", "Appears after dinner. Ask the couch."],
+          }
+        : null,
+  },
+  {
+    basis: "sound",
+    make: (c) =>
+      /ella$/i.test(c.name)
+        ? {
+            nickname: `Cinder${c.name.toLowerCase()}`.replace(/^c/, "C"),
+            sayings: ["Home by dinner. Every time.", "The slipper fits. It's a paw."],
+          }
+        : null,
+  },
+  {
+    basis: "sound",
+    make: (c) =>
+      /^rex$/i.test(c.name)
+        ? { nickname: "T-Rex", sayings: ["Tiny arms not included.", "Roars at the vacuum. Wins."] }
+        : null,
+  },
+  {
+    basis: "sound",
+    make: (c) =>
+      /^max$/i.test(c.name)
+        ? { nickname: "Max to the Max", sayings: ["There is no half speed.", "Everything. All the way. Always."] }
+        : null,
+  },
+];
+
+// Real rhymes on the name's actual ending — the Isaiah Papaya rule.
+const RHYMES: { test: RegExp; word: string; sayings: string[] }[] = [
+  { test: /una$/i, word: "Tuna", sayings: ["Rhymes with dinner. Coincidence?", "It rhymes. That's the whole case."] },
+  { test: /ella$/i, word: "Mozzarella", sayings: ["Extra cheesy. Zero regrets.", "It rhymes. That's the whole case."] },
+  { test: /(ia|iah|aya)$/i, word: "Papaya", sayings: ["Sweet, seedless, occasionally slippery.", "It rhymes. That's the whole case."] },
+  { test: /(oco|oko)$/i, word: "Loco", sayings: ["Runs on zoomies and vibes.", "It rhymes. That's the whole case."] },
+  { test: /oney?$/i, word: "Baloney", sayings: ["One hundred percent baloney. The good kind.", "It rhymes. That's the whole case."] },
+  { test: /(ie|y)$/i, word: "Macaroni", sayings: ["Sticks to everything. Mostly you.", "It rhymes. That's the whole case."] },
+];
+
+// True things a kid can pick about their dog. Each fuses the fact with the
+// dog's own name, so the card still belongs to this dog alone.
+export type CardTrait = { id: string; label: string; make: (c: Ctx) => CardPair };
+
+export const CARD_TRAITS: CardTrait[] = [
+  { id: "big", label: "Big dog", make: (c) => ({ basis: "trait", nickname: `Big ${c.name}`, sayings: ["The floor is mine. All of it.", "Built for comfort."] }) },
+  { id: "small", label: "Small dog", make: (c) => ({ basis: "trait", nickname: `Lil ${c.name}`, sayings: ["Small dog. Large opinions.", "Fits in every lap. That's the plan."] }) },
+  { id: "naps", label: "Champion napper", make: (c) => ({ basis: "trait", nickname: `Sleepy ${c.short}`, sayings: ["Undefeated since breakfast.", "Do not disturb. Ever."] }) },
+  { id: "treats", label: "Lives for treats", make: (c) => ({ basis: "trait", nickname: `Snack Boss ${c.name}`, sayings: ["I heard the snack bag.", "Today's mission: find the treats."] }) },
+  { id: "fetch", label: "Loves fetch", make: (c) => ({ basis: "trait", nickname: `Boomerang ${c.short}`, sayings: ["Always comes back. Eventually.", "One more throw. Forever."] }) },
+  { id: "squirrels", label: "Squirrel watcher", make: (c) => ({ basis: "trait", nickname: `Sheriff ${c.short}`, sayings: ["The squirrels know my name.", "Fast enough to catch one squirrel. Probably."] }) },
+  { id: "barks", label: "Big barker", make: (c) => ({ basis: "trait", nickname: `${c.name} the Announcer`, sayings: ["Someone had to say something.", "I heard that. And that."] }) },
+  { id: "couch", label: "Owns the couch", make: (c) => ({ basis: "trait", nickname: `Couch Boss ${c.short}`, sayings: ["The couch is under my protection.", "Adopted the family. Kept the couch."] }) },
+  { id: "walks", label: "Loves walks", make: (c) => ({ basis: "trait", nickname: `Mayor ${c.name}`, sayings: ["Knows every mailbox personally.", "Re-elected every single walk."] }) },
+  { id: "zoomies", label: "Gets the zoomies", make: (c) => ({ basis: "trait", nickname: `Turbo ${c.name}`, sayings: ["All aboard. No brakes.", "Three laps. No reason."] }) },
+];
+
+// Affectionate family fillers — still built from this dog's name, used only
+// to complete the seven when the special builders don't fire.
+const FAMILY_STYLES: ((c: Ctx) => CardPair)[] = [
+  (c) => ({ basis: "family", nickname: `${c.short}-${c.short}`, sayings: [`So nice they named ${c.short} twice.`, "Answers to both. Eventually."] }),
+  (c) => ({ basis: "family", nickname: `Big ${c.name}`, sayings: ["The floor is mine. All of it.", "Built for comfort."] }),
+  (c) => ({ basis: "family", nickname: `${c.name}zilla`, sayings: ["The city is safe. Probably.", "Fear the wag."] }),
+  (c) => ({ basis: "family", nickname: `Agent ${c.name}`, sayings: ["Licensed to sniff.", "The treats never see it coming."] }),
+  (c) => ({ basis: "family", nickname: `Mayor ${c.name}`, sayings: ["Knows every mailbox personally.", "Re-elected every single walk."] }),
+  (c) => ({ basis: "family", nickname: `${c.name}-Boo`, sayings: ["Official household sweetheart.", "Yes, that face works every time."] }),
+];
+
+// ── Deck building ────────────────────────────────────────────────────────
+
 /**
- * Build a dog's deck from its real name plus the true things picked about
- * it. Trait cards come first (they're the most "this is my dog" ones),
- * then the universal cards, deterministically rotated per dog so two dogs
- * don't open on the same card. Duplicate nicknames collapse to one.
+ * Exactly seven names for this dog, in spin order, hero first. Candidates
+ * are ranked: hero, then sound-alike and rhyme wordplay (the best cards),
+ * then the dog's picked true things, then name-built family forms to
+ * complete the seven. The dog's name hash rotates the hero style so
+ * different dogs open differently.
  */
 export function buildDeck(realName: string, traitIds: string[] = []): CardPair[] {
-  const name = realName.trim();
+  const name = cleanName(realName);
   if (!name) return [];
-  const traitPairs = CARD_TRAITS.filter((t) => traitIds.includes(t.id)).flatMap((t) => t.pairs);
-  const rot = hash(name.toLowerCase()) % UNIVERSAL_PAIRS.length;
-  const rotated = [...UNIVERSAL_PAIRS.slice(rot), ...UNIVERSAL_PAIRS.slice(0, rot)];
+  const c: Ctx = { name, short: shortForm(name), h: hash(name.toLowerCase()) };
+
+  const candidates: CardPair[] = [HERO_STYLES[c.h % HERO_STYLES.length](c)];
+  for (const b of SOUND_MATCHES) {
+    const pair = b.make(c);
+    if (pair) candidates.push({ ...pair, basis: "sound" });
+  }
+  const rhyme = RHYMES.find((r) => r.test.test(name));
+  if (rhyme) candidates.push({ basis: "rhyme", nickname: `${name} ${rhyme.word}`, sayings: rhyme.sayings });
+  for (const t of CARD_TRAITS) {
+    if (traitIds.includes(t.id)) candidates.push(t.make(c));
+  }
+  const familyStart = c.h % FAMILY_STYLES.length;
+  for (let i = 0; i < FAMILY_STYLES.length; i++) {
+    candidates.push(FAMILY_STYLES[(familyStart + i) % FAMILY_STYLES.length](c));
+  }
+
   const deck: CardPair[] = [];
   const seen = new Set<string>();
-  for (const raw of [...traitPairs, ...rotated]) {
-    const pair = fillName(raw, name);
+  for (const pair of candidates) {
     const key = pair.nickname.toLowerCase();
-    if (seen.has(key)) continue;
+    if (seen.has(key) || BANNED_GENERIC_NAMES.includes(key)) continue;
     seen.add(key);
     deck.push(pair);
+    if (deck.length === DECK_SIZE) break;
   }
   return deck;
 }
+
+// ── Quality review ───────────────────────────────────────────────────────
+
+/**
+ * The name-quality bar, as code. Returns every problem with a deck; must be
+ * empty before a deck ships. `locked` decks (owner-curated, like Isaiah's)
+ * skip the name-connection rule — a human already made each name personal —
+ * but never skip the count, uniqueness, or generic-filler rules.
+ */
+export function findDeckProblems(
+  deck: CardPair[],
+  opts: { realName: string; locked?: boolean },
+): string[] {
+  const problems: string[] = [];
+  if (deck.length !== DECK_SIZE) problems.push(`deck has ${deck.length} cards, needs exactly ${DECK_SIZE}`);
+  const seen = new Set<string>();
+  const name = cleanName(opts.realName).toLowerCase();
+  const short = shortForm(opts.realName).toLowerCase();
+  for (const pair of deck) {
+    const low = pair.nickname.toLowerCase();
+    if (seen.has(low)) problems.push(`duplicate name: ${pair.nickname}`);
+    seen.add(low);
+    if (BANNED_GENERIC_NAMES.includes(low)) problems.push(`generic filler: ${pair.nickname}`);
+    if (pair.sayings.length === 0) problems.push(`no saying for: ${pair.nickname}`);
+    if (!opts.locked && pair.basis !== "sound" && !low.includes(name) && !low.includes(short)) {
+      problems.push(`not built from this dog's name: ${pair.nickname}`);
+    }
+  }
+  return problems;
+}
+
+// ── Spinning ─────────────────────────────────────────────────────────────
 
 /** "Thursday's Dog Card" */
 export function dayLabel(date: Date): string {
@@ -142,9 +280,9 @@ export function dayLabel(date: Date): string {
 }
 
 /**
- * The card for spin number `step` (0-based). Walks the deck in order; once
- * every nickname has been seen, the next pass shows each nickname's next
- * saying, so spinning keeps paying off.
+ * The card for spin number `step` (0-based). Walks the seven in order —
+ * card 0 is always the hero (Batdog for Isaiah) — and once every nickname
+ * has been seen, the next lap shows each nickname's next saying.
  */
 export function cardAt(deck: CardPair[], step: number, date: Date): DogCardFace | null {
   if (deck.length === 0) return null;
@@ -160,8 +298,14 @@ export function cardAt(deck: CardPair[], step: number, date: Date): DogCardFace 
   };
 }
 
-/** Every nickname and saying in every pool — the safety tests scan this. */
-export function allCardStrings(): string[] {
-  const pairs = [...UNIVERSAL_PAIRS, ...CARD_TRAITS.flatMap((t) => t.pairs)];
-  return pairs.flatMap((p) => [p.nickname, ...p.sayings]);
+/** Every nickname and saying this module can produce — safety tests scan
+ *  a broad sample so no pool string ever smuggles in a real-world claim. */
+export function allCardStrings(sampleNames: string[]): string[] {
+  const out: string[] = [];
+  for (const n of sampleNames) {
+    for (const pair of buildDeck(n, CARD_TRAITS.map((t) => t.id))) {
+      out.push(pair.nickname, ...pair.sayings);
+    }
+  }
+  return out;
 }

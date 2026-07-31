@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { track } from "../../lib/analytics";
 import { cardAt, type CardPair } from "../../lib/cards/tradingCards";
+import { FIT_WHOLE_DOG, type PhotoSpec } from "../../lib/cards/photoFraming";
 import { renderCardImage } from "../../lib/cards/cardImage";
 import TradingCard, { type CardAttribution } from "./TradingCard";
 
 // The whole interaction: one card, one big Spin button, one Share button.
-// Spin walks the deck one nickname at a time — the list itself never shows.
-// Share sends the exact card on screen as an image (native share where the
-// device supports it, otherwise download + caption copy).
+// Spin walks the dog's seven one nickname at a time — the list itself never
+// shows. Share sends the exact card on screen as an image with the exact
+// framing on screen (native share where the device supports it, otherwise
+// download + caption copy). An optional Make a Dog Card button hands the
+// dog — and the current card position — to the full maker.
 
 export default function CardSpinner({
   realName,
@@ -21,6 +25,10 @@ export default function CardSpinner({
   fileName,
   attribution,
   analyticsId,
+  photoSpec = FIT_WHOLE_DOG,
+  onPhotoSpecChange,
+  initialStep = 0,
+  makerHref,
 }: {
   realName: string;
   /** what the on-page card displays */
@@ -33,8 +41,14 @@ export default function CardSpinner({
   fileName: string;
   attribution?: CardAttribution;
   analyticsId: string;
+  photoSpec?: PhotoSpec;
+  onPhotoSpecChange?: (spec: PhotoSpec) => void;
+  /** open the deck on this spin (0-based) — lets the maker resume a card */
+  initialStep?: number;
+  /** when set, shows Make a Dog Card linking here with the current card */
+  makerHref?: string;
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(Math.max(0, initialStep));
   const [note, setNote] = useState("");
   const face = cardAt(deck, step, new Date());
 
@@ -64,6 +78,7 @@ export default function CardSpinner({
         realName,
         face: face!,
         photoSrc: photoSrcForImage ?? photoUrl,
+        photoSpec,
         attribution,
       });
       const file = new File([blob], `${fileName}-card-${face!.cardNumber}.png`, { type: "image/png" });
@@ -98,9 +113,21 @@ export default function CardSpinner({
     }
   }
 
+  const makerUrl = makerHref
+    ? `${makerHref}${makerHref.includes("?") ? "&" : "?"}card=${step % deck.length}`
+    : null;
+
   return (
     <div>
-      <TradingCard realName={realName} photoUrl={photoUrl} photoAlt={photoAlt} face={face} attribution={attribution} />
+      <TradingCard
+        realName={realName}
+        photoUrl={photoUrl}
+        photoAlt={photoAlt}
+        face={face}
+        attribution={attribution}
+        photoSpec={photoSpec}
+        onPhotoSpecChange={onPhotoSpecChange}
+      />
       <div className="mx-auto mt-5 flex max-w-sm flex-col gap-2.5">
         <button
           type="button"
@@ -116,6 +143,14 @@ export default function CardSpinner({
         >
           Share This Card
         </button>
+        {makerUrl && (
+          <Link
+            href={makerUrl}
+            className="w-full rounded-2xl border border-[#26324c] bg-[#141d2e] px-6 py-3.5 text-center text-sm font-black uppercase tracking-[0.12em] text-[#e8edf5] transition hover:border-[#2DD4BF]"
+          >
+            Make a Dog Card
+          </Link>
+        )}
         {note && <p className="text-center text-xs font-black text-[#5eead4]">{note}</p>}
       </div>
     </div>

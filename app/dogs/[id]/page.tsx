@@ -7,6 +7,7 @@ import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
 import { buildDeck } from "../../lib/cards/tradingCards";
+import { listingTraits } from "../../lib/cards/listingTraits";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
@@ -107,19 +108,30 @@ export default async function DogPage({ params }: PageProps) {
         Listed by {dog.org} · via RescueGroups.org · Last verified {verifiedAt} CT
       </p>
 
-      {/* The trading card — real name, real photo; the nickname and saying
-          are the fun part. The rescue's info stays quietly on the card. */}
+      {/* The trading card — real name, real photo; the seven names are
+          built for this dog. The rescue's info stays quietly on the card. */}
       <div className="mt-8">
+        <div className="mb-5 text-center">
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-[#94a3b8]">
+            Fun Dog Trading Cards
+          </p>
+          <h2 className="mt-2 text-2xl font-black text-[#e8edf5]">What would you nickname me?</h2>
+          <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
+            Spin through seven names made especially for {dog.name} and share
+            your favorite card.
+          </p>
+        </div>
         <CardSpinner
           realName={dog.name}
           photoUrl={dog.photo ?? undefined}
           photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
           photoAlt={`${dog.name}, an adoptable dog`}
-          deck={buildDeck(dog.name)}
+          deck={buildDeck(dog.name, listingTraits(dog.size))}
           shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
           fileName={dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
           attribution={{ org: dog.org, location: city }}
           analyticsId="adoptable"
+          makerHref={`/cards?dog=${dog.id}`}
         />
       </div>
 
