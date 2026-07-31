@@ -10,7 +10,6 @@ import {
   listDogProfiles,
   type DogProfileV1,
 } from "../dogProfiles";
-import { nameIdeas } from "../nameIdeas";
 
 // next/link needs an app router at render time; the profile page only needs
 // the anchor it renders.
@@ -21,7 +20,7 @@ vi.mock("next/link", () => ({
 
 describe("dog profile registry", () => {
   it("resolves isaiah and rejects unknown slugs", () => {
-    expect(getDogProfile("isaiah")?.displayTitle).toBe("The Dark Zay");
+    expect(getDogProfile("isaiah")?.featuredNickname).toBe("Batdog");
     expect(getDogProfile("ISAIAH")?.slug).toBe("isaiah");
     expect(getDogProfile("nope")).toBeNull();
   });
@@ -41,23 +40,29 @@ describe("dog profile registry", () => {
     expect(p.adoptionUrl).toBeUndefined();
   });
 
-  it("carries the full 18-alias universe", () => {
+  it("isaiah's featured card is Batdog with the flagship saying", () => {
     const p = getDogProfile("isaiah")!;
-    expect(p.aliases).toHaveLength(18);
-    for (const name of ["The Dark Zay", "Bruzer Zayne", "DarthZayder", "Isaiah Papaya", "Izzy Smalls"]) {
-      expect(p.aliases).toContain(name);
+    expect(p.realName).toBe("Isaiah"); // real name stays separate
+    expect(p.cards[0].nickname).toBe("Batdog");
+    expect(p.cards[0].sayings[0]).toBe("Saving the neighborhood after nap time.");
+  });
+
+  it("every deck stays small, worth seeing, and leads with the featured name", () => {
+    for (const p of listDogProfiles()) {
+      expect(p.cards.length).toBeGreaterThanOrEqual(6);
+      expect(p.cards.length).toBeLessThanOrEqual(12);
+      expect(p.cards[0].nickname).toBe(p.featuredNickname);
+      const names = p.cards.map((c) => c.nickname.toLowerCase());
+      expect(new Set(names).size).toBe(names.length); // no duplicates
+      for (const c of p.cards) expect(c.sayings.length).toBeGreaterThan(0);
     }
   });
 
-  it("isaiah's canonical hero identity is Bruzer Zayne with The Dark Zay as subtitle", () => {
-    const p = getDogProfile("isaiah")!;
-    expect(p.heroName).toBe("Bruzer Zayne");
-    expect(p.displayTitle).toBe("The Dark Zay");
-    expect(p.defaultHeroId).toBe("bruzer-zayne");
-    expect(p.realName).toBe("Isaiah"); // real name stays separate
-    const defaultIdentity = p.heroIdentities!.find((h) => h.id === p.defaultHeroId)!;
-    expect(defaultIdentity.name).toBe("Bruzer Zayne");
-    expect(defaultIdentity.subtitle).toBe("The Dark Zay");
+  it("the family names survive in the deck, correctly spelled", () => {
+    const names = getDogProfile("isaiah")!.cards.map((c) => c.nickname);
+    expect(names).toContain("Big Zay");
+    expect(names).toContain("Bruzer Zayne"); // the ONLY correct spelling
+    expect(names).toContain("The Dark Zay");
   });
 
   it("the misspellings never appear anywhere in any profile", () => {
@@ -67,7 +72,10 @@ describe("dog profile registry", () => {
   });
 
   it("the spelling detector actually catches the old mistakes", () => {
-    const doctored: DogProfileV1 = { ...getDogProfile("isaiah")!, aliases: ["Bruce Zayne"] };
+    const doctored: DogProfileV1 = {
+      ...getDogProfile("isaiah")!,
+      cards: [{ nickname: "Bruce Zayne", sayings: ["nope"] }],
+    };
     expect(findBannedHeroSpellings(doctored)).toEqual(["bruce zayne"]);
   });
 });
@@ -91,13 +99,14 @@ describe("truth and language boundaries", () => {
   it("the claim detector actually catches violations", () => {
     const doctored: DogProfileV1 = {
       ...getDogProfile("isaiah")!,
-      funnyCharges: ["Good with kids, probably"],
+      cards: [{ nickname: "Batdog", sayings: ["Good with kids, probably"] }],
     };
     expect(findUnverifiedClaims(doctored)).toHaveLength(1);
   });
 
   it("no banned public phrasing anywhere in any profile", () => {
-    expect(BANNED_PUBLIC_PHRASES.length).toBeGreaterThan(0);
+    expect(BANNED_PUBLIC_PHRASES).toContain("engine");
+    expect(BANNED_PUBLIC_PHRASES).toContain("algorithm");
     for (const p of listDogProfiles()) {
       expect(findBannedPublicPhrases(p)).toEqual([]);
     }
@@ -105,41 +114,36 @@ describe("truth and language boundaries", () => {
 });
 
 describe("profile rendering", () => {
-  it("renders isaiah's page from the record alone", async () => {
+  it("renders isaiah's page as one trading card, never the whole list", async () => {
     const { default: DogProfileView } = await import("../../components/profile/DogProfileView");
-    const html = renderToStaticMarkup(
-      createElement(DogProfileView, { profile: getDogProfile("isaiah")! }),
-    );
-    expect(html).toContain("Bruzer Zayne"); // hero name in lights
-    expect(html).toContain("The Dark Zay"); // the legend subtitle stays
-    expect(html).toContain("Known in ordinary life as Isaiah");
-    expect(html).toContain("/legend"); // free-preview CTA present
-    expect(html.toLowerCase()).not.toContain("bruce zayne");
-    expect(html.toLowerCase()).not.toContain("bruze zayne");
-    expect(html.toLowerCase()).not.toContain("bruiser");
+    const p = getDogProfile("isaiah")!;
+    const html = renderToStaticMarkup(createElement(DogProfileView, { profile: p }));
+
+    // The card: real name, featured nickname, its saying, the day, share.
+    expect(html).toContain("Isaiah");
+    expect(html).toContain("Batdog");
+    expect(html).toContain("Saving the neighborhood after nap time.");
+    expect(html).toContain("Dog Card"); // day label
+    expect(html).toContain("Spin a New Card");
+    expect(html).toContain("Share This Card");
+    expect(html).toContain("/isaiah.jpg");
+
+    // One card at a time — no other nickname from the deck may render.
+    for (const c of p.cards.slice(1)) {
+      expect(html).not.toContain(c.nickname);
+    }
+
+    // The rest of the page.
+    expect(html).toContain("/cards"); // make-one-for-your-dog CTA
     expect(html).toContain("Isaiah already has a home.");
     expect(html).toContain("Meet a dog who still needs one.");
-    expect(html).toContain("/isaiah.jpg");
-    // Empty owner sections stay hidden until real facts exist.
-    expect(html).not.toContain("Special abilities");
-    expect(html).not.toContain("Weaknesses");
+
     const low = html.toLowerCase();
+    expect(low).not.toContain("bruce zayne");
+    expect(low).not.toContain("bruze zayne");
+    expect(low).not.toContain("bruiser");
     for (const phrase of BANNED_PUBLIC_PHRASES) {
       expect(low).not.toContain(phrase);
     }
-  });
-});
-
-describe("name ideas", () => {
-  it("riffs deterministically on supplied words only", () => {
-    const ideas = nameIdeas({ realName: "Biscuit", existingNickname: "Biz", words: ["thunder"] });
-    expect(ideas).toContain("Big Biz");
-    expect(ideas).toContain("Biz Thunder");
-    expect(ideas).toEqual(nameIdeas({ realName: "Biscuit", existingNickname: "Biz", words: ["thunder"] }));
-  });
-
-  it("requires a real name and never echoes it as an idea", () => {
-    expect(nameIdeas({ realName: "  " })).toEqual([]);
-    expect(nameIdeas({ realName: "Rex" })).not.toContain("Rex");
   });
 });

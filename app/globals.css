@@ -31,6 +31,15 @@ button, a { touch-action: manipulation; }
   .print-sheet a { text-decoration: none; }
 }
 
+/* Trading-card flip — a quick half-turn when a new card is spun. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes dcmt-card-flip {
+    from { transform: perspective(900px) rotateY(80deg) scale(0.96); opacity: 0.3; }
+    to   { transform: none; opacity: 1; }
+  }
+  .dcmt-card-flip { animation: dcmt-card-flip 0.45s ease-out; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

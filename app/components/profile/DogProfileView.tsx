@@ -1,15 +1,10 @@
 import Link from "next/link";
 import type { DogProfileV1 } from "../../lib/dogProfiles";
-import type { HeroIdentity } from "../../lib/identity/heroIdentity";
-import AliasStrip from "./AliasStrip";
-import HeroIdentityProvider from "./HeroIdentityContext";
-import ProfileHero from "./ProfileHero";
-import ProfileShareActions from "./ProfileShareActions";
-import QuoteCards from "./QuoteCards";
-import NameIdeasHelper from "./NameIdeasHelper";
+import CardSpinner from "../cards/CardSpinner";
 
-// Renders any DogProfileV1 record. Sections with no data don't render —
-// a new dog needs one record and a photo, nothing else.
+// Renders any DogProfileV1 record as a Fun Dog Trading Card page: one
+// collectible card up top, spin + share, then the real facts and the real
+// mission. One record + one photo = a whole page.
 
 function SectionTitle({ children, accent }: { children: React.ReactNode; accent: string }) {
   return (
@@ -19,70 +14,30 @@ function SectionTitle({ children, accent }: { children: React.ReactNode; accent:
   );
 }
 
-function OwnerListSection({ title, items, accent }: { title: string; items: string[]; accent: string }) {
-  if (items.length === 0) return null;
-  return (
-    <section className="print-card mb-8 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-      <SectionTitle accent={accent}>{title}</SectionTitle>
-      <ul className="space-y-2 text-sm font-semibold leading-6 text-[#e8edf5]">
-        {items.map((item) => (
-          <li key={item}>🐾 {item}</li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
   const p = profile;
   const accent = p.theme.accent;
   const pageUrl = `https://dontclonemetom.com/dogs/${p.slug}`;
 
-  // Every profile gets a hero-identity source; profiles without a curated
-  // deck simply get their display title as the one (unclickable-equivalent)
-  // identity, so unknown ids still resolve safely.
-  const identities: HeroIdentity[] =
-    p.heroIdentities && p.heroIdentities.length > 0
-      ? p.heroIdentities
-      : [{ id: "default", name: p.heroName ?? p.displayTitle, subtitle: p.displayTitle, kind: "curated" }];
-  const defaultHeroId = p.defaultHeroId ?? identities[0].id;
-
   return (
-    <HeroIdentityProvider
-      slug={p.slug}
-      realName={p.realName}
-      defaultHeroId={defaultHeroId}
-      identities={identities}
-      baseShareText={p.shareText}
-    >
-    <main className="print-sheet min-h-screen bg-[#0b1220] text-[#e8edf5]">
+    <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-10">
-        {/* Hero */}
-        <section className="mb-10 text-center">
-          <div className="mx-auto max-w-sm overflow-hidden rounded-3xl border-2" style={{ borderColor: accent }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={p.primaryImage} alt={p.primaryImageAlt} className="block w-full" />
-          </div>
-          <h1 className="mt-6 text-lg font-black uppercase tracking-[0.3em] text-[#94a3b8]">{p.realName}</h1>
-          {p.heroIdentities && p.heroIdentities.length > 0 ? (
-            <div className="mt-1">
-              <ProfileHero aliases={p.aliases} accent={accent} slug={p.slug} subtitle={p.displayTitle} />
-            </div>
-          ) : (
-            <>
-              <p
-                className="mt-1 font-black leading-[1.05] tracking-tight"
-                style={{ fontSize: "clamp(2.2rem, 9vw, 4rem)", color: accent }}
-              >
-                {p.displayTitle}
-              </p>
-              <div className="mt-4">
-                <AliasStrip aliases={p.aliases} accent={accent} />
-              </div>
-            </>
-          )}
+        {/* The card */}
+        <section className="mb-10">
+          <p className="mb-5 text-center text-xs font-black uppercase tracking-[0.3em] text-[#94a3b8]">
+            Fun Dog Trading Cards
+          </p>
+          <CardSpinner
+            realName={p.realName}
+            photoUrl={p.primaryImage}
+            photoAlt={p.primaryImageAlt}
+            deck={p.cards}
+            shareUrl={pageUrl}
+            fileName={p.slug}
+            analyticsId={p.slug}
+          />
           {p.intro.length > 0 && (
-            <div className="mx-auto mt-5 max-w-md">
+            <div className="mx-auto mt-6 max-w-md text-center">
               {p.intro.map((line) => (
                 <p key={line} className="text-base font-bold leading-7 text-[#e8edf5]">
                   {line}
@@ -92,97 +47,9 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
           )}
         </section>
 
-        {/* Character cards */}
-        {p.characterCards.length > 0 && (
-          <section className="mb-8">
-            <SectionTitle accent={accent}>Known identities</SectionTitle>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {p.characterCards.map((c) => (
-                <div key={c.name} className="print-card rounded-2xl border border-[#26324c] bg-[#141d2e] px-4 py-4">
-                  <p className="text-sm font-black" style={{ color: accent }}>
-                    {c.name}
-                  </p>
-                  <p className="mt-1.5 text-xs font-semibold leading-5 text-[#94a3b8]">{c.tagline}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Nickname groups */}
-        {p.nicknameGroups.length > 0 && (
-          <section className="print-card mb-8 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-            <SectionTitle accent={accent}>Known aliases</SectionTitle>
-            <div className="flex flex-col gap-4">
-              {p.nicknameGroups.map((g) => (
-                <div key={g.title}>
-                  <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-[#94a3b8]">{g.title}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {g.names.map((n) => (
-                      <span
-                        key={n}
-                        className="rounded-full border border-[#26324c] bg-[#0b1220] px-3.5 py-1.5 text-sm font-bold text-[#e8edf5]"
-                      >
-                        {n}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Situational names */}
-        {p.situationalNames.length > 0 && (
-          <section className="print-card mb-8 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-            <SectionTitle accent={accent}>Depends when you ask</SectionTitle>
-            <ul className="space-y-2.5">
-              {p.situationalNames.map((s) => (
-                <li key={s.name + s.when} className="flex items-baseline justify-between gap-4 text-sm">
-                  <span className="font-semibold text-[#94a3b8]">{s.when}</span>
-                  <span className="text-right font-black text-[#e8edf5]">{s.name}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Story / humor sections from the record */}
-        {p.sections.map((s) => (
-          <section key={s.title} className="print-card mb-8 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-            <SectionTitle accent={accent}>{s.title}</SectionTitle>
-            <div className="space-y-2.5 text-sm font-semibold leading-6 text-[#e8edf5]">
-              {s.lines.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </div>
-          </section>
-        ))}
-
-        {/* Charges */}
-        {p.funnyCharges.length > 0 && (
-          <section className="print-card mb-8 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-            <SectionTitle accent={accent}>Current charges</SectionTitle>
-            <ul className="space-y-2 text-sm font-semibold leading-6 text-[#e8edf5]">
-              {p.funnyCharges.map((c) => (
-                <li key={c}>⚖️ {c}</li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Owner-supplied real sections — hidden until the owner fills them */}
-        <OwnerListSection title="Personality (owner's words)" items={p.personalityNotes} accent={accent} />
-        <OwnerListSection title="Real quirks" items={p.realQuirks} accent={accent} />
-        <OwnerListSection title="Likes" items={p.likes} accent={accent} />
-        <OwnerListSection title="Dislikes" items={p.dislikes} accent={accent} />
-        <OwnerListSection title="Special abilities" items={p.abilities} accent={accent} />
-        <OwnerListSection title="Weaknesses" items={p.weaknesses} accent={accent} />
-
         {/* The actual facts */}
         {p.verifiedFacts.length > 0 && (
-          <section className="print-card mb-8 rounded-2xl border p-6" style={{ borderColor: `${accent}55`, background: "#141d2e" }}>
+          <section className="mb-8 rounded-2xl border p-6" style={{ borderColor: `${accent}55`, background: "#141d2e" }}>
             <SectionTitle accent={accent}>The actual facts</SectionTitle>
             <ul className="flex flex-wrap gap-2">
               {p.verifiedFacts.map((f) => (
@@ -195,44 +62,30 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
               ))}
             </ul>
             <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
-              These are real, straight from {p.profileType === "family" ? "the family" : "the rescue"}. The rest of the page is affectionate nonsense.
+              These are real, straight from {p.profileType === "family" ? "the family" : "the rescue"}. The cards are affectionate nonsense.
             </p>
           </section>
         )}
 
-        {/* Shareable quotes */}
-        {p.quotes.length > 0 && (
-          <section className="mb-8">
-            <SectionTitle accent={accent}>Lines worth stealing</SectionTitle>
-            <QuoteCards quotes={p.quotes} />
-          </section>
-        )}
-
-        {/* Free poster preview CTA — prominent, not pushy */}
-        <section className="no-print print-card mb-8 rounded-2xl border p-6 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
-          <SectionTitle accent={accent}>Your dog has a legend too</SectionTitle>
+        {/* Make one for your dog */}
+        <section className="mb-8 rounded-2xl border p-6 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
+          <SectionTitle accent={accent}>Your dog belongs on one of these</SectionTitle>
           <p className="mx-auto max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-            Build it free: real name, real habits, endless nickname shuffle, and a
-            poster preview approved by Isaiah himself.
+            Add a photo, type the real name, pick a few true things — spin and
+            share new cards. Free, and the photo never leaves your device.
           </p>
           <Link
-            href="/legend"
+            href="/cards"
             className="mt-4 inline-flex justify-center rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] transition hover:opacity-90"
             style={{ background: accent }}
           >
-            Make your dog&apos;s legend — free
+            Make one for your dog
           </Link>
-        </section>
-
-        {/* Share + print */}
-        <section className="mb-10">
-          <SectionTitle accent={accent}>Pass {p.realName} around</SectionTitle>
-          <ProfileShareActions slug={p.slug} title={p.displayTitle} shareText={p.shareText} pageUrl={pageUrl} />
         </section>
 
         {/* Adoption status → the real mission */}
         {p.adoptionStatus === "home" ? (
-          <section className="print-card mb-8 rounded-2xl border p-8 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
+          <section className="mb-8 rounded-2xl border p-8 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
             <h2 className="text-2xl font-black text-[#e8edf5]">{p.realName} already has a home.</h2>
             {p.shelter && (
               <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
@@ -260,7 +113,7 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
           </section>
         ) : (
           p.adoptionUrl && (
-            <section className="print-card mb-8 rounded-2xl border p-8 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
+            <section className="mb-8 rounded-2xl border p-8 text-center" style={{ borderColor: `${accent}40`, background: "#141d2e" }}>
               <h2 className="text-2xl font-black text-[#e8edf5]">{p.realName} is looking for a home.</h2>
               <a
                 href={p.adoptionUrl}
@@ -275,18 +128,12 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
           )
         )}
 
-        {/* Quiet helper */}
-        <section className="mb-6 text-center">
-          <NameIdeasHelper />
-        </section>
-
-        <p className="no-print text-center">
+        <p className="text-center">
           <Link href="/" className="text-sm font-bold" style={{ color: accent }}>
             ← Find more adoptable dogs near you
           </Link>
         </p>
       </div>
     </main>
-    </HeroIdentityProvider>
   );
 }

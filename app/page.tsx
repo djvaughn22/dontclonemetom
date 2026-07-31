@@ -589,7 +589,7 @@ export default function DontCloneMeTom() {
               }}
             />
             <span className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-black text-[#e8edf5] transition group-hover:border-[#2DD4BF]">
-              Isaiah · <span className="text-[#2DD4BF]">The Dark Zay</span>
+              Isaiah · <span className="text-[#2DD4BF]">Batdog</span>
               <span className="ml-2 text-[#94a3b8]">Meet Isaiah →</span>
             </span>
           </Link>
@@ -634,13 +634,13 @@ export default function DontCloneMeTom() {
             </span>
             <span className="text-[#2DD4BF] font-black">→</span>
           </a>
-          {/* Free legend studio — fun on-ramp, adoption stays the mission */}
+          {/* Free card maker — fun on-ramp, adoption stays the mission */}
           <Link
-            href="/legend"
+            href="/cards"
             className="mx-auto mt-3 flex max-w-md items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-left transition hover:border-[#2DD4BF]"
           >
             <span className="text-sm font-bold leading-6 text-[#e8edf5]">
-              🦸 Got a dog? Build their legend — endless nicknames + a free poster, approved by Isaiah.
+              🃏 Got a dog? Make their trading card — spin a new nickname, share today&apos;s card.
             </span>
             <span className="text-[#2DD4BF] font-black">→</span>
           </Link>

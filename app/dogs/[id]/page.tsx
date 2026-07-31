@@ -3,8 +3,10 @@
 // to other nearby dogs.
 
 import type { Metadata } from "next";
+import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
+import { buildDeck } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
@@ -105,12 +107,21 @@ export default async function DogPage({ params }: PageProps) {
         Listed by {dog.org} · via RescueGroups.org · Last verified {verifiedAt} CT
       </p>
 
-      {dog.photo ? (
-        <div className="mt-6 overflow-hidden rounded-3xl border border-[#26324c]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={dog.photo} alt={`${dog.name}, an adoptable dog`} className="block w-full" />
-        </div>
-      ) : null}
+      {/* The trading card — real name, real photo; the nickname and saying
+          are the fun part. The rescue's info stays quietly on the card. */}
+      <div className="mt-8">
+        <CardSpinner
+          realName={dog.name}
+          photoUrl={dog.photo ?? undefined}
+          photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
+          photoAlt={`${dog.name}, an adoptable dog`}
+          deck={buildDeck(dog.name)}
+          shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
+          fileName={dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
+          attribution={{ org: dog.org, location: city }}
+          analyticsId="adoptable"
+        />
+      </div>
 
       {details.length ? (
         <ul className="mt-6 flex flex-wrap gap-2">
