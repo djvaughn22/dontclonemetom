@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           ]}
         />
         {children}
-        <OpenMirrorFooter siteName="DontCloneMeTom.com" tagline="Rescue dogs are already here" accent="#2DD4BF" />
+        <OpenMirrorFooter />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-668B5WZ3TJ"
           strategy="afterInteractive"

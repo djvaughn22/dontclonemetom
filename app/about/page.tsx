@@ -68,6 +68,36 @@ export default function AboutPage() {
           or any related trademark owner. The full statement is on the{" "}
           <Link href="/" style={{ color: "#94a3b8" }}>home page</Link>.
         </p>
+
+        {/* The footer's Contact and Disclaimer links land on these two
+            sections (family standard, 2026-08-02). */}
+        <section id="contact" style={{ marginTop: 28, scrollMarginTop: 96 }}>
+          <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>Contact</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: 0 }}>
+            Have a question or an idea? Email{" "}
+            <a
+              href="mailto:ask@openmirrorllc.com?subject=Open%20Mirror%20Inquiry"
+              style={{ color: A }}
+            >
+              ask@openmirrorllc.com
+            </a>
+            .
+          </p>
+        </section>
+
+        <section id="disclaimer" style={{ marginTop: 28, scrollMarginTop: 96 }}>
+          <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>Disclaimer</h2>
+          <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: 0 }}>
+            Open Mirror LLC is independently owned and operated. Nothing
+            published by Open Mirror LLC is sponsored by, affiliated with,
+            endorsed by, or representative of the owner&rsquo;s full-time
+            employer. The trademark statement above also applies. Read the{" "}
+            <a href="https://openmirrorllc.com/disclaimer" style={{ color: A }}>
+              full Open Mirror disclaimer
+            </a>
+            .
+          </p>
+        </section>
       </div>
     </main>
   );
