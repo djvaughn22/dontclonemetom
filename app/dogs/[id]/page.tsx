@@ -6,8 +6,7 @@ import type { Metadata } from "next";
 import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
-import { buildDeck } from "../../lib/cards/tradingCards";
-import { listingTraits } from "../../lib/cards/listingTraits";
+import { buildListingDeck, listingDisplayName } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
@@ -117,16 +116,16 @@ export default async function DogPage({ params }: PageProps) {
           </p>
           <h2 className="mt-2 text-2xl font-black text-[#e8edf5]">What would you nickname me?</h2>
           <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-            Spin through seven names made especially for {dog.name} and share
+            Spin through seven names made especially for {listingDisplayName(dog.name)} and share
             your favorite card.
           </p>
         </div>
         <CardSpinner
-          realName={dog.name}
+          realName={listingDisplayName(dog.name)}
           photoUrl={dog.photo ?? undefined}
           photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
-          photoAlt={`${dog.name}, an adoptable dog`}
-          deck={buildDeck(dog.name, listingTraits(dog.size))}
+          photoAlt={`${listingDisplayName(dog.name)}, an adoptable dog`}
+          deck={buildListingDeck(dog)}
           shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
           fileName={dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
           attribution={{ org: dog.org, location: city }}

@@ -7,17 +7,14 @@ import {
   CARD_TRAITS,
   cardAt,
   dayLabel,
-  UNIVERSAL_PAIRS,
+  isAllowedNickname,
 } from "../tradingCards";
 
 describe("deck building", () => {
-  it("is deterministic per dog and fills in the real name", () => {
+  it("is deterministic per dog and always deals seven", () => {
     const a = buildDeck("Biscuit");
     expect(a).toEqual(buildDeck("Biscuit"));
-    const names = a.map((p) => p.nickname);
-    // Hero styles come first, determined by hash of the name
     expect(a.length).toBe(7);
-    // No template strings in the result
     expect(JSON.stringify(a)).not.toContain("{name}");
   });
 
@@ -26,10 +23,10 @@ describe("deck building", () => {
     expect(buildDeck("   ")).toEqual([]);
   });
 
-  it("trait cards lead the deck", () => {
+  it("keeps the dog's name recognizable across the deck", () => {
     const deck = buildDeck("Biscuit", ["big"]);
     const names = deck.map((p) => p.nickname);
-    expect(names[0]).toContain("Biscuit"); // trait-based hero from big
+    expect(names.some((n) => n.includes("Biscuit") || n.includes("Bis"))).toBe(true);
     expect(deck.length).toBe(7);
     expect(new Set(names).size).toBe(7); // no duplicates
   });
@@ -38,6 +35,24 @@ describe("deck building", () => {
     const deck = buildDeck("Rex", ["couch", "barks"]);
     const names = deck.map((p) => p.nickname.toLowerCase());
     expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("handles messy listing names like a person would", () => {
+    // Program codes, aka forms, and shouting caps never reach a card.
+    const deck = buildDeck("NO  Kevin");
+    expect(deck.length).toBe(7);
+    expect(JSON.stringify(deck)).not.toContain("NO ");
+    expect(deck[0].nickname).toBe("Kevin the Minion");
+  });
+
+  it("refuses the lazy rotating formulas", () => {
+    for (const bad of ["Captain Biscuit", "Mayor Biscuit", "Sir Biscuit", "Professor Biscuit", "King Biscuit", "Agent Biscuit", "Biscuitzilla", "Biscuitasaurus", "Doctor Biscuit"]) {
+      expect(isAllowedNickname(bad, "Biscuit"), bad).toBe(false);
+    }
+    const all = JSON.stringify(buildDeck("Biscuit", CARD_TRAITS.map((t) => t.id))).toLowerCase();
+    for (const bad of ["captain", "mayor", "sir ", "professor", "zilla", "asaurus", "agent"]) {
+      expect(all).not.toContain(bad);
+    }
   });
 });
 
@@ -70,7 +85,7 @@ describe("spinning", () => {
 });
 
 describe("card quality and safety", () => {
-  const sampleNames = ["Biscuit", "Rex", "Luna", "Max", "Scout", "Bailey"];
+  const sampleNames = ["Biscuit", "Rex", "Luna", "Max", "Scout", "Bailey", "Bella", "Charlie", "Tank"];
 
   it("every saying is short enough to sit on a card", () => {
     for (const s of allCardStrings(sampleNames)) {
@@ -100,8 +115,7 @@ describe("card quality and safety", () => {
     for (const t of CARD_TRAITS) {
       expect(t.label.length).toBeGreaterThan(0);
       expect(t.id.length).toBeGreaterThan(0);
-      const testCtx = { name: "Test", short: "Tes", h: 123 };
-      const pair = t.make(testCtx);
+      const pair = t.make("Test", "Tes");
       expect(pair).toBeDefined();
       expect(pair.nickname.length).toBeGreaterThan(0);
       expect(pair.sayings.length).toBeGreaterThanOrEqual(2);

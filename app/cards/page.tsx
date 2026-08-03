@@ -12,11 +12,10 @@
 import type { Metadata } from "next";
 import CardMaker from "../components/cards/CardMaker";
 import DogCardStudio from "../components/cards/DogCardStudio";
-import { buildDeck, DECK_SIZE } from "../lib/cards/tradingCards";
+import { buildListingDeck, DECK_SIZE, listingDisplayName } from "../lib/cards/tradingCards";
 import { getDogProfile } from "../lib/dogProfiles";
 import { fetchDogById } from "../lib/rescueDogs";
 import { dogCityLabel } from "../lib/dogOfTheDay";
-import { listingTraits } from "../lib/cards/listingTraits";
 
 export const metadata: Metadata = {
   title: "Make a Dog Card — free",
@@ -72,19 +71,20 @@ export default async function CardsPage({ searchParams }: PageProps) {
       const { dog } = await fetchDogById(dogId);
       if (dog) {
         const city = dogCityLabel(dog);
+        const displayName = listingDisplayName(dog.name);
         return (
           <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
             <DogCardStudio
-              realName={dog.name}
+              realName={displayName}
               photoUrl={dog.photo ?? undefined}
               photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
-              photoAlt={`${dog.name}, an adoptable dog`}
-              deck={buildDeck(dog.name, listingTraits(dog.size))}
+              photoAlt={`${displayName}, an adoptable dog`}
+              deck={buildListingDeck(dog)}
               attribution={{ org: dog.org, location: city }}
               meetHref={`/dogs/${dog.id}`}
               adoptionUrl={dog.url || undefined}
               shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
-              fileName={dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
+              fileName={displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
               analyticsId="studio-adoptable"
               initialStep={initialStep}
             />

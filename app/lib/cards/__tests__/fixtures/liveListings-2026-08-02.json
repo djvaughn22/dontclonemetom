@@ -1,0 +1,1778 @@
+[
+ {
+  "id": "10819783",
+  "name": "Harrison",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "10819835",
+  "name": "Bella Blue",
+  "breed": "American Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "12030390",
+  "name": "Dottie",
+  "breed": "Staffordshire Bull Terrier / Labrador Retriever / Mixed (short coat)",
+  "age": "Senior",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "12409136",
+  "name": "Hazel",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "12409137",
+  "name": "Jax",
+  "breed": "American Pit Bull Terrier (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "12409144",
+  "name": "Mork",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "12409165",
+  "name": "Sweet Tart",
+  "breed": "American Staffordshire Terrier / Hound / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": ""
+ },
+ {
+  "id": "12645754",
+  "name": "FOSTER",
+  "breed": "Unknown breed",
+  "age": "",
+  "size": "",
+  "sex": ""
+ },
+ {
+  "id": "13530849",
+  "name": "Mickey",
+  "breed": "Staffordshire Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "13530902",
+  "name": "Cleo",
+  "breed": "Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "14920124",
+  "name": "Miley",
+  "breed": "Shar Pei / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "15650615",
+  "name": "Fiona",
+  "breed": "American Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "15822193",
+  "name": "Lyle",
+  "breed": "Chihuahua / Bulldog / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "15882590",
+  "name": "Amarillo",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "16073269",
+  "name": "Hazel Grace",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "16073285",
+  "name": "Peaches II",
+  "breed": "Shepherd / Black Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "16073288",
+  "name": "Bernard",
+  "breed": "Bernese Mountain Dog / Rottweiler / Mixed (short coat)",
+  "age": "Adult",
+  "size": "X-Large",
+  "sex": "Male"
+ },
+ {
+  "id": "16580406",
+  "name": "Huey Lewis",
+  "breed": "American Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "16945129",
+  "name": "Billie Jo",
+  "breed": "Labrador Retriever / Shar Pei / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "16945630",
+  "name": "Pebbles 2021",
+  "breed": "American Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "17000697",
+  "name": "Blitz",
+  "breed": "Chocolate Labrador Retriever / Mixed (short coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "17536864",
+  "name": "Penelope",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "17595597",
+  "name": "Sacher",
+  "breed": "Labrador Retriever / Shar Pei / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "17819052",
+  "name": "Karma",
+  "breed": "American Pit Bull Terrier / Bulldog / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "17979761",
+  "name": "Maui",
+  "breed": "American Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "18079852",
+  "name": "Samson",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "18433049",
+  "name": "Berry",
+  "breed": "Labrador Retriever / American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "18638156",
+  "name": "Belladonna",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "18740690",
+  "name": "Goodfellow",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "18888148",
+  "name": "Christmas Carol",
+  "breed": "American Staffordshire Terrier / Mixed (long coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "18894509",
+  "name": "Colby",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "18894528",
+  "name": "Teeter",
+  "breed": "Dutch Shepherd / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "18929496",
+  "name": "Pinky",
+  "breed": "American Staffordshire Terrier (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "19013492",
+  "name": "Medinah",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "19122463",
+  "name": "Shipsey",
+  "breed": "Collie / American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "19129573",
+  "name": "Cheetah",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "19189338",
+  "name": "Uhtred",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "19273795",
+  "name": "Tunnel",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "19273801",
+  "name": "Ladder",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "19621150",
+  "name": "Rosie",
+  "breed": "Boxer / Pit Bull Terrier / Mixed",
+  "age": "",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "20515053",
+  "name": "Adolfo",
+  "breed": "Neapolitan Mastiff / Cane Corso Mastiff (short coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "20583459",
+  "name": "Gracie",
+  "breed": "Neapolitan Mastiff (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20765333",
+  "name": "Anita",
+  "breed": "Neapolitan Mastiff (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20835488",
+  "name": "Buddy",
+  "breed": "Labrador Retriever / Chihuahua / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "20835496",
+  "name": "Piper",
+  "breed": "Shepherd / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20835507",
+  "name": "Luna",
+  "breed": "Beagle / Cattle Dog / Mixed (short coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20835549",
+  "name": "Tippi",
+  "breed": "Great Dane / Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20835550",
+  "name": "Ruth",
+  "breed": "American Staffordshire Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "20917702",
+  "name": "Maya",
+  "breed": "American Staffordshire Terrier (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "20917717",
+  "name": "Hobbs",
+  "breed": "Beagle (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "20984062",
+  "name": "Livia",
+  "breed": "Neapolitan Mastiff (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "21059265",
+  "name": "Ramsey",
+  "breed": "Presa Canario",
+  "age": "",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "21070243",
+  "name": "Lucious",
+  "breed": "American Pit Bull Terrier (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "21472713",
+  "name": "Midnight",
+  "breed": "Black Labrador Retriever (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "21648834",
+  "name": "DK- King",
+  "breed": "Shepherd / Terrier",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "21711327",
+  "name": "Reese Gin",
+  "breed": "Labrador Retriever / Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "21722101",
+  "name": "Maggie",
+  "breed": "Black Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "21793403",
+  "name": "Lonzo",
+  "breed": "Pit Bull Terrier / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "21798413",
+  "name": "Linda",
+  "breed": "Border Collie / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "21819684",
+  "name": "Ayra",
+  "breed": "Terrier / Retriever / Mixed (short coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "21853599",
+  "name": "Beans  *Special Needs*",
+  "breed": "Chihuahua / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "21868881",
+  "name": "Weston",
+  "breed": "Boxer / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "21881216",
+  "name": "ASTRID",
+  "breed": "Whippet / Siberian Husky / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "21940794",
+  "name": "Amara",
+  "breed": "Neapolitan Mastiff (short coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "21968587",
+  "name": "Auggie (Spot)",
+  "breed": "Pit Bull Terrier / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22082320",
+  "name": "Zuse",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22106499",
+  "name": "Betsy",
+  "breed": "Shih Tzu / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Small",
+  "sex": "Female"
+ },
+ {
+  "id": "22135559",
+  "name": "Nicholas (Santa Claus)",
+  "breed": "Labrador Retriever / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22171117",
+  "name": "Nala aka Bonnie",
+  "breed": "Husky / German Shepherd Dog / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22174123",
+  "name": "Stella",
+  "breed": "Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22194571",
+  "name": "Ruger",
+  "breed": "Retriever / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22194580",
+  "name": "Ramsey",
+  "breed": "Retriever / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22207544",
+  "name": "Guido",
+  "breed": "Neapolitan Mastiff (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22221917",
+  "name": "Bea",
+  "breed": "Chihuahua / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Small",
+  "sex": "Female"
+ },
+ {
+  "id": "22223788",
+  "name": "Penelope",
+  "breed": "Carolina Dog / Terrier / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22225221",
+  "name": "Liam",
+  "breed": "Cattle Dog / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22225231",
+  "name": "Violet",
+  "breed": "Cattle Dog / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22239467",
+  "name": "Snickers",
+  "breed": "Black Mouth Cur / Boxer / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22251046",
+  "name": "Hailey",
+  "breed": "Beagle / Australian Cattle Dog/Blue Heeler / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22255268",
+  "name": "Foxy Roxy",
+  "breed": "Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22259414",
+  "name": "REGINA",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22273763",
+  "name": "KANGA",
+  "breed": "Presa Canario / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22293218",
+  "name": "Elmo",
+  "breed": "Australian Cattle Dog/Blue Heeler / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22296359",
+  "name": "Rhythm",
+  "breed": "Retriever / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22301228",
+  "name": "Kora",
+  "breed": "Shepherd / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22308787",
+  "name": "ASHER BLUE",
+  "breed": "Staffordshire Bull Terrier / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22314073",
+  "name": "Lucky",
+  "breed": "Pointer / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22314077",
+  "name": "Speedy",
+  "breed": "German Shepherd Dog / Terrier / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22332899",
+  "name": "Bella",
+  "breed": "American Staffordshire Terrier / Mastiff / Mixed (short coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22332968",
+  "name": "Bellamy",
+  "breed": "Beagle / Bluetick Coonhound / Mixed (short coat)",
+  "age": "Senior",
+  "size": "Medium",
+  "sex": ""
+ },
+ {
+  "id": "22345176",
+  "name": "Moby",
+  "breed": "Hound / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22352140",
+  "name": "TRITON",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22354590",
+  "name": "OTTER",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22363379",
+  "name": "Ash",
+  "breed": "Shepherd / Australian Cattle Dog/Blue Heeler / Mixed (long coat)",
+  "age": "Baby",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22388299",
+  "name": "Brada",
+  "breed": "Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22392666",
+  "name": "Otis",
+  "breed": "Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22393127",
+  "name": "Hersey",
+  "breed": "Unknown breed",
+  "age": "",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22400599",
+  "name": "BLUEBELL",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22413348",
+  "name": "REMI",
+  "breed": "Border Collie (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22413349",
+  "name": "HAWKEYE",
+  "breed": "German Shepherd Dog / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22413891",
+  "name": "Lola",
+  "breed": "Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22416082",
+  "name": "Chevy",
+  "breed": "Australian Shepherd / Golden Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22432212",
+  "name": "Patrick aka Lincoln",
+  "breed": "Dutch Shepherd / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22432215",
+  "name": "Ryder",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22432216",
+  "name": "Zeus",
+  "breed": "Husky / German Shepherd Dog / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22432764",
+  "name": "Tank",
+  "breed": "American Pit Bull Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22436203",
+  "name": "Elsa",
+  "breed": "Hound / Labrador Retriever / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22439370",
+  "name": "Lucy",
+  "breed": "Labrador Retriever / Husky / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22442828",
+  "name": "Shania",
+  "breed": "Pit Bull Terrier / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22444996",
+  "name": "HONEY",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22444997",
+  "name": "FRECKLES",
+  "breed": "Australian Cattle Dog/Blue Heeler / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22446476",
+  "name": "BOBBIE",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22452271",
+  "name": "LAYLA",
+  "breed": "Labrador Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22456014",
+  "name": "Walker",
+  "breed": "Basset Hound / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22456869",
+  "name": "SR Betty Sue",
+  "breed": "Treeing Walker Coonhound",
+  "age": "Adult",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22459462",
+  "name": "Mercy",
+  "breed": "Akita",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22467954",
+  "name": "LH Pip",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22467959",
+  "name": "LH  Uno",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22472776",
+  "name": "Neville",
+  "breed": "Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22475186",
+  "name": "PEANUT",
+  "breed": "American Bulldog / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22475460",
+  "name": "GLORIA",
+  "breed": "Rottweiler / Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22478468",
+  "name": "MAVERICK",
+  "breed": "Labrador Retriever / Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22482405",
+  "name": "HE Mayflower",
+  "breed": "German Shorthaired Pointer / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22484739",
+  "name": "Bailey",
+  "breed": "French Bulldog / English Bulldog (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22484750",
+  "name": "Jasper",
+  "breed": "Chihuahua (short coat)",
+  "age": "Adult",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22499881",
+  "name": "ZEKE",
+  "breed": "American Bulldog / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22501221",
+  "name": "Garth",
+  "breed": "Pit Bull Terrier / Terrier / Mixed",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22502140",
+  "name": "JERKY",
+  "breed": "Border Collie / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22502142",
+  "name": "PEPPERONI",
+  "breed": "Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22502143",
+  "name": "PASTRAMI",
+  "breed": "Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22511514",
+  "name": "Tommy",
+  "breed": "Great Pyrenees / Anatolian Shepherd / Mixed",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22516077",
+  "name": "GRAHAM",
+  "breed": "Staffordshire Bull Terrier / Catahoula Leopard Dog / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22517357",
+  "name": "KARL",
+  "breed": "German Shepherd Dog / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22519530",
+  "name": "Bilbo",
+  "breed": "Chihuahua / Mixed (long coat)",
+  "age": "Senior",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22524213",
+  "name": "MANCHI",
+  "breed": "Pit Bull Terrier / Labrador Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22533411",
+  "name": "HS Bonita aka Hilda",
+  "breed": "Great Pyrenees / Terrier / Mixed",
+  "age": "Baby",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22535577",
+  "name": "TYSON",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22540950",
+  "name": "NIBBLES",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22547385",
+  "name": "TOLKIEN",
+  "breed": "German Shepherd Dog / Labrador Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22557755",
+  "name": "Motown",
+  "breed": "Great Pyrenees / Mixed (long coat)",
+  "age": "Adult",
+  "size": "X-Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22564997",
+  "name": "PRINCESS",
+  "breed": "Labrador Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22564998",
+  "name": "JOCKO",
+  "breed": "Labrador Retriever / Mastiff / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22570829",
+  "name": "Rosella (Rosie)",
+  "breed": "Terrier / Mixed (short coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22575675",
+  "name": "Scout",
+  "breed": "Unknown breed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22580255",
+  "name": "Leo",
+  "breed": "American Eskimo Dog / Siberian Husky / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22591664",
+  "name": "ANNIE",
+  "breed": "Hound / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22592570",
+  "name": "TOASTED RAVIOLI",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22595613",
+  "name": "Stormy",
+  "breed": "Doberman Pinscher",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22596462",
+  "name": "Memphis",
+  "breed": "Pit Bull Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22596961",
+  "name": "OLIVIA",
+  "breed": "German Shepherd Dog / Great Dane / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22600790",
+  "name": "Winnie",
+  "breed": "Unknown breed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22601625",
+  "name": "Marley",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22603038",
+  "name": "WILEY",
+  "breed": "Labrador Retriever / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22603856",
+  "name": "XENA",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22606131",
+  "name": "Bobby Boo",
+  "breed": "Beagle / Mixed (short coat)",
+  "age": "Senior",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22608191",
+  "name": "DIESEL",
+  "breed": "Irish Wolfhound / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22609343",
+  "name": "ANGUS",
+  "breed": "Terrier / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22610008",
+  "name": "TYLER",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22611930",
+  "name": "Tank",
+  "breed": "Rottweiler",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22612510",
+  "name": "HUCKLEBERRY",
+  "breed": "Pointer / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22613100",
+  "name": "ISABEL",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22613272",
+  "name": "Gordy",
+  "breed": "Unknown breed",
+  "age": "",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22614989",
+  "name": "Gunner aka Rolo",
+  "breed": "Rottweiler",
+  "age": "",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22615470",
+  "name": "HP Carol",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22615472",
+  "name": "HP Ronda",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Adult",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22615752",
+  "name": "BUTTONS",
+  "breed": "Plott Hound / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22616903",
+  "name": "Luke",
+  "breed": "Doberman Pinscher / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22617888",
+  "name": "NO  Nicole",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22617889",
+  "name": "NO  Marissa",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22617890",
+  "name": "NO  Tony",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22617891",
+  "name": "NO  Lisa",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22617894",
+  "name": "NO  Kevin",
+  "breed": "Labrador Retriever / Terrier / Mixed",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22618640",
+  "name": "GROVER",
+  "breed": "Pit Bull Terrier / Australian Cattle Dog/Blue Heeler / Mixed (medium coat)",
+  "age": "Baby",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22619717",
+  "name": "CORDELIA",
+  "breed": "American Bulldog / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22625903",
+  "name": "Bandit and Basque (senior bonded pair)",
+  "breed": "Unknown breed",
+  "age": "Senior",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22625928",
+  "name": "ABBY",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22627276",
+  "name": "DIESEL",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22627788",
+  "name": "BELLA",
+  "breed": "American Bulldog (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22633439",
+  "name": "Baxter",
+  "breed": "Boxer / Mixed (short coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22635061",
+  "name": "BOOMER",
+  "breed": "Akita (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22635714",
+  "name": "PUPPERTON",
+  "breed": "Labrador Retriever / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22641970",
+  "name": "Millie Ann",
+  "breed": "Wirehaired Fox Terrier / Labrador Retriever / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22644434",
+  "name": "JISELLE",
+  "breed": "German Shepherd Dog (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22646847",
+  "name": "WILMA",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22647258",
+  "name": "Jasper",
+  "breed": "Unknown breed",
+  "age": "",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22647469",
+  "name": "SPACEMAN",
+  "breed": "Labrador Retriever / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22647968",
+  "name": "LILO",
+  "breed": "Labrador Retriever / Plott Hound / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Small",
+  "sex": "Female"
+ },
+ {
+  "id": "22648267",
+  "name": "WATSON",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22648268",
+  "name": "OTTO",
+  "breed": "Pit Bull Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22648270",
+  "name": "SIMBA",
+  "breed": "Terrier (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22648974",
+  "name": "LH  Monty",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649599",
+  "name": "LEGEND",
+  "breed": "Beagle / Labrador Retriever / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649636",
+  "name": "Carl",
+  "breed": "Labrador Retriever",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22649637",
+  "name": "Darla",
+  "breed": "American Staffordshire Terrier / Mixed",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22649640",
+  "name": "Dart (from Stranger Things)",
+  "breed": "Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649644",
+  "name": "Dumpling",
+  "breed": "Shar Pei / Golden Retriever",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22649646",
+  "name": "Holden aka Harlan",
+  "breed": "Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649648",
+  "name": "Jid aka jeddy bear",
+  "breed": "Labrador Retriever / Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649650",
+  "name": "Lemon",
+  "breed": "Dalmatian",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649652",
+  "name": "Linus",
+  "breed": "Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649657",
+  "name": "Macho Man",
+  "breed": "Pit Bull Terrier / Boxer",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649660",
+  "name": "Macy",
+  "breed": "Hound",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22649663",
+  "name": "Paco",
+  "breed": "Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22649666",
+  "name": "Raisin",
+  "breed": "Rottweiler / Boxer",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22649668",
+  "name": "Raya",
+  "breed": "Labrador Retriever / Pit Bull Terrier / Mixed",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22649671",
+  "name": "Sweetie",
+  "breed": "Beagle / Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22649675",
+  "name": "Tango",
+  "breed": "Boxer / Pit Bull Terrier",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22649678",
+  "name": "Tiramisu",
+  "breed": "Rat Terrier / Jack Russell Terrier",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22649681",
+  "name": "Vida",
+  "breed": "Feist / Beagle / Mixed",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Female"
+ },
+ {
+  "id": "22652967",
+  "name": "CINNAMON",
+  "breed": "Plott Hound / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Large",
+  "sex": "Female"
+ },
+ {
+  "id": "22653554",
+  "name": "JERMAINE",
+  "breed": "Labrador Retriever / Border Collie / Mixed (medium coat)",
+  "age": "Adult",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22655180",
+  "name": "MARSHALL",
+  "breed": "Terrier / Mixed (medium coat)",
+  "age": "Young",
+  "size": "Medium",
+  "sex": "Male"
+ },
+ {
+  "id": "22655546",
+  "name": "GREMLIN",
+  "breed": "Terrier / Mixed (medium coat)",
+  "age": "Senior",
+  "size": "Small",
+  "sex": "Male"
+ },
+ {
+  "id": "22656567",
+  "name": "D Michael aka Boone",
+  "breed": "Redbone Coonhound",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ },
+ {
+  "id": "22656771",
+  "name": "Ranger",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22656773",
+  "name": "Atlas",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22656778",
+  "name": "Cruiser",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22656781",
+  "name": "Harley",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22656828",
+  "name": "Journey",
+  "breed": "Unknown breed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22656831",
+  "name": "Scout",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed (short coat)",
+  "age": "Baby",
+  "size": "",
+  "sex": "Male"
+ },
+ {
+  "id": "22656836",
+  "name": "Piper",
+  "breed": "Australian Cattle Dog/Blue Heeler / Terrier / Mixed",
+  "age": "",
+  "size": "",
+  "sex": "Female"
+ },
+ {
+  "id": "22656920",
+  "name": "THOMAS",
+  "breed": "Pit Bull Terrier (medium coat)",
+  "age": "Young",
+  "size": "Large",
+  "sex": "Male"
+ }
+]

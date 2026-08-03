@@ -25,7 +25,9 @@ describe("CardSpinner", () => {
         analyticsId: "test",
       }),
     );
-    const shown = deck.filter((p) => html.includes(p.nickname));
+    // Match whole rendered text nodes — a short nickname like "Bis" is a
+    // substring of "Biscuit" and must not count as shown.
+    const shown = deck.filter((p) => html.includes(`>${p.nickname}<`));
     expect(shown).toHaveLength(1);
     expect(shown[0].nickname).toBe(cardAt(deck, 0, new Date())!.nickname);
     expect(html).toContain("Spin a New Card");
