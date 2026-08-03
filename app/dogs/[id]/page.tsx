@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
-import { buildListingDeck, listingDisplayName } from "../../lib/cards/tradingCards";
+import { buildListingDeck, countWord, listingDisplayName } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
@@ -89,6 +89,7 @@ export default async function DogPage({ params }: PageProps) {
   }
 
   const city = dogCityLabel(dog);
+  const deck = buildListingDeck(dog);
   const details = [
     dog.breed && `Breed: ${dog.breed}`,
     dog.age && `Age: ${dog.age}`,
@@ -116,8 +117,9 @@ export default async function DogPage({ params }: PageProps) {
           </p>
           <h2 className="mt-2 text-2xl font-black text-[#e8edf5]">What would you nickname me?</h2>
           <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-            Spin through seven names made especially for {listingDisplayName(dog.name)} and share
-            your favorite card.
+            Spin through {countWord(deck.length).toLowerCase()} names made
+            especially for {listingDisplayName(dog.name)} and share your
+            favorite card.
           </p>
         </div>
         <CardSpinner
@@ -125,7 +127,7 @@ export default async function DogPage({ params }: PageProps) {
           photoUrl={dog.photo ?? undefined}
           photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
           photoAlt={`${listingDisplayName(dog.name)}, an adoptable dog`}
-          deck={buildListingDeck(dog)}
+          deck={deck}
           shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
           fileName={dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
           attribution={{ org: dog.org, location: city }}

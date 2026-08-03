@@ -53,8 +53,8 @@ export default function CardMaker() {
           Make a Dog Card
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-          Your dog, a family member&apos;s dog, or a dog you know. Seven names
-          made just for them. Free — the photo never leaves your device.
+          Your dog, a family member&apos;s dog, or a dog you know. A deck of
+          names made just for them. Free — the photo never leaves your device.
         </p>
       </section>
 

@@ -11,10 +11,11 @@ import {
 } from "../tradingCards";
 
 describe("deck building", () => {
-  it("is deterministic per dog and always deals seven", () => {
+  it("is deterministic per dog and deals a real hand", () => {
     const a = buildDeck("Biscuit");
     expect(a).toEqual(buildDeck("Biscuit"));
-    expect(a.length).toBe(7);
+    expect(a.length).toBeGreaterThanOrEqual(5);
+    expect(a.length).toBeLessThanOrEqual(7);
     expect(JSON.stringify(a)).not.toContain("{name}");
   });
 

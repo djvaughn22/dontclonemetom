@@ -47,13 +47,15 @@ describe("every published dog's deck", () => {
     }
   });
 
-  it("builds every published deck mostly from hand-made cards", () => {
+  it("builds every published deck entirely from hand-written cards", () => {
+    // Every card on a published dog is either from the Name Book or the
+    // senior Grandpa/Grandma card. No engine output, no filler, no
+    // Big/Lil/Baby padding — ever.
     for (const d of dogs) {
-      const deck = buildListingDeck(d);
-      const curated = deck.filter((c) => c.basis === "book" || c.basis === "rhyme");
-      expect(curated.length, `${d.name} (${d.id}) has too few hand-made cards`).toBeGreaterThanOrEqual(3);
-      const fallback = deck.filter((c) => c.basis === "family" && / the One and Only|^Sweet |^Happy |^Bouncy | Superstar| the Snuggler| the Snoozer/.test(c.nickname));
-      expect(fallback.length, `${d.name} (${d.id}) leans on filler: ${fallback.map((c) => c.nickname).join(", ")}`).toBeLessThanOrEqual(1);
+      for (const card of buildListingDeck(d)) {
+        const grand = /^Grand(pa|ma) /.test(card.nickname);
+        expect(card.basis === "book" || grand, `${d.name} (${d.id}): ${card.nickname} [${card.basis}]`).toBe(true);
+      }
     }
   });
 

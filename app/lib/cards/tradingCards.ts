@@ -24,6 +24,7 @@
 
 import { DECK_OVERRIDES, NAME_BOOK, type BookCard } from "./nameBook";
 import { parseListingName, type ParsedDogName } from "./dogNames";
+import { buildWordplayPool, selectWordplay, shortCallName, type WordplayCard } from "./wordplay";
 
 export const DECK_SIZE = 7;
 
@@ -111,19 +112,10 @@ const CLAIM_WORDS = [
 
 // ── Name material ────────────────────────────────────────────────────────
 
-const isVowel = (c: string) => "aeiouy".includes(c.toLowerCase());
-
 /** First-syllable short form a family would actually say: "Biscuit"→"Bis",
  *  "Charlie"→"Char", "Luna"→"Lu", "Rex"→"Rex". */
 export function shortForm(realName: string): string {
-  const name = parseListingName(realName).primary;
-  if (name.length <= 4) return name;
-  let i = 0;
-  while (i < name.length && !isVowel(name[i])) i++; // onset
-  while (i < name.length && isVowel(name[i])) i++; // first vowel group
-  if (i < name.length && !isVowel(name[i])) i++; // one trailing consonant
-  const short = name.slice(0, Math.max(2, i));
-  return short.length >= 2 ? short : name;
+  return shortCallName(parseListingName(realName).primary);
 }
 
 // Tiny stable string hash — per-dog variety without any randomness.
@@ -156,19 +148,6 @@ function bookPair(card: BookCard): CardPair {
   return { basis: "book", nickname: card.n, sayings: withPoolSayings(card.n, card.s) };
 }
 
-// ── Wordplay rules ───────────────────────────────────────────────────────
-// Only rhymes that genuinely land on the name's real ending. The book
-// covers today's dogs; these catch tomorrow's. ("Papaya" is deliberately
-// absent — it belongs to Isaiah alone.)
-const RHYMES: { test: RegExp; make: (name: string) => string; sayings: string[] }[] = [
-  { test: /una$/i, make: (n) => `${n} Tuna`, sayings: ["Rhymes with dinner. Coincidence?"] },
-  { test: /ella$/i, make: (n) => `${n} Mozzarella`, sayings: ["Extra cheesy. Zero regrets."] },
-  { test: /(oco|oko)$/i, make: (n) => `${n} Loco`, sayings: ["Runs on zoomies and vibes."] },
-  { test: /oney?$/i, make: (n) => `${n} Baloney`, sayings: ["One hundred percent baloney. The good kind."] },
-  { test: /ax$/i, make: (n) => `${n} Snacks`, sayings: ["Rhymes with his favorite hobby."] },
-  { test: /ippy?$/i, make: (n) => `Zippy ${n}`, sayings: ["Fast name, faster feet."] },
-];
-
 // ── True things a kid can pick about their dog ───────────────────────────
 // Each fuses the fact with the dog's own name, so the card still belongs
 // to this dog alone. No ranks, no titles — words a family actually says.
@@ -190,41 +169,6 @@ export const CARD_TRAITS: CardTrait[] = [
   { id: "puppy", label: "Still a puppy", make: (n) => T(`Baby ${n}`, "Everything is new. Everything is great.", "Growing in every direction.") },
   { id: "senior", label: "Sweet senior", make: (n) => T(`${n} the Old Soul`, "Wise, unhurried, always right.", "Seen it all. Naps through most of it.") },
 ];
-
-// Affectionate family forms — the shapes families really use for any name.
-// These complete the seven only when the book and wordplay run short, and
-// only when the short form actually sounds like something a person would
-// say ("Bax", "Gus" — never "Tyl" or "Sweeti").
-function saysWell(short: string): boolean {
-  if (short.length < 2) return false;
-  const last = short[short.length - 1].toLowerCase();
-  const penult = short[short.length - 2].toLowerCase();
-  if ("aeiou".includes(last)) return true;
-  return "aeiou".includes(penult) && "bdgkmnprstxz".includes(last);
-}
-
-function affectionForms(p: ParsedDogName): CardPair[] {
-  const short = shortForm(p.primary);
-  const out: CardPair[] = [];
-  if (!saysWell(short)) return out;
-  if (p.display.length >= 6 && short.length >= 3 && short.toLowerCase() !== p.display.toLowerCase()) {
-    out.push({ basis: "family", nickname: short, sayings: withPoolSayings(short, `Short. Sweet. ${short}.`) });
-  }
-  if (short.length <= 4) {
-    const dbl = `${short}-${short}`;
-    out.push({ basis: "family", nickname: dbl, sayings: withPoolSayings(dbl, `So nice they named ${short} twice.`) });
-  }
-  const last = short[short.length - 1]?.toLowerCase() ?? "";
-  const alreadyDiminutive = /(y|ie|ee)$/i.test(p.display);
-  if (last && !isVowel(last) && !alreadyDiminutive) {
-    const doubled = "bdgmnprst".includes(last) ? short + last : short;
-    const dim = `${doubled}y`;
-    if (dim.toLowerCase() !== p.display.toLowerCase().slice(0, dim.length) || dim.length >= p.display.length) {
-      out.push({ basis: "family", nickname: dim, sayings: withPoolSayings(dim) });
-    }
-  }
-  return out;
-}
 
 // Warm last-resort forms for names the book has never met — still built
 // from this dog's name, rotated by name hash so no two dogs open alike.
@@ -264,67 +208,74 @@ export function isAllowedNickname(nickname: string, realName: string): boolean {
 
 // ── Deck building ────────────────────────────────────────────────────────
 
-type ComposeOpts = {
-  id?: string;
-  traitIds?: string[];
-  /** listing decks are curated: when the book knows the name, no
-   *  algorithmic short-forms — filler only as a last resort */
-  curated?: boolean;
-};
+function wordplayPair(c: WordplayCard): CardPair {
+  const basis: CardBasis = c.kind === "rhyme" ? "rhyme" : "family";
+  return { basis, nickname: c.nickname, sayings: withPoolSayings(c.nickname, c.saying) };
+}
 
-function compose(p: ParsedDogName, opts: ComposeOpts): CardPair[] {
-  if (!p.display) return [];
+// Grandpa/Grandma — the one listing fact that makes a genuinely warm card.
+function grandCard(p: ParsedDogName, age?: string, sex?: string): CardPair | null {
+  if (!/senior/i.test(age ?? "")) return null;
+  const grand = /female/i.test(sex ?? "") ? "Grandma" : /male/i.test(sex ?? "") ? "Grandpa" : null;
+  if (!grand) return null;
+  return {
+    basis: "trait",
+    nickname: `${grand} ${p.display}`,
+    sayings: ["Wise, unhurried, always right.", "Seen it all. Naps through most of it."],
+  };
+}
 
-  // A per-dog override deck is final: written for this exact listing.
-  const override = opts.id ? DECK_OVERRIDES[opts.id] : undefined;
-  if (override) return override.map(bookPair);
-
-  const candidates: CardPair[] = [];
-
-  // 1. The Name Book — hand-written for this name, hero first.
-  const entry = NAME_BOOK[p.display.toLowerCase()] ?? NAME_BOOK[p.primary.toLowerCase()];
-  if (entry) candidates.push(...entry.map(bookPair));
-
-  // 2. Real rhymes on the name's actual ending — the book already mined
-  //    the good ones for names it knows.
-  if (!entry) {
-    for (const r of RHYMES) {
-      if (r.test.test(p.primary)) {
-        candidates.push({ basis: "rhyme", nickname: r.make(p.primary), sayings: withPoolSayings(r.make(p.primary), r.sayings[0]) });
-      }
-    }
-  }
-
-  // 3. True things about this dog.
-  for (const t of CARD_TRAITS) {
-    if (opts.traitIds?.includes(t.id)) candidates.push(t.make(p.display, shortForm(p.primary)));
-  }
-
-  // 4. Affectionate name forms; a curated listing deck the book already
-  //    knows never falls back to generated short-forms.
-  if (!(opts.curated && entry)) candidates.push(...affectionForms(p));
-  candidates.push(...fallbackForms(p));
-
+function gatherDeck(
+  p: ParsedDogName,
+  sources: CardPair[],
+  pool: WordplayCard[],
+  max: number,
+): CardPair[] {
   const deck: CardPair[] = [];
   const seen = new Set<string>();
-  for (const pair of candidates) {
+  for (const pair of sources) {
+    if (deck.length >= max) break;
     const key = pair.nickname.toLowerCase();
-    if (seen.has(key)) continue;
-    if (!isAllowedNickname(pair.nickname, p.display)) continue;
+    if (seen.has(key) || !isAllowedNickname(pair.nickname, p.display)) continue;
     seen.add(key);
     deck.push(pair);
-    if (deck.length === DECK_SIZE) break;
   }
+  const picked = selectWordplay(
+    pool.filter((c) => isAllowedNickname(c.nickname, p.display)),
+    max - deck.length,
+    seen,
+  );
+  deck.push(...picked.map(wordplayPair));
   return deck;
 }
 
 /**
- * Exactly seven names for a dog named by a visitor (Make One for Your
- * Dog), in spin order, hero first. `traitIds` are the true things the
- * visitor picked.
+ * Up to seven names for a dog named by a visitor (Make One for Your Dog),
+ * hero first. `traitIds` are the true things the visitor picked. A typed
+ * name the book and the wordplay rules both come up dry on still gets a
+ * small warm floor — the visitor is standing there with their own dog —
+ * but never more filler than it takes to reach four cards.
  */
 export function buildDeck(realName: string, traitIds: string[] = []): CardPair[] {
-  return compose(parseListingName(realName), { traitIds });
+  const p = parseListingName(realName);
+  if (!p.display) return [];
+  const entry = NAME_BOOK[p.display.toLowerCase()] ?? NAME_BOOK[p.primary.toLowerCase()];
+  const sources: CardPair[] = [...(entry ?? []).map(bookPair)];
+  for (const t of CARD_TRAITS) {
+    if (traitIds.includes(t.id)) sources.push(t.make(p.display, shortForm(p.primary)));
+  }
+  const deck = gatherDeck(p, sources, buildWordplayPool(p), DECK_SIZE);
+  if (deck.length < 4) {
+    const seen = new Set(deck.map((c) => c.nickname.toLowerCase()));
+    for (const pair of fallbackForms(p)) {
+      if (deck.length >= 4) break;
+      const key = pair.nickname.toLowerCase();
+      if (seen.has(key) || !isAllowedNickname(pair.nickname, p.display)) continue;
+      seen.add(key);
+      deck.push(pair);
+    }
+  }
+  return deck;
 }
 
 /** The listing fields the deck builder can honestly use. */
@@ -337,48 +288,53 @@ export type ListingDog = {
   sex?: string;
 };
 
-// Verified listing facts → trait ids. Only what the rescue actually
-// published is used — nothing invented.
-export function listingTraitIds(dog: Pick<ListingDog, "size" | "age">): string[] {
-  const ids: string[] = [];
-  if (/x-?large|large|giant/i.test(dog.size ?? "")) ids.push("big");
-  else if (/small|tiny|toy/i.test(dog.size ?? "")) ids.push("small");
-  if (/baby/i.test(dog.age ?? "")) ids.push("puppy");
-  else if (/senior/i.test(dog.age ?? "")) ids.push("senior");
-  return ids;
-}
+export type ListingDeckReport = {
+  deck: CardPair[];
+  /** true when this dog deserves a hand-written Name Book pass */
+  needsReview: boolean;
+  reasons: string[];
+};
 
 /**
- * Exactly seven names for a live adoptable listing. The dog's own override
- * deck wins outright; otherwise the Name Book plus wordplay carries the
- * deck, with the listing's verified size/age filling out the seven.
- * A senior dog with a listed sex gets the family version of the senior
- * card — Grandpa or Grandma — instead of the generic one.
+ * The deck for a live adoptable listing, with its quality report. The
+ * dog's own override deck wins outright; otherwise the Name Book carries
+ * the deck and the wordplay engine completes it. A dog the book has never
+ * met gets ONLY real wordplay (plus Grandpa/Grandma for a listed senior) —
+ * a short deck with a review flag, never padded filler.
  */
-export function buildListingDeck(dog: ListingDog): CardPair[] {
+export function buildListingDeckReport(dog: ListingDog): ListingDeckReport {
   const p = parseListingName(dog.name);
-  const deck = compose(p, {
-    id: dog.id,
-    traitIds: listingTraitIds(dog),
-    curated: true,
-  });
-  if (DECK_OVERRIDES[dog.id]) return deck;
-  // A senior with a listed sex gets the family version of the senior card —
-  // unless the book already wrote a grandparent name for this dog.
-  const grand = /senior/i.test(dog.age ?? "")
-    ? /female/i.test(dog.sex ?? "") ? "Grandma" : /male/i.test(dog.sex ?? "") ? "Grandpa" : null
-    : null;
-  if (grand && !deck.some((c) => /grandpa|grandma|granny|grampa/i.test(c.nickname))) {
-    const i = deck.findIndex((c) => c.nickname === `${p.display} the Old Soul`);
-    if (i >= 0) {
-      deck[i] = {
-        basis: "trait",
-        nickname: `${grand} ${p.display}`,
-        sayings: ["Wise, unhurried, always right.", "Seen it all. Naps through most of it."],
-      };
-    }
+  if (!p.display) return { deck: [], needsReview: true, reasons: ["unparseable name"] };
+
+  const override = DECK_OVERRIDES[dog.id];
+  if (override) return { deck: override.map(bookPair), needsReview: false, reasons: [] };
+
+  const entry = NAME_BOOK[p.display.toLowerCase()] ?? NAME_BOOK[p.primary.toLowerCase()];
+  const sources: CardPair[] = [...(entry ?? []).map(bookPair)];
+  const grand = grandCard(p, dog.age, dog.sex);
+  if (grand && !sources.some((c) => /grandpa|grandma|granny|grampa/i.test(c.nickname))) {
+    sources.push(grand);
   }
-  return deck;
+  // A booked dog is fully hand-written — the engine never edits a curated
+  // deck. Only a dog the book has never met gets engine wordplay, and it
+  // carries a review flag until someone writes its entry.
+  const deck = gatherDeck(p, sources, entry ? [] : buildWordplayPool(p), DECK_SIZE);
+
+  const reasons: string[] = [];
+  if (!entry) reasons.push("name not in the Name Book");
+  if (deck.length < DECK_SIZE) reasons.push(`only ${deck.length} strong cards`);
+  return { deck, needsReview: reasons.length > 0, reasons };
+}
+
+/** The deck alone — what the pages render. */
+export function buildListingDeck(dog: ListingDog): CardPair[] {
+  return buildListingDeckReport(dog).deck;
+}
+
+/** "Seven" / "Five" — the deck size, said the way the page copy says it. */
+export function countWord(n: number): string {
+  const words = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven"];
+  return words[Math.max(0, Math.min(7, n))];
 }
 
 /** The name the card surfaces should display for a listing — program

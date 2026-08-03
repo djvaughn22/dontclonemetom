@@ -31,7 +31,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Gabby Abby", "Has opinions about the mail."),
     B("Abba", "The dancing queen of the dog run."),
     B("Abs", "Core strength: nap-certified."),
-    B("Abby the Pittie", "Says so right on the listing."),
+    B("Fabby Abby", "Short for fabulous. Obviously."),
   ],
   adolfo: [
     B("Adolfo Alfredo", "Extra saucy. Zero noodles."),
@@ -40,6 +40,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Alfie", "The friendly abbreviation."),
     B("Fo-Fo", "Answers on the second Fo."),
     B("Dolf", "One syllable of mastiff."),
+    B("Adolfo Portofino", "Italian coastline, Missouri zip code.")
   ],
   amara: [
     B("Amara Marinara", "Best served with meatballs nearby."),
@@ -48,6 +49,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Amara Bambina", "Italy's sweetest export."),
     B("Amara Cara", "It means 'dear.' Accurate."),
     B("Ama", "Short and adoring."),
+    B("Amara O'Hara", "Tomorrow is another walk.")
   ],
   amarillo: [
     B("Amarillo Armadillo", "Rolls up. Refuses to un-roll before noon."),
@@ -56,7 +58,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cheerio Amarillo", "Breakfast greeting champion."),
     B("Rillo", "The cozy short version."),
     B("Lil Rilla", "Small-town name, big-city nose."),
-    B("Amarillo the Staffy", "Texas name, St. Louis heart."),
+    B("Amarillo Pillow", "Softest thing in the panhandle."),
   ],
   angus: [
     B("Angus Beef", "One hundred percent grass-fed goodness."),
@@ -65,6 +67,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Gus", "The classic. The original."),
     B("Gus-Gus", "So nice they named Gus twice."),
     B("Haggis Angus", "Scotland's proudest export."),
+    B("Angus Mignon", "The premium cut of terrier."),
   ],
   anita: [
     B("Anita Nap", "Say it out loud. She agrees."),
@@ -73,6 +76,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Anita Walk", "The full trilogy of needs."),
     B("Anita Friend", "The truest one of all."),
     B("Nita", "Sweet and simple."),
+    B("Anita Hug", "Say it out loud. Then deliver.")
   ],
   annie: [
     B("Annie Oakley", "Sharpest nose in the West."),
@@ -81,6 +85,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tomorrow Annie", "The sun comes out wherever she naps."),
     B("Annie Get Your Bone", "She got it. It's hers now."),
     B("Nan", "The one-syllable sweetheart."),
+    B("Annie Up", "All in, every hand."),
   ],
   ash: [
     B("Ash the Flash", "Blink and she's on the couch."),
@@ -89,6 +94,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Little Ember", "The warm glow of the litter."),
     B("Ashers", "One name, forty nicknames incoming."),
     B("Ash-Ash", "Twice as quick."),
+    B("Ash Bash", "Her party. You're invited."),
   ],
   "asher blue": [
     B("Asher Dasher", "Through the yard in a one-dog sleigh."),
@@ -97,7 +103,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Blue Asher", "Same handsome, reversed."),
     B("Asher the Smasher", "Of cuddle records, specifically."),
     B("Blue Steel Asher", "That look. You know the one."),
-    B("Asher Blue the Staffy", "Says so right on the listing."),
+    B("Haberdasher Asher", "Sells you on him instantly."),
   ],
   astrid: [
     B("Fastrid", "Whippet rules: fastest nap wins too."),
@@ -105,7 +111,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Astro", "Cleared for launch."),
     B("Astrid the Star", "The one the telescope's for."),
     B("Asta La Vista", "She'll be back. At dinner."),
-    B("Trid", "Rhymes with 'did a zoomie.'"),
+    B("Astro-Turf Astrid", "Fastest thing on any lawn."),
     B("Whippet Good Astrid", "When a problem comes along, she zooms."),
   ],
   atlas: [
@@ -115,6 +121,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Atlas the Compass", "Always points home."),
     B("At-At", "Walks like one before coffee."),
     B("World Atlas", "Every page is a walk."),
+    B("Rand McNally Atlas", "The trusted edition."),
   ],
   auggie: [
     B("Auggie Doggie", "The original very good doggie."),
@@ -132,6 +139,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Ayra Sahara", "Sunny disposition, desert-dry humor."),
     B("Ayra the Stara", "Rhymes because she earned it."),
     B("Rah-Rah Ayra", "Her own cheer squad."),
+    B("Ayra Aria", "The opera of dinnertime.")
   ],
   bailey: [
     B("Bailey Biscuit", "Warm, golden, gone by morning."),
@@ -170,6 +178,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bea-Bea", "Double the buzz."),
     B("Honey Bea", "Sweetest thing in the hive."),
     B("Letter Bea", "Second in the alphabet, first in your heart."),
+    B("Bea-Bop", "The jazz standard of tiny dogs."),
   ],
   beans: [
     B("Cool Beans", "The coolest beans in the whole pot."),
@@ -178,6 +187,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bean Burrito", "Wrapped in a blanket by 8 p.m."),
     B("Full of Beans", "The listing said so. It's true."),
     B("Beanie Baby", "Collector's item. One of one."),
+    B("Magic Beans", "Trade nothing. Get everything.")
   ],
   bella: [
     B("Bellissima", "The fanciest bark in the building."),
@@ -186,6 +196,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bella Boo", "Official household sweetheart."),
     B("Bella of the Ball", "Every ball. Tennis included."),
     B("Bell", "Rings once, comes running."),
+    B("Bella Notte", "The spaghetti scene, nightly."),
   ],
   "bella blue": [
     B("Bella Blueberry", "Sweetest berry on the bush."),
@@ -203,6 +214,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bella Madonna", "Strikes a pose at every window."),
     B("Donna Prima", "First in line, always."),
     B("Bells and Whistles", "The fully loaded model."),
+    B("La Bella Donna", "Italian for exactly what she is.")
   ],
   bellamy: [
     B("Jelly Bellamy", "Every flavor is her favorite."),
@@ -211,6 +223,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bellamy the Beagle", "Nose down, tail up, heart open."),
     B("Bellamy Jamboree", "A one-beagle festival."),
     B("Bells", "Rings true."),
+    B("Bellamy Origami", "Folds neatly into any lap."),
   ],
   bernard: [
     B("Bear-nard", "Half Bernese, half actual bear."),
@@ -219,6 +232,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Barnyard Bernard", "Big enough to have his own zip code."),
     B("Bern", "Short for 'enormous sweetheart.'"),
     B("Bernese Bernard", "Mountain dog, molehill worries."),
+    B("Bernard of the Alps", "Yodels at dinnertime.")
   ],
   berry: [
     B("Very Berry", "Extra flavor in every wag."),
@@ -227,6 +241,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Blueberry Berry", "Double the fruit, double the fun."),
     B("Berry Fast", "Especially at dinnertime."),
     B("Bear-y", "Spelled wrong, hugged right."),
+    B("Berry Manilow", "Writes the songs the whole yard sings.")
   ],
   betsy: [
     B("Betsy Boop", "Boop the snoot. She insists."),
@@ -260,6 +275,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Billie the Kid", "Youngest outlaw in the west wing."),
     B("Billie Jolene", "Please don't take her home... unless it's yours."),
     B("Lil Jo", "The country-song shorthand."),
+    B("Ode to Billie Jo", "The song already exists. Fitting.")
   ],
   blitz: [
     B("Blitzen", "On loan from the North Pole."),
@@ -302,6 +318,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Bon-Bon", "Candy with no wrapper. All sweet."),
     B("Señorita Bonita", "The prettiest name says it twice."),
     B("Neat-a Bonita", "The rhyme writes itself."),
+    B("Bonita Fajita", "Sizzles on arrival."),
   ],
   boomer: [
     B("Boomer Zoomer", "Zero to zoomies in one second flat."),
@@ -310,6 +327,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Boomerang Akita", "Throws himself. Comes back."),
     B("Boombox", "Plays one song: joy."),
     B("Booms", "The friendly thunder."),
+    B("Boomer Shaka-Laka", "The sound of a very good day."),
   ],
   brada: [
     B("Abrada Cadabra", "Poof. Your treat is gone."),
@@ -318,7 +336,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Brada the Comforter", "Weighted blanket, self-warming."),
     B("Rah-Rah Brada", "Cheers for dinner. Loudly."),
     B("Brah-da", "Totally chill, dude."),
-    B("Brada the Terrier", "Says so right on the listing."),
+    B("Brada Empanada", "Warm pocket of good."),
   ],
   buddy: [
     B("Buddy the Elf", "Smiling's his favorite."),
@@ -345,6 +363,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cannonball Carl", "Clears the couch in one leap."),
     B("Carl the Good Ol' Boy", "Front porch certified."),
     B("Carly Barley", "Farm-fresh rhymes."),
+    B("Karaoke Carl", "Knows one song: dinner."),
   ],
   carol: [
     B("Sweet Caroline", "Bum bum bum. Dinner never felt so good."),
@@ -362,7 +381,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cheetah Print", "Leaves paw prints everywhere."),
     B("Turbo Cheetah", "Zero to snuggle in record time."),
     B("Cheetah Pita", "Fast food, the cuddly kind."),
-    B("Cheetah the Lab", "Says so right on the listing."),
+    B("Chia Cheetah", "Grows on you overnight."),
   ],
   chevy: [
     B("Chevy Chase", "Chases everything. Catches naps."),
@@ -380,6 +399,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Jingle All the Carol", "Hear her coming. Smile early."),
     B("Christmas Present", "Already wrapped in fur."),
     B("Carol the Elf", "Santa's St. Louis branch office."),
+    B("Figgy Pudding Carol", "Won't go until she gets some.")
   ],
   cinnamon: [
     B("Cinnamon Roll", "Warm, sweet, impossible to resist."),
@@ -388,6 +408,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cinna", "The short sweet sprinkle."),
     B("Cinnamon Swirl", "Watch her chase her tail."),
     B("Spice Girl Cinnamon", "Tell you what she wants: treats."),
+    B("Churro Cinnamon", "Fresh, warm, fair-day sweet."),
   ],
   cleo: [
     B("Cleopatra", "The original Cleo. Accept no substitutes."),
@@ -396,6 +417,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cleo-Cleo", "Twice as regal."),
     B("Romeo and Cleo", "You're Romeo in this scenario."),
     B("Clee", "Casual Friday royalty."),
+    B("Cleo Neat-o", "The official review.")
   ],
   colby: [
     B("Colby Jack", "Half cheese, half very good boy."),
@@ -413,6 +435,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Delia", "The middle of the name, the center of attention."),
     B("Cordelia the Bulldog", "Shakespeare never wrote one this good."),
     B("Cord", "Strong connection, instant bond."),
+    B("Cordelia Dahlia", "The garden's finest."),
   ],
   cruiser: [
     B("Cruise Control", "Set to steady wag."),
@@ -421,6 +444,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Cruiser the Heeler", "Herds you gently toward the treat aisle."),
     B("Slow Cruise", "Naps at five miles per hour."),
     B("Cruise Ship", "All-inclusive cuddles."),
+    B("PT Cruiser", "The friendly classic."),
   ],
   darla: [
     B("Darla Darling", "First name Darla, middle name Darling."),
@@ -429,7 +453,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Darlin' Darla", "Say it with a drawl."),
     B("Darla the Marvel", "No cape required."),
     B("Dars", "Short, sweet, wiggly."),
-    B("Darla the Staffy", "Says so right on the listing."),
+    B("Sarsaparilla Darla", "Old-fashioned fizz."),
   ],
   dart: [
     B("Dart the Sweetheart", "Fast name, soft center."),
@@ -447,6 +471,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Diesel Fuel", "Runs on kibble and compliments."),
     B("Deez", "The casual model."),
     B("Full Tank Diesel", "Topped off with love."),
+    B("Emerald Isle Diesel", "Ireland's tallest export."),
   ],
   dottie: [
     B("Polka Dottie", "Dances in spots."),
@@ -472,6 +497,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Elmo the Heeler", "La la la la, herding time."),
     B("El Mo Grande", "The big friendly one."),
     B("Elbows Elmo", "Claims the whole armrest."),
+    B("Elmo Bravo", "Standing ovation at the door."),
   ],
   elsa: [
     B("Elsa Salsa", "Spicier than the movie version."),
@@ -480,6 +506,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Elsa the Hound", "Sings 'Into the Unknown' at sirens."),
     B("Frozen Treats Elsa", "His favorite genre of snack."),
     B("El", "Short. Cool. Collected."),
+    B("Ice Ice Elsa", "Stop. Collaborate. And fetch."),
   ],
   fiona: [
     B("Fiona Bologna", "First name Fiona, last name lunch."),
@@ -488,6 +515,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Fiona Pepperona", "A little spicy, extra cheese."),
     B("Fabulous Fiona", "Swamp castle optional."),
     B("Fee", "Paid in full with kisses."),
+    B("Fiona Arizona", "Warm and sunny, year-round.")
   ],
   foster: [
     B("Forever Foster", "The name's temporary. The home shouldn't be."),
@@ -495,7 +523,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Foss", "One-syllable friend for life."),
     B("Foster the People", "Comes with his own theme music."),
     B("Foster Home Graduate", "Top of his class in cuddling."),
-    B("Fost", "The friendly shorthand."),
+    B("Foster the Rooster", "Announces breakfast. Loudly."),
     B("Coffee with Foster", "The best part of waking up."),
   ],
   "foxy roxy": [
@@ -541,12 +569,13 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Goodfellow the Gent", "Holds the door with his nose."),
     B("Nice Guy Goodfellow", "Finishes first, actually."),
     B("Fellow Traveler", "Shotgun's his seat now."),
+    B("Mellow Goodfellow", "The rhyme found itself.")
   ],
   gordy: [
     B("Flash Gordy", "Savior of the universe. And dropped fries."),
     B("Gordo", "Big vibes, bigger heart."),
-    B("Gord", "Solid. Dependable. Snores."),
-    B("Gordy the Great-y", "The rhyme insists."),
+    B("Hat Trick Gordy", "Three goals: breakfast, walk, nap."),
+    B("Gordy the Shortstop", "Fields every dropped snack."),
     B("Gordy Shortie", "Whatever his size, he's perfect."),
     B("Motown Gordy", "Berry Gordy's spirit animal."),
     B("Gords", "The plural of good."),
@@ -558,6 +587,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Gracie the Mastiff", "160 pounds of please-hold-me."),
     B("Grace Period", "Extended indefinitely."),
     B("Gray-Gray", "The gentle repeat."),
+    B("Gracie Land", "The king would approve.")
   ],
   graham: [
     B("Graham Cracker", "Best part of the s'more."),
@@ -566,6 +596,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Graham the Staffy", "Solid as a graham-built house."),
     B("Teddy Graham", "Snack-sized heart, full-sized dog."),
     B("Grammy", "Award-winning, obviously."),
+    B("Graham-Wich", "Best thing between two hugs."),
   ],
   gremlin: [
     B("Gizmo", "The cute kind. Promise."),
@@ -581,7 +612,8 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Grove", "A tiny forest of good."),
     B("Grover from the Street", "The furry blue energy, in pit form."),
     B("Groovy Grover", "Peace, love, and puppy breath."),
-    B("Baby Grove", "Still growing his rings."),
+    B("Near and Far Grover", "Mostly near. Very near."),
+    B("Grover Overdrive", "The turbo setting is always on.")
   ],
   guido: [
     B("Guido Gelato", "Sweetest scoop in the old country."),
@@ -590,6 +622,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Guido the Mastiff", "Nonna's favorite grandson."),
     B("Guido Burrito", "Wraps himself in every blanket."),
     B("Gweeds", "The casual cut."),
+    B("Guido Torpedo", "Launches at dinnertime."),
   ],
   gunner: [
     B("Gunner the Runner", "Laps before breakfast. Naps after."),
@@ -598,6 +631,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Gunner the Rottie", "Big frame, bigger lean."),
     B("Front Runner", "For best boy, every year."),
     B("Guns", "Of the hug variety."),
+    B("Gunner the Stunner", "The rhyme, confirmed by the photo."),
   ],
   hailey: [
     B("Hailey's Comet", "Comes around way more than every 76 years."),
@@ -615,6 +649,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Harley Gnarly", "In the raddest way."),
     B("Sidecar Harley", "Your co-pilot, reporting."),
     B("Harley Hugs", "Full throttle affection."),
+    B("Hog Wild Harley", "Mild, actually. But wild at dinner."),
   ],
   harrison: [
     B("Harrison Fetch", "The chosen one, obviously."),
@@ -623,7 +658,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Harrison the Handsome", "The listing photo agrees."),
     B("Harris", "Distinguished. Drooly."),
     B("Hare-Chaser Harrison", "Dreams big, naps bigger."),
-    B("Harrison the Staffy", "Says so right on the listing."),
+    B("Blockbuster Harrison", "Opening weekend: your living room."),
   ],
   hawkeye: [
     B("Ol' Hawk Eyes", "Sees a snack at forty paces."),
@@ -640,6 +675,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Hazel Eyes", "The name checks out."),
     B("Haze", "Rolls in gently, stays all day."),
     B("Witch Hazel", "The soothing kind."),
+    B("Haze of Glory", "Goes out chasing tennis balls.")
   ],
   "hazel grace": [
     B("Sweet Hazel Grace", "Okay? Okay."),
@@ -648,6 +684,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Grace Note", "The little extra that makes the song."),
     B("Hazel Grace the Ace", "Highest card in the deck."),
     B("Graceful Hazel", "Mostly. Except near tennis balls."),
+    B("North Star Hazel Grace", "Always points home.")
   ],
   hersey: [
     B("Hersey Kisses", "Free, unlimited, slightly slobbery."),
@@ -700,6 +737,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Huey the Pittie", "Heart of rock and roll, still beating."),
     B("Front Page Huey", "Breaking: local dog wonderful."),
     B("Hues", "All the good ones."),
+    B("Stuck with Huey", "The happiest kind of stuck.")
   ],
   isabel: [
     B("Ding-Dong Isabel", "Is a bell? Is a belle."),
@@ -762,6 +800,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Jiselle the Shepherd", "Grace with a work ethic."),
     B("Jis", "The insider's name."),
     B("Carousel Jiselle", "Round and round the yard she goes."),
+    B("Ma Belle Jiselle", "Sing it. She'll come."),
   ],
   jocko: [
     B("Jocko the Jock", "Varsity fetch, all-state naps."),
@@ -775,10 +814,11 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
   journey: [
     B("Long Journey Home", "Every mile was worth it."),
     B("Journey Girl", "Don't stop believin' in her."),
-    B("Sweet Journey", "The destination was your couch all along."),
+    B("Walkabout Journey", "Every yard's an expedition."),
     B("Journey the Explorer", "Small paws, big map."),
     B("Jern-Jern", "The baby-talk version. It happens to everyone."),
     B("Midnight Train Journey", "Going anywhere... with you."),
+    B("Journey Tourney", "Wins every bracket."),
   ],
   kanga: [
     B("Kanga Roo", "Pouch not included. Jumps included."),
@@ -796,6 +836,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Special K", "Part of a complete family."),
     B("Kind Karl", "The K stands for that too."),
     B("Sparkle Karl", "Rhymes if you believe."),
+    B("Karl Cartwheel", "Enthusiasm, fully rotated."),
   ],
   karma: [
     B("Good Karma", "What goes around gets belly rubs."),
@@ -808,11 +849,12 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
   ],
   kevin: [
     B("Kevin the Minion", "Banana enthusiast. Chaos apprentice."),
-    B("Kevin the Good Egg", "Certified. Sunny side up."),
+    B("Kevin Bacon", "Six degrees? Zero degrees of separation."),
     B("Kev", "Just Kev. That's the whole bit."),
     B("Kevin from the Block", "Still real, still humble."),
-    B("Kevin the Keeper", "Finders keepers. You found him."),
+    B("Home Alone Kevin", "Not home alone anymore."),
     B("Kevvy", "The puppy-sized version."),
+    B("Kevin Eleven", "Rated out of ten.")
   ],
   king: [
     B("King Size", "The deluxe model."),
@@ -821,6 +863,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("King of Fetch", "Undisputed. Unretired."),
     B("Kingfisher", "Dives for tennis balls."),
     B("King the Shepherd", "Rules with a gentle paw."),
+    B("King of Pops", "The coolest treat on the block.")
   ],
   kora: [
     B("Kora Explora", "Backpack optional. Snacks mandatory."),
@@ -838,6 +881,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Ladder the Lab", "Climbing straight up the good-boy charts."),
     B("Firehouse Ladder", "Rescue dog, literally."),
     B("Lad", "Aye, a fine one."),
+    B("Ladder to the Stars", "Climb starts at the couch.")
   ],
   layla: [
     B("Layla Unplugged", "The acoustic version: soft and slow."),
@@ -846,6 +890,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Layla the Lab", "Classic rock, classic dog."),
     B("Ukulele Layla", "Small song, big feelings."),
     B("Lays", "Betcha can't pet her just once."),
+    B("Layla Shangri-La", "Paradise, leash included."),
   ],
   legend: [
     B("Legend Has It", "And the legend is true."),
@@ -854,7 +899,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Legend of the Fall", "Autumn leaves are his confetti."),
     B("Live Legend", "No myth. All dog."),
     B("Homegrown Legend", "Local. Verified. Wonderful."),
-    B("Legend the Beagle", "Says so right on the listing."),
+    B("Urban Legend", "Except completely true."),
   ],
   lemon: [
     B("Lemon Squeezy", "Easy peasy. That's the whole vibe."),
@@ -881,6 +926,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Liam the Cattle Pup", "Herding hearts since birth."),
     B("Dream Team Liam", "Roster of one."),
     B("Leems", "The nickname's nickname."),
+    B("Liam the Beam", "Sunshine with paws."),
   ],
   lilo: [
     B("Lilo Ohana", "Ohana means nobody gets left behind."),
@@ -889,6 +935,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Lilo the Lab", "Small surfboard, big waves."),
     B("Hula Lilo", "Watch the tail. That's the dance."),
     B("Lils", "Little in name only."),
+    B("Lilo Limbo", "How low can she go? Very."),
   ],
   linda: [
     B("Listen Linda", "No, YOU listen. It's dinner time."),
@@ -915,6 +962,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Lisa the Lab Puppy", "Fresh out of the wrapper."),
     B("Lisa the Smiler", "Mona who?"),
     B("Lisa Lisa", "So nice they sang it twice."),
+    B("Lisa Masterpiece", "The Louvre called. She's staying."),
   ],
   livia: [
     B("Livia the Diva", "Demands: applause, dinner, encore dinner."),
@@ -923,6 +971,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Livia the Mastiff", "Roman empress energy."),
     B("Livia Bolivia", "Rhymes across continents."),
     B("Liv-Long Livia", "And prosper. With treats."),
+    B("Livia Trivia", "Fun fact: she's perfect.")
   ],
   lola: [
     B("Lola Granola", "Crunchy, wholesome, full of energy."),
@@ -931,6 +980,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Lola Payola", "Bribes accepted in belly rubs."),
     B("Hola Lola", "Says hi to everyone. Everyone."),
     B("Lols", "The comedian of the block."),
+    B("Copacabana Lola", "Her name was Lola. Still is."),
   ],
   lonzo: [
     B("Lonzo Ball", "Drafted first overall. By your family."),
@@ -939,6 +989,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Alonzo", "The formal dinner-party version."),
     B("Lonzo Bonzo", "Maximum goof achieved."),
     B("Zo-Zo", "The encore."),
+    B("Lonzo Bonanza", "The jackpot, in dog form.")
   ],
   lucious: [
     B("Lucious Delicious", "The name reviews itself."),
@@ -965,6 +1016,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Lucy in the Sky", "With dog biscuits."),
     B("Juicy Lucy", "The deluxe burger of puppies."),
     B("Goose", "Her alter ego."),
+    B("Juicy Fruit Lucy", "The flavor lasts forever, actually."),
   ],
   luke: [
     B("Luke Skybarker", "The bark is strong with this one."),
@@ -990,6 +1042,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Lyle the Style", "Trendsetter of the litter."),
     B("Mile-a-Minute Lyle", "Puppy speed: engaged."),
     B("Lyles", "The plural of tiny."),
+    B("Freestyle Lyle", "Improvises every zoomie.")
   ],
   "macho man": [
     B("Macho Nacho Man", "Ooh yeah. Extra cheese."),
@@ -1007,6 +1060,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Macy the Sniffer", "Hound-certified nose."),
     B("Lacey Macy", "Delicate. Ish."),
     B("Mace", "Short, strong, sweet."),
+    B("Thanksgiving Macy", "The parade comes to you."),
   ],
   maggie: [
     B("Magpie", "Black, brilliant, collects your socks."),
@@ -1015,6 +1069,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Maggie the Black Lab", "The classic in the classic color."),
     B("Mags", "The everyday magic."),
     B("Magnolia Maggie", "Southern belle of the dog park."),
+    B("Maggie Moo", "Dessert-counter famous.")
   ],
   manchi: [
     B("Munchie Manchi", "Rhymes with his hobby and his heart."),
@@ -1032,6 +1087,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Marissa the Lab Puppy", "Batteries never included or needed."),
     B("Mariposa Marissa", "Spanish for butterfly. Watch her chase them."),
     B("Riss", "Quick as her zoomies."),
+    B("Marissa Amiga", "Friend, in every language."),
   ],
   marley: [
     B("Marley & Me", "The 'me' could be you."),
@@ -1058,6 +1114,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Maui the Pittie", "You're welcome."),
     B("Island Time Maui", "Naps have no schedule."),
     B("Mau-Mau", "The friendly island echo."),
+    B("You're-Welcome Maui", "He says it with his tail.")
   ],
   maverick: [
     B("Top Dog Maverick", "Feels the need. The need for fetch."),
@@ -1084,14 +1141,16 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Mayflower the Pointer", "Compass set to home."),
     B("Flower Puppy", "Freshly sprouted."),
     B("May-May Flower", "Blooming daily."),
+    B("Mayflower Cauliflower", "The healthiest rhyme in the garden."),
   ],
   medinah: [
     B("Dinah-Mite", "Small package. Big boom."),
     B("Dinah", "Someone's in the kitchen with her. Always."),
-    B("Sweet Medinah", "Front nine energy, back nine naps."),
+    B("Medinah Pajama", "Dressed for the occasion. The occasion is naps."),
     B("Medinah the Lab", "Club champion, cuddle division."),
     B("Deenah", "Say it soft. She'll come anyway."),
     B("Hole-in-One Medinah", "Every fetch, right in the heart."),
+    B("Medinah Ocarina", "A small song of a dog.")
   ],
   memphis: [
     B("Memphis Blues", "Sings for his supper. Off-key. Perfect."),
@@ -1100,6 +1159,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Memphis the Pit Pup", "Small king of rock and roll."),
     B("Graceland Memphis", "The house he'll rule: yours."),
     B("Memph", "Short and soulful."),
+    B("Blue Suede Memphis", "Don't step on him. Do pet him."),
   ],
   mercy: [
     B("Mercy Me!", "The correct reaction to her face."),
@@ -1108,6 +1168,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Mercy the Akita", "Dignified. Except at dinner."),
     B("Mercy Rule", "Wins every cuteness contest early."),
     B("No-Mercy Cuddles", "Resistance is futile."),
+    B("Mercy Beaucoup", "Thank you very much, in Akita."),
   ],
   michael: [
     B("Air Michael", "Hang time measured in treats."),
@@ -1116,6 +1177,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Big Mike", "The gentle economy size."),
     B("Michael Row-Your-Boat", "Ashore. To the couch. Hallelujah."),
     B("Mike Drop", "Every trick ends with one."),
+    B("Free-Throw Michael", "Nothing but lap."),
   ],
   mickey: [
     B("Mickey Moose", "Bigger than a mouse. Better, too."),
@@ -1133,6 +1195,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Midnight the Black Lab", "The classic, after dark."),
     B("Stroke of Midnight", "Magic happens when he shows up."),
     B("Middy", "Daytime nickname for a nighttime name."),
+    B("Round Midnight", "The smoothest jazz in the house.")
   ],
   miley: [
     B("Smiley Miley", "Came in like a wrinkle-ball."),
@@ -1141,6 +1204,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Wrinkle Ball Miley", "Came in like one. Stayed as one."),
     B("My Girl Miley", "Talkin' 'bout her."),
     B("Miles", "Goes the distance for a treat."),
+    B("Achy Breaky Miley", "Your heart. In the best way.")
   ],
   "millie ann": [
     B("Millie Vanilli", "Girl, you know it's true: adopt her."),
@@ -1158,6 +1222,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Moby the Hound Pup", "Call him. He'll come. Probably."),
     B("Whale of a Time Moby", "Guaranteed."),
     B("Mobes", "The first mate's name for him."),
+    B("Oh-Boy Moby", "The morning greeting."),
   ],
   monty: [
     B("Monty Cristo", "The count of good boys."),
@@ -1175,6 +1240,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Mork the Staffy", "Out of this world, into your lap."),
     B("Egg-Ship Mork", "Arrived. Hatched. Adorable."),
     B("Morkster", "The friendly alien next door."),
+    B("Planet Mork", "Population: one very good boy.")
   ],
   motown: [
     B("The Motown Sound", "My girl? Could be your boy."),
@@ -1183,6 +1249,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Motown the Pyrenees", "The whitest wall of sound."),
     B("Hitsville Motown", "Every day's a number one."),
     B("Mo-Town Crier", "Announces dinner city-wide."),
+    B("Motown Showdown", "Dance-off champion, undefeated."),
   ],
   nala: [
     B("Nala Koala", "Clings like a marsupial. Cuddles like a queen."),
@@ -1200,6 +1267,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Neville the Terrier", "Braver than he looks. He looks brave."),
     B("Herbology Neville", "Digs the garden. Literally."),
     B("Sword-of-Gryffindog", "Pulled it out of the toy bin."),
+    B("Neville Say Never", "Especially about second breakfast."),
   ],
   nibbles: [
     B("Kibble Nibbles", "Rhymes with breakfast, lunch, and dinner."),
@@ -1217,6 +1285,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Nicholas the Lab Pup", "Santa's youngest reindeer alternate."),
     B("Jolly Nicholas", "The beard grows in later."),
     B("Nicky", "Stocking-sized."),
+    B("Nicholas the Pickle", "The little dill.")
   ],
   nicole: [
     B("Nicole Guacamole", "Extra guac, no charge."),
@@ -1225,6 +1294,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Nicole the Lab Puppy", "Fresh batch, still warm."),
     B("Nicole Ravioli", "Little pillow of joy."),
     B("Nic at Noon", "Lunchtime's biggest fan."),
+    B("Nicole Casserole", "Warm, homemade, seconds required."),
   ],
   olivia: [
     B("Olive", "Extra virgin cuddle oil."),
@@ -1233,6 +1303,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Olivia the Shepherd", "Runs the house. Kindly."),
     B("Olive Branch", "Peace treaty on four paws."),
     B("Via", "The scenic route to your heart."),
+    B("Shepherd's Pie Olivia", "The comfort food of dogs."),
   ],
   otis: [
     B("Adventures of Otis", "Milo's been waiting for a sequel."),
@@ -1259,6 +1330,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Otto the Pittie", "Young, sturdy, ready."),
     B("Motto Otto", "His motto: more Otto."),
     B("Ot-Toe Beans", "Yes, he has them. Yes, they're perfect."),
+    B("Otto Lotto", "You already won."),
   ],
   paco: [
     B("Paco Taco", "Tuesday's biggest fan."),
@@ -1294,6 +1366,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Peaches the Shepherd", "Georgia sweet, working smart."),
     B("Peach Cobbler", "Warm dessert in dog form."),
     B("Peach Pit", "The heart of the fruit. And the family."),
+    B("Millions of Peaches", "Peaches for you. All of them.")
   ],
   peanut: [
     B("Peanut Butter", "Sticks to the roof of your heart."),
@@ -1338,6 +1411,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Pinky the Staffy", "Think big. She does."),
     B("Pinky Swear", "On it: she's wonderful."),
     B("Rosy Pinky", "The optimist of the block."),
+    B("Pinky Toe", "The cutest one. Everyone agrees.")
   ],
   pip: [
     B("Pip Pip Hooray", "The official cheer of tiny dogs."),
@@ -1346,6 +1420,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Pip the Cattle Pup", "Great expectations, tiny paws."),
     B("Pippin", "The brave little hobbit of the litter."),
     B("Pipette", "A precise little drop of joy."),
+    B("Chocolate Chip Pip", "The best part of the cookie."),
   ],
   piper: [
     B("Pied Piper", "The whole neighborhood follows her."),
@@ -1354,6 +1429,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Piper the Shepherd", "Leads the flock. You're the flock."),
     B("Hot Pepper Piper", "A dash of spice daily."),
     B("Windpipes Piper", "Full volume, full heart."),
+    B("Piccolo Piper", "Small instrument, biggest sound.")
   ],
   princess: [
     B("Princess Peach", "Her castle is wherever you are."),
@@ -1362,6 +1438,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Princess the Lab", "Crown made of tennis balls."),
     B("Princess and the Pea", "Feels a kibble under twelve blankets."),
     B("Prinny", "The palace pet name."),
+    B("Princess Bride", "As you wish. Every time."),
   ],
   pupperton: [
     B("Pupperton Abbey", "Downstairs dog with upstairs manners."),
@@ -1370,6 +1447,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Pupperton the Small Lab", "Estate-sized heart, cottage-sized dog."),
     B("Puppuccino Pupperton", "Whipped cream connoisseur."),
     B("P-Town", "The whole town's favorite."),
+    B("Pupperton Wellington", "The fanciest dish on four legs."),
   ],
   raisin: [
     B("Raisin the Roof", "Party of one, invitations open."),
@@ -1396,6 +1474,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Ranger the Cattle Pup", "Junior patrol, senior heart."),
     B("Forest Ranger", "Sniffs every tree. Files reports."),
     B("Free Ranger", "Roams the yard, returns for dinner."),
+    B("Home on the Ranger", "Where the good dogs play."),
   ],
   raya: [
     B("Raya Sunshine", "You are her sunshine."),
@@ -1404,6 +1483,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Raya the Lab", "Golden retriever energy, lab edition."),
     B("Ray of Light Raya", "Solar powered."),
     B("Rae", "The minimalist glow."),
+    B("Kumbaya Raya", "The campfire singalong of dogs."),
   ],
   "reese gin": [
     B("Reese's Pieces", "Sweet outside, sweeter inside."),
@@ -1438,7 +1518,8 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Got-the-Rhythm", "Tail keeps perfect time."),
     B("Rhythm the Retriever Pup", "Fetches on the downbeat."),
     B("Drumline Rhythm", "Tail on hardwood: the concert."),
-    B("Rhyth", "The syncopated short form."),
+    B("Rhythm Section", "The heartbeat of the house."),
+    B("Rhythm of the Night", "And morning. And lunch."),
   ],
   ronda: [
     B("Help Me Ronda", "Help, help me Ronda... find a home."),
@@ -1483,6 +1564,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Ruth the Staffy", "The great Bambina."),
     B("Ruthie", "The bedtime-story version."),
     B("Home Run Ruth", "Clears the bases of your heart."),
+    B("Ruth the Sleuth", "Finds every hidden treat.")
   ],
   ryder: [
     B("Knight Ryder", "A shadowy flight into the world of naps."),
@@ -1500,6 +1582,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Sacher the Lab", "Vienna's finest, St. Louis address."),
     B("Sach", "The everyday classic."),
     B("Firecracker Sacher", "Sparkles on command."),
+    B("Sacher Cha-Cha", "One, two, cha-cha-chew.")
   ],
   samson: [
     B("Samson the Strong", "Strength: legendary. Haircuts: skipped."),
@@ -1508,6 +1591,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Samson the Staffy", "Pillar of the community."),
     B("Sam-Sam", "Double strength, double sweet."),
     B("Samson & the Couch", "An epic love story."),
+    B("Samson Handsome", "The rhyme is also the fact.")
   ],
   scout: [
     B("Scout's Honor", "He promises to be a good boy. Kept daily."),
@@ -1525,6 +1609,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Shania the Pittie Pup", "Still the one. Already."),
     B("Any Dog of Mine Shania", "Country certified."),
     B("Shan", "The backstage pass version."),
+    B("Shania Lasagna", "Layers of good."),
   ],
   shipsey: [
     B("Shipsey Ahoy", "All paws on deck."),
@@ -1533,6 +1618,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Shipsey the Collie Pup", "Lassie's intern."),
     B("Friend-Ship", "The best kind."),
     B("Shipshape Shipsey", "Everything in order. Except the toys."),
+    B("Good Ship Shipsey", "The lollipop one. But fluffy.")
   ],
   simba: [
     B("Simba the Lionheart", "Remember who you are: a good boy."),
@@ -1541,6 +1627,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Simba the Terrier", "Pride of the whole block."),
     B("Sunrise Simba", "Hold him up. Cue the music."),
     B("Simbs", "The casual royal."),
+    B("Simba Marimba", "The soundtrack follows him around."),
   ],
   snickers: [
     B("Snickerdoodle", "Cookie name, candy heart."),
@@ -1558,6 +1645,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Moonwalker", "Smooth criminal at the treat jar."),
     B("Lil Astronaut", "Small step for dog, giant leap for family."),
     B("Starman Spaceman", "Waiting in the yard."),
+    B("Apollo Spaceman", "The eagle has landed. On the couch."),
   ],
   speedy: [
     B("Speedy Zoomzalez", "Ándale! Ándale! To the couch!"),
@@ -1566,6 +1654,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Full Speedy Ahead", "The only setting."),
     B("Speedometer", "Reads: very fast, then asleep."),
     B("Speeds", "All of them, at once."),
+    B("Need-for-Speedy", "The sequel plays daily."),
   ],
   stella: [
     B("Stellaaaa!", "Yell it from the porch. She's coming."),
@@ -1583,6 +1672,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Stormy the Dobie", "Sleek as lightning, calm as after."),
     B("Thunderpaws", "You'll hear her joy coming."),
     B("Storms", "Weathered together, always."),
+    B("Eye of the Stormy", "The calm part. Mostly."),
   ],
   "sweet tart": [
     B("Sweet Tart Sweetheart", "The candy aisle's finest."),
@@ -1591,6 +1681,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Sweet Tart the Staffy", "Big candy energy."),
     B("Sugar Rush", "Side effect of one cuddle."),
     B("Candy Heart", "Reads: ADOPT ME."),
+    B("Fizzy Sweet Tart", "Shake gently before belly rubs.")
   ],
   sweetie: [
     B("Sweetie Pie", "Fresh from the oven, always warm."),
@@ -1608,6 +1699,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tango the Boxer", "Fancy footwork champion."),
     B("Last Tango in St. Louis", "Spoiler: he stays."),
     B("Tang", "The zesty short form."),
+    B("Tango Flamingo", "Pink-level fancy footwork."),
   ],
   tank: [
     B("Tank You Very Much", "The politest heavyweight."),
@@ -1616,6 +1708,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tank the Pittie", "Built solid, wired soft."),
     B("Tank of Hugs", "Fully loaded. Always."),
     B("Tanks a Lot", "For everything, buddy."),
+    B("Tank Goodness", "For him. Every day."),
   ],
   teeter: [
     B("Teeter Totter", "Up, down, and straight into your heart."),
@@ -1633,6 +1726,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Thomas the Pittie", "A really useful good boy."),
     B("Full Steam Thomas", "One speed: enthusiastic."),
     B("Choo-Choo Thomas", "Hear the tail on the floor? All aboard."),
+    B("Thomas Promise", "Kept daily, like clockwork."),
   ],
   tippi: [
     B("Tippi Toes", "A Great Dane who thinks she's ballet-sized."),
@@ -1641,6 +1735,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tippi the Great Dane", "Great by name, greater by nature."),
     B("Tipping Point Tippi", "One look and you're done for."),
     B("Tips", "Gratuity: belly rubs."),
+    B("Teacup Tippi", "A Great Dane's self-image.")
   ],
   tiramisu: [
     B("Tiny Tiramisu", "The fanciest dessert on four legs."),
@@ -1658,6 +1753,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Rav", "The insider's order."),
     B("Extra Marinara", "For dipping. He supervises."),
     B("Golden Toasted", "Just like the recipe says."),
+    B("Ravioli Cannoli", "The full St. Louis dessert cart."),
   ],
   tolkien: [
     B("Tolkien of the Rings", "One dog to rule the yard."),
@@ -1675,6 +1771,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tommy the Pyrenees", "A mountain that comes when called. Sometimes."),
     B("Gentle Giant Tommy", "The mountain comes to you."),
     B("Toms", "The plural of gentle."),
+    B("Avalanche Tommy", "A mountain, incoming. Softly."),
   ],
   tony: [
     B("Tony the Tiger", "Thinks breakfast is grrreat."),
@@ -1683,6 +1780,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tony the Lab Pup", "Fresh talent, big future."),
     B("Tony Baloney", "Full of it. The good kind."),
     B("Ton-Ton", "Small now. Give him a minute."),
+    B("Tony Macaroni", "The third rhyme's the charm."),
   ],
   triton: [
     B("Triton the Titan", "Mythologically good boy."),
@@ -1700,6 +1798,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Tunnel the Lab Pup", "Digs his way into everything."),
     B("Wind Tunnel", "The zoomies have aerodynamics."),
     B("Tunn", "The shortcut."),
+    B("Funnel Cake Tunnel", "Fair-day sweetness, every day.")
   ],
   tyler: [
     B("Tyler the Cuddler", "Creates masterpieces of napping."),
@@ -1724,6 +1823,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Uhtred the Staffy", "Warrior poet, mostly poet."),
     B("Uhtred Son of Uhtred", "The full saga."),
     B("Treddy", "The mead-hall pet name."),
+    B("Uhtred the Ready", "Rhymes with his whole personality.")
   ],
   uno: [
     B("Numero Uno", "First in line, first in heart."),
@@ -1732,6 +1832,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Uno the Cattle Pup", "Draw two: her and a friend."),
     B("Reverse Card Uno", "Now YOU chase HER."),
     B("Ones", "The whole hand."),
+    B("Uno Dos Tres", "She only counts to dinner."),
   ],
   vida: [
     B("Viva la Vida", "Long live the good girl."),
@@ -1749,6 +1850,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Violet the Cattle Pup", "Purple heart, blue collar."),
     B("Vi", "The tiny bloom."),
     B("Violet Bouquet", "A whole armful of good."),
+    B("Voila Violet", "And just like that: joy."),
   ],
   walker: [
     B("Walker Texas Basset", "Justice moves at basset speed."),
@@ -1775,6 +1877,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Weston the Boxer", "Undefeated in cuddling."),
     B("Go West Weston", "Best direction: toward him."),
     B("Wessy", "The bedtime version."),
+    B("Weston Sunset", "Golden hour, all hours.")
   ],
   wiley: [
     B("Wiley Coyote", "Genius plans. Adorable results."),
@@ -1783,6 +1886,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Wiley the Small Lab", "ACME-certified good boy."),
     B("Wile E. Heart", "The trap was love all along."),
     B("Why-Ley", "Because he's perfect, that's why."),
+    B("ACME Wiley", "Every gadget, one dog."),
   ],
   wilma: [
     B("Wilma Whirlwind", "Sweeps through. Leaves joy."),
@@ -1791,6 +1895,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Wilma the Pittie", "Bedrock's finest, relocated."),
     B("Wilma Welcome", "The greeting committee of one."),
     B("Willy-Nilly Wilma", "Zoomies have no schedule."),
+    B("Wilma the Thrillma", "Every walk's an adventure."),
   ],
   winnie: [
     B("Winnie the Pooch", "Oh bother. Out of treats again."),
@@ -1835,6 +1940,7 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Zuse the Lab", "The friendly engine of the house. Er, heart."),
     B("Papa Zuse", "Steady as they come."),
     B("Zu", "Short. Zen. Zuse."),
+    B("Zuse Vamoose", "Gone. Check the food bowl.")
   ],
 
   // ── Common names not on today's listings — the visitor maker meets these
@@ -1918,6 +2024,181 @@ export const NAME_BOOK: Record<string, BookCard[]> = {
     B("Ziggy Stardust", "Played it left hand, fetched it right."),
     B("Zigzag Ziggy", "Never walks a straight line. Why would he?"),
     B("Zigs", "The move and the dog."),
+  ],
+  loki: [
+    B("Low-Key Loki", "The chillest god of mischief."),
+    B("Loki-Dokie", "His answer to everything."),
+    B("Loki the Trickster", "The treats vanish. Case closed."),
+  ],
+  thor: [
+    B("Hammer Time Thor", "Can't touch his tennis ball."),
+    B("Thor-nado", "Weather warning: zoomies."),
+    B("Thunder-Paw Thor", "You'll hear the happiness coming."),
+  ],
+  odin: [
+    B("Odin the All-Fetcher", "Sees every throw. Returns most."),
+    B("Nodding Odin", "Agrees with everything. Mostly asleep."),
+    B("Odie", "The comic-strip classic."),
+  ],
+  apollo: [
+    B("Apollo Marshmallow", "Mission control to soft boy."),
+    B("Moon Landing Apollo", "One giant leap onto the bed."),
+    B("'Pollo", "The friendly splashdown."),
+  ],
+  nova: [
+    B("Bossa Nova", "The smoothest rhythm in the house."),
+    B("Supernova", "Brightest thing in the sky. And the yard."),
+    B("Nova Scotia", "Cool, coastal, very good."),
+  ],
+  willow: [
+    B("Willow the Pillow", "Softest spot in the house."),
+    B("Wind in the Willow", "A whole storybook of dog."),
+    B("Will-o", "The friendly glow."),
+  ],
+  ivy: [
+    B("Ivy League", "Top of her class."),
+    B("Climbing Ivy", "Up the couch. Up the bed. Up you."),
+    B("Ives", "The cozy short form."),
+  ],
+  poppy: [
+    B("Poppy the Puppy", "The rhyme was destiny."),
+    B("Poppy Seed", "Small, everywhere, essential."),
+    B("Pop-Pop Poppy", "The sound of joy arriving."),
+  ],
+  mochi: [
+    B("Squishy Mochi", "Scientifically the softest."),
+    B("Mochi Ice Cream", "Sweet inside and out."),
+    B("Matcha Mochi", "The premium flavor."),
+  ],
+  nacho: [
+    B("Nacho Supreme", "Fully loaded."),
+    B("Nacho Libre", "Wrestles blankets professionally."),
+    B("Extra-Cheese Nacho", "There is no such thing as too much."),
+  ],
+  waffles: [
+    B("Belgian Waffles", "The deluxe breakfast of dogs."),
+    B("Sunday-Morning Waffles", "Best enjoyed slowly."),
+    B("Syrup", "What he's made of, probably."),
+  ],
+  pickles: [
+    B("Pickles the Big Dill", "Kind of a big dill, honestly."),
+    B("Dill Pickles", "Crunchy outside, devoted inside."),
+    B("Sweet Pickles", "Both kinds at once."),
+  ],
+  chewy: [
+    B("Chewy Chewbacca", "Let the wookiee win the couch."),
+    B("Chewy the Co-Pilot", "Punch it."),
+    B("Double-Chewy", "Extra texture, extra love."),
+  ],
+  yoda: [
+    B("Yoda Best", "He is. You are. It works both ways."),
+    B("Yoda One for Me", "Decided, it is."),
+    B("Wise Guy Yoda", "Small. Green-adjacent. Correct."),
+  ],
+  ace: [
+    B("Ace of Hearts", "The card that always wins."),
+    B("Flying Ace", "The doghouse is a biplane, obviously."),
+    B("Ace Ventura", "Alrighty then."),
+  ],
+  koda: [
+    B("Koda Bear", "Brother, friend, foot-warmer."),
+    B("Secret Koda", "Only you can crack him."),
+    B("Area Koda", "Covers the whole neighborhood."),
+  ],
+  kona: [
+    B("Kona Coffee", "Strong, warm, gets you up at 6 a.m."),
+    B("Kona Ice", "The treat-truck of dogs."),
+    B("Big Island Kona", "Vacation energy, always."),
+  ],
+  copper: [
+    B("Copper Kettle", "Warms the whole kitchen."),
+    B("Copper Top", "Keeps going and going."),
+    B("Penny-Bright Copper", "Shines without polishing."),
+  ],
+  rusty: [
+    B("Trusty Rusty", "The rhyme is a guarantee."),
+    B("Squeaky Rusty", "His toys, his voice, his brand."),
+    B("Rust Never Sleeps", "Neither does he, before breakfast."),
+  ],
+  blaze: [
+    B("Trail Blazer", "First one down every path."),
+    B("Slow Blaze", "The gentlest fire."),
+    B("Birthday-Candle Blaze", "Make a wish. It's him."),
+  ],
+  louie: [
+    B("Louie Louie", "Oh no. We gotta go. To the park."),
+    B("Sweet Lou", "The smoothest player on the court."),
+    B("Lou-Dog", "The whole band's favorite."),
+  ],
+  archie: [
+    B("Starchie Archie", "Potato-grade comfort."),
+    B("Archie the Archer", "Bullseye: your lap."),
+    B("Marching-Band Archie", "Parade energy at the door."),
+  ],
+  teddy: [
+    B("Ready Teddy", "Set. Go. Always."),
+    B("Bear-Sized Teddy", "Stuffed with the good stuff."),
+    B("Teds", "The plural of comfort."),
+  ],
+  frankie: [
+    B("Frankie Blue Eyes", "Does it his way."),
+    B("Frankfurter Frankie", "The classic, with everything."),
+    B("Frankie Say Relax", "He does. Constantly."),
+  ],
+  lulu: [
+    B("Lulu Honolulu", "A vacation with a tail."),
+    B("Hullabaloo Lulu", "The fun kind of commotion."),
+    B("Loo", "Short, sweet, complete."),
+  ],
+  zoey: [
+    B("Zoey Zoomies", "Alliteration in motion."),
+    B("Zoey Joey", "Pocket-sized bounce."),
+    B("Zoey 101", "Intro course: pure joy."),
+  ],
+  chloe: [
+    B("Slow-Mo Chloe", "Every hair flip, cinematic."),
+    B("Glowy Chloe", "Lights up on arrival."),
+    B("Chloe Cannoli", "Sweet filling, guaranteed."),
+  ],
+  ellie: [
+    B("Ellie Belly", "Rubs mandatory."),
+    B("Ellie the Elephant", "Never forgets a treat pocket."),
+    B("Jellie Ellie", "Wobbles with happiness."),
+  ],
+  riley: [
+    B("Life of Riley", "Living it. Sharing it."),
+    B("Inside Out Riley", "All five emotions: happy."),
+    B("Riley O'Reilly", "The full Irish version."),
+  ],
+  roxy: [
+    B("Roxy Music", "The house band."),
+    B("Rock-Steady Roxy", "Dependable and loud about it."),
+    B("Roxy Rocket", "Countdown to cuddles."),
+  ],
+  sasha: [
+    B("Sasha Fierce", "The alter ego is also a good girl."),
+    B("Sasha Galoshes", "Puddle-ready at all times."),
+    B("Sash", "Wears the invisible pageant sash."),
+  ],
+  smokey: [
+    B("Smokey Joe", "The barbecue supervisor."),
+    B("Campfire Smokey", "S'mores security detail."),
+    B("Smokey Quartz", "The semi-precious good boy."),
+  ],
+  buster: [
+    B("Buster Keaton", "Deadpan face, slapstick heart."),
+    B("Bust-a-Move Buster", "Any beat will do."),
+    B("Belly-Buster", "His jokes land every time."),
+  ],
+  chance: [
+    B("Second Chance", "The whole point of the shelter."),
+    B("Chance the Napper", "Mixtape of snores available."),
+    B("Take a Chance", "You won't regret it."),
+  ],
+  jake: [
+    B("Jake from State Farm", "He's wearing khakis. Sort of."),
+    B("Milkshake Jake", "Brings all the family to the yard."),
+    B("Jakey", "The bedtime classic."),
   ],
   penny: [
     B("Lucky Penny Girl", "Heads up, every time."),
