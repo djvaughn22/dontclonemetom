@@ -67,10 +67,14 @@ describe("a listing dog the book has never met", () => {
     expect(marbella.some((c) => /Mozzarella|Umbrella/.test(c.nickname))).toBe(true);
   });
 
-  it("still honors a listed senior with Grandpa or Grandma", () => {
-    const { deck } = buildListingDeckReport(listing("Fortuna", { age: "Senior", sex: "Female" }));
-    expect(deck.some((c) => c.nickname === "Grandma Fortuna")).toBe(true);
-    expect(deck.some((c) => /^Grandpa /.test(c.nickname))).toBe(false);
+  it("never adds a category card for age, size, or breed on its own", () => {
+    // Age alone does not make a card dog-specific — a senior or puppy
+    // listing gets no automatic Grandpa/Grandma/Rookie card.
+    const { deck } = buildListingDeckReport(listing("Fortuna", { age: "Senior", sex: "Female", size: "X-Large" }));
+    for (const card of deck) {
+      expect(card.nickname, card.nickname).not.toMatch(/^(Grandpa|Grandma|Vintage|Mount|Pocket-Size) /);
+      expect(card.nickname).not.toMatch(/ the (Rookie|Old Soul)$/);
+    }
   });
 
   it("never produces junk short forms", () => {
@@ -100,11 +104,21 @@ describe("a booked listing dog", () => {
 });
 
 describe("the visitor maker with an unknown name", () => {
-  it("leads with wordplay and only floors a barren name to four", () => {
+  it("never pads — an incomplete deck stays incomplete until details arrive", () => {
     const fortuna = buildDeck("Fortuna");
-    expect(fortuna.length).toBeGreaterThanOrEqual(4);
+    expect(fortuna.length).toBeLessThan(7); // the maker asks for true things instead
     expect(fortuna.some((c) => c.basis === "rhyme")).toBe(true);
-    expect(findDeckProblems(fortuna.slice(0, fortuna.length), { realName: "Fortuna" }).filter((p) => !p.startsWith("deck has"))).toEqual([]);
+    const FILLER_ANY = / the One and Only$|^Sweet |^Happy |^Bouncy | Superstar$| the Snuggler$| the Snoozer$/;
+    for (const card of fortuna) expect(FILLER_ANY.test(card.nickname), card.nickname).toBe(false);
+    expect(findDeckProblems(fortuna, { realName: "Fortuna" }).filter((p) => !p.startsWith("deck has"))).toEqual([]);
+  });
+
+  it("finishes at exactly seven once the family shares true things", () => {
+    for (const name of ["Fortuna", "Turnip", "Sprocket", "Wanda", "Quibble"]) {
+      const deck = buildDeck(name, ["zoomies", "couch", "naps", "treats", "fetch", "walks", "barks"]);
+      expect(deck.length, name).toBe(7);
+      expect(new Set(deck.map((c) => c.nickname.toLowerCase())).size, name).toBe(7);
+    }
   });
 
   it("keeps picked true things working for any name", () => {

@@ -53,8 +53,8 @@ export default function CardMaker() {
           Make a Dog Card
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-          Your dog, a family member&apos;s dog, or a dog you know. A deck of
-          names made just for them. Free — the photo never leaves your device.
+          Your dog, a family member&apos;s dog, or a dog you know. Seven names
+          made just for them. Free — the photo never leaves your device.
         </p>
       </section>
 
@@ -99,8 +99,24 @@ export default function CardMaker() {
         </div>
       </section>
 
-      {/* The card */}
-      {name ? (
+      {/* The card — the deck is finished only at exactly seven. When the
+          name's own wordplay can't get there, we ask for one small true
+          thing instead of ever padding with filler. */}
+      {name && deck.length < 7 ? (
+        <section className="mb-8">
+          <div className="mx-auto max-w-sm rounded-2xl border-2 border-dashed border-[#2DD4BF] bg-[#141d2e] p-6 text-center">
+            <p className="text-4xl">🐾</p>
+            <p className="mt-3 text-sm font-bold leading-6 text-[#e8edf5]">
+              {name}&apos;s deck has {deck.length} of 7 cards so far.
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-[#94a3b8]">
+              Pick {7 - deck.length} more true thing{7 - deck.length === 1 ? "" : "s"} about {name} above —
+              every one becomes a card, and the deck opens at seven.
+            </p>
+          </div>
+        </section>
+      ) : null}
+      {name && deck.length === 7 ? (
         <section className="mb-8">
           <CardSpinner
             key={`${name}|${traits.join(",")}`}
@@ -159,7 +175,8 @@ export default function CardMaker() {
             </div>
           )}
         </section>
-      ) : (
+      ) : null}
+      {!name && (
         <p className="mb-8 text-center text-sm font-semibold text-[#94a3b8]">
           Type the dog&apos;s real name to see the first card.
         </p>

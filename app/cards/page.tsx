@@ -12,7 +12,7 @@
 import type { Metadata } from "next";
 import CardMaker from "../components/cards/CardMaker";
 import DogCardStudio from "../components/cards/DogCardStudio";
-import { buildListingDeck, DECK_SIZE, listingDisplayName } from "../lib/cards/tradingCards";
+import { buildListingDeckReport, DECK_SIZE, listingDisplayName } from "../lib/cards/tradingCards";
 import { getDogProfile } from "../lib/dogProfiles";
 import { fetchDogById } from "../lib/rescueDogs";
 import { dogCityLabel } from "../lib/dogOfTheDay";
@@ -69,7 +69,10 @@ export default async function CardsPage({ searchParams }: PageProps) {
     // rescue attribution, and a seven-name deck built for that dog.
     if (/^\d+$/.test(dogId)) {
       const { dog } = await fetchDogById(dogId);
-      if (dog) {
+      const report = dog ? buildListingDeckReport(dog) : null;
+      // A deck that hasn't fully passed review is never activated —
+      // the visitor gets the regular maker instead.
+      if (dog && report && !report.needsReview && report.deck.length === DECK_SIZE) {
         const city = dogCityLabel(dog);
         const displayName = listingDisplayName(dog.name);
         return (
@@ -79,7 +82,7 @@ export default async function CardsPage({ searchParams }: PageProps) {
               photoUrl={dog.photo ?? undefined}
               photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
               photoAlt={`${displayName}, an adoptable dog`}
-              deck={buildListingDeck(dog)}
+              deck={report.deck}
               attribution={{ org: dog.org, location: city }}
               meetHref={`/dogs/${dog.id}`}
               adoptionUrl={dog.url || undefined}

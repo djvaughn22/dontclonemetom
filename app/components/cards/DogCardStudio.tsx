@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { countWord, type CardPair } from "../../lib/cards/tradingCards";
+import type { CardPair } from "../../lib/cards/tradingCards";
 import type { PhotoSpec } from "../../lib/cards/photoFraming";
 import CardSpinner from "./CardSpinner";
 import type { CardAttribution } from "./TradingCard";
@@ -49,8 +49,8 @@ export default function DogCardStudio({
           {realName}&apos;s cards
         </p>
         <p className="mx-auto mt-3 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-          {countWord(deck.length)} names made especially for {realName}. Spin
-          through them and share your favorite card.
+          Seven names made especially for {realName}. Spin through them and
+          share your favorite card.
         </p>
       </section>
 

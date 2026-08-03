@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
-import { buildListingDeck, countWord, listingDisplayName } from "../../lib/cards/tradingCards";
+import { buildListingDeckReport, listingDisplayName } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
@@ -89,7 +89,9 @@ export default async function DogPage({ params }: PageProps) {
   }
 
   const city = dogCityLabel(dog);
-  const deck = buildListingDeck(dog);
+  // A dog whose seven cards haven't all passed review keeps its normal
+  // adoption listing — the card maker simply isn't activated for it yet.
+  const { deck, needsReview } = buildListingDeckReport(dog);
   const details = [
     dog.breed && `Breed: ${dog.breed}`,
     dog.age && `Age: ${dog.age}`,
@@ -109,7 +111,9 @@ export default async function DogPage({ params }: PageProps) {
       </p>
 
       {/* The trading card — real name, real photo; the seven names are
-          built for this dog. The rescue's info stays quietly on the card. */}
+          built for this dog. The rescue's info stays quietly on the card.
+          Hidden entirely until all seven cards have passed review. */}
+      {!needsReview && deck.length === 7 && (
       <div className="mt-8">
         <div className="mb-5 text-center">
           <p className="text-xs font-black uppercase tracking-[0.3em] text-[#94a3b8]">
@@ -117,8 +121,8 @@ export default async function DogPage({ params }: PageProps) {
           </p>
           <h2 className="mt-2 text-2xl font-black text-[#e8edf5]">What would you nickname me?</h2>
           <p className="mx-auto mt-1 max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
-            Spin through {countWord(deck.length).toLowerCase()} names made
-            especially for {listingDisplayName(dog.name)} and share your
+            Spin through seven names made especially
+            for {listingDisplayName(dog.name)} and share your
             favorite card.
           </p>
         </div>
@@ -135,6 +139,7 @@ export default async function DogPage({ params }: PageProps) {
           makerHref={`/cards?dog=${dog.id}`}
         />
       </div>
+      )}
 
       {details.length ? (
         <ul className="mt-6 flex flex-wrap gap-2">
