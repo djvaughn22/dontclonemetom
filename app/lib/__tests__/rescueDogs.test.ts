@@ -186,6 +186,51 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     expect(dog.url).toBe("https://24petconnect.com/STCHAdopt?at=DOG");
   });
 
+  it("demotes an animal URL that is really the org homepage — it never poses as a profile", () => {
+    const { animal, included } = rgAnimal({
+      attributes: { url: "https://rescue.example.org/" },
+      org: { name: "Rescue", url: "https://rescue.example.org/" },
+    });
+    const dog = normalizeDog(animal, included);
+    expect(dog.profileUrl).toBeNull();
+    expect(dog.url).toBe("https://rescue.example.org/");
+    expect(dog.orgUrlKind).toBe("website");
+  });
+
+  it("demotes an animal URL that is a bare adoptable-list page", () => {
+    const { animal, included } = rgAnimal({
+      attributes: { url: "https://rescue.example.org/animals" },
+      org: { name: "Rescue", url: "https://other.example.org/" },
+    });
+    const dog = normalizeDog(animal, included);
+    expect(dog.profileUrl).toBeNull();
+    expect(dog.url).toBe("https://other.example.org/");
+  });
+
+  it("records whether the fallback is an adoptable-list or just the website", () => {
+    const list = rgAnimal({
+      org: { name: "Rescue", url: "https://r.org/", adoptionUrl: "https://r.org/adoptable-dogs" },
+    });
+    expect(normalizeDog(list.animal, list.included).orgUrlKind).toBe("adoptable-list");
+
+    const site = rgAnimal({ org: { name: "Rescue", url: "https://r.org/" } });
+    expect(normalizeDog(site.animal, site.included).orgUrlKind).toBe("website");
+
+    const none = rgAnimal({ org: { name: "Rescue", url: "n/a" } });
+    expect(normalizeDog(none.animal, none.included).orgUrlKind).toBeNull();
+  });
+
+  it("marks verified org overrides as adoptable-list fallbacks", () => {
+    const { animal, included } = rgAnimal({
+      org: { name: "St Charles County Humane Services", url: "http://www.scchealth.org/" },
+    });
+    included.set("orgs:3085", included.get("orgs:900")!);
+    animal.relationships = { orgs: { data: [{ type: "orgs", id: "3085" }] } };
+    const dog = normalizeDog(animal, included);
+    expect(dog.url).toBe("https://24petconnect.com/STCHAdopt?at=DOG");
+    expect(dog.orgUrlKind).toBe("adoptable-list");
+  });
+
   it("keeps a dog with no discoverable URL at all — never filtered out", () => {
     const { animal, included } = rgAnimal({ org: { name: "Rescue", url: "n/a" } });
     const dog = normalizeDog(animal, included);

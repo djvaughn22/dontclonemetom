@@ -15,6 +15,7 @@ import DogCardStudio from "../components/cards/DogCardStudio";
 import { buildListingDeckReport, DECK_SIZE, listingDisplayName } from "../lib/cards/tradingCards";
 import { getDogProfile } from "../lib/dogProfiles";
 import { fetchDogById } from "../lib/rescueDogs";
+import { resolveDogDestination } from "../lib/dogDestination";
 import { dogCityLabel } from "../lib/dogOfTheDay";
 
 export const metadata: Metadata = {
@@ -55,7 +56,17 @@ export default async function CardsPage({ searchParams }: PageProps) {
             deck={profile.cards}
             photoSpec={profile.photoSpec}
             meetHref={`/dogs/${profile.slug}`}
-            adoptionUrl={profile.adoptionStatus === "adoptable" ? profile.adoptionUrl : undefined}
+            adoption={
+              profile.adoptionStatus === "adoptable" && profile.adoptionUrl
+                ? // Owner-curated profiles carry the exact adoption page.
+                  resolveDogDestination({
+                    name: profile.realName,
+                    org: "",
+                    profileUrl: profile.adoptionUrl,
+                    orgUrl: null,
+                  })
+                : undefined
+            }
             shareUrl={`https://dontclonemetom.com/dogs/${profile.slug}`}
             fileName={profile.slug}
             analyticsId={`studio-${profile.slug}`}
@@ -85,7 +96,7 @@ export default async function CardsPage({ searchParams }: PageProps) {
               deck={report.deck}
               attribution={{ org: dog.org, location: city }}
               meetHref={`/dogs/${dog.id}`}
-              adoptionUrl={dog.url || undefined}
+              adoption={resolveDogDestination(dog)}
               shareUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
               fileName={displayName.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "dog"}
               analyticsId="studio-adoptable"

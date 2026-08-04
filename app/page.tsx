@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { resolveDogDestination } from "./lib/dogDestination";
 
 const shareLines = [
   "There’s a good dog near you looking for a home.",
@@ -49,6 +50,7 @@ export type Dog = {
   distance: number | null;
   profileUrl: string | null;
   orgUrl: string | null;
+  orgUrlKind: "adoptable-list" | "website" | null;
   url: string;
   org: string;
   orgCity: string;
@@ -224,18 +226,35 @@ function ShareMenu({ label, title, text, url, className, photo = null, imgLines 
   );
 }
 
-// One dog in the results grid. The whole tile opens the dog's detail; the
-// card chip hands the dog — name, photo, deck, attribution — straight to
-// the card maker without replacing the real adoption path.
+// One dog in the results grid. A dog with its own profile page is one tap
+// from it: the whole tile — photo, name, everything — is a real external
+// link (new-tab and long-press behave normally), with a small Details chip
+// for the in-page view. A dog without its own page opens the in-page
+// details, where the fallback link is labeled honestly. The card chip hands
+// the dog straight to the card maker without replacing the adoption path.
 export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
+  const dest = resolveDogDestination(d);
+  const direct = dest.type === "exact-dog";
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onOpen(); } }}
-      className="cursor-pointer overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]"
-    >
+    <div className="relative overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]">
+      {direct ? (
+        <a
+          href={dest.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={dest.ariaLabel}
+          className="absolute inset-0 z-10"
+        >
+          <span className="sr-only">{dest.label}</span>
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label={`Open details for ${d.name}`}
+          className="absolute inset-0 z-10 cursor-pointer"
+        />
+      )}
       {d.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={d.photo} alt={d.name} loading="lazy" className="h-40 w-full object-cover" style={{ objectPosition: "50% 25%" }} />
@@ -256,13 +275,27 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
             {d.org}
           </p>
         )}
-        <Link
-          href={`/cards?dog=${d.id}`}
-          onClick={(e) => e.stopPropagation()}
-          className="mt-2 inline-block rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-[11px] font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
-        >
-          🃏 Make a Dog Card
-        </Link>
+        <p className="mt-1.5 truncate text-[11px] font-black text-[#2DD4BF]">
+          {direct ? `Meet ${d.name} ↗` : "See details"}
+        </p>
+        <div className="relative z-20 mt-2 flex flex-wrap gap-1.5">
+          <Link
+            href={`/cards?dog=${d.id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-block rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-[11px] font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
+          >
+            🃏 Make a Dog Card
+          </Link>
+          {direct && (
+            <button
+              type="button"
+              onClick={onOpen}
+              className="inline-block cursor-pointer rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-[11px] font-black text-[#94a3b8] transition hover:border-[#2DD4BF] hover:text-[#e8edf5]"
+            >
+              Details
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -296,6 +329,7 @@ function FindDogs() {
   }, [dogs, pendingDog]);
 
   const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
+  const detailDest = detail ? resolveDogDestination(detail) : null;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://dontclonemetom.com";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=${miles}`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
@@ -471,7 +505,21 @@ function FindDogs() {
               )}
             </div>
             <div className="p-5">
-              <h3 className="text-2xl font-black text-[#e8edf5]">{detail.name}</h3>
+              <h3 className="text-2xl font-black text-[#e8edf5]">
+                {detailDest?.type === "exact-dog" ? (
+                  <a
+                    href={detailDest.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={detailDest.ariaLabel}
+                    className="transition hover:text-[#5eead4]"
+                  >
+                    {detail.name} <span className="text-base text-[#2DD4BF]">↗</span>
+                  </a>
+                ) : (
+                  detail.name
+                )}
+              </h3>
               <p className="mt-1 text-sm font-semibold text-[#94a3b8]">
                 {detail.breed}
               </p>
@@ -518,16 +566,16 @@ function FindDogs() {
                     imgLines={[detail.breed, [detail.age, detail.sex].filter(Boolean).join(" · ") + (detail.org ? ` · ${detail.org}` : "")]}
                     className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                   />
-                  {detail.url && (
+                  {detailDest && detailDest.type !== "none" && (
                     <a
-                      href={detail.url}
+                      href={detailDest.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={detail.profileUrl ? `Open ${detail.name}’s adoption listing` : `Visit ${detail.org || "the rescue"}’s website`}
+                      aria-label={detailDest.ariaLabel}
                       className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                     >
-                      <span className="truncate">{detail.profileUrl ? `${detail.name}’s listing` : "Visit the rescue"}</span>
-                      <span className="ml-2 text-[#94a3b8]">→</span>
+                      <span className="truncate">{detailDest.label}</span>
+                      <span className="ml-2 text-[#94a3b8]">↗</span>
                     </a>
                   )}
                 </div>

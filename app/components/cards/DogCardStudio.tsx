@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CardPair } from "../../lib/cards/tradingCards";
+import type { DogDestination } from "../../lib/dogDestination";
 import type { PhotoSpec } from "../../lib/cards/photoFraming";
 import CardSpinner from "./CardSpinner";
 import type { CardAttribution } from "./TradingCard";
@@ -19,7 +20,7 @@ export default function DogCardStudio({
   photoSpec,
   attribution,
   meetHref,
-  adoptionUrl,
+  adoption,
   shareUrl,
   fileName,
   analyticsId,
@@ -34,8 +35,9 @@ export default function DogCardStudio({
   attribution?: CardAttribution;
   /** back to the dog's own page */
   meetHref: string;
-  /** the real adoption listing, kept quietly present for adoptable dogs */
-  adoptionUrl?: string;
+  /** the real adoption destination, kept quietly present for adoptable dogs
+   * — resolved (lib/dogDestination.ts) so the label never over-promises */
+  adoption?: DogDestination;
   shareUrl: string;
   fileName: string;
   analyticsId: string;
@@ -74,14 +76,21 @@ export default function DogCardStudio({
         <Link href={meetHref} className="text-sm font-bold text-[#2DD4BF]">
           Meet {realName} →
         </Link>
-        {adoptionUrl && (
+        {adoption && adoption.type !== "none" && (
           <a
-            href={adoptionUrl}
+            href={adoption.url}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={adoption.ariaLabel}
             className="text-xs font-semibold text-[#94a3b8] underline decoration-[#26324c] underline-offset-4"
           >
-            {realName} is a real adoptable dog — open the adoption listing
+            {realName} is a real adoptable dog —{" "}
+            {adoption.type === "exact-dog"
+              ? `meet ${realName} on the rescue’s page`
+              : adoption.fallbackKind === "adoptable-list"
+                ? "view the rescue’s shelter listings"
+                : "visit the rescue"}{" "}
+            ↗
           </a>
         )}
         <Link href="/cards" className="mt-2 text-sm font-bold text-[#2DD4BF]">

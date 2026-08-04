@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import DogShareActions from "../components/DogShareActions";
 import { buildDogOfTheDay, dogCityLabel } from "../lib/dogOfTheDay";
+import { resolveDogDestination } from "../lib/dogDestination";
 import { chicagoDateKey } from "../lib/dailySocialCore";
 import Link from "next/link";
 
@@ -57,6 +58,9 @@ export default async function TodayPage() {
 
   const { dog, post } = featured;
   const city = dogCityLabel(dog);
+  const destination = resolveDogDestination(dog);
+  // Photo and name link straight out only when the link opens this exact dog.
+  const exactUrl = destination.type === "exact-dog" ? destination.url : null;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 text-[#e8edf5]">
@@ -73,13 +77,34 @@ export default async function TodayPage() {
 
       {dog.photo ? (
         <div className="mt-8 overflow-hidden rounded-3xl border border-[#26324c]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={dog.photo} alt={`${dog.name}, today's adoptable dog`} className="block w-full" />
+          {exactUrl ? (
+            <a href={exactUrl} target="_blank" rel="noopener noreferrer" aria-label={destination.ariaLabel}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={dog.photo} alt={`${dog.name}, today's adoptable dog`} className="block w-full" />
+            </a>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={dog.photo} alt={`${dog.name}, today's adoptable dog`} className="block w-full" />
+          )}
         </div>
       ) : null}
 
       <div className="mt-6 text-center">
-        <h2 className="text-4xl font-black">{dog.name}</h2>
+        <h2 className="text-4xl font-black">
+          {exactUrl ? (
+            <a
+              href={exactUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={destination.ariaLabel}
+              className="transition hover:text-[#5eead4]"
+            >
+              {dog.name} <span className="text-2xl text-[#2DD4BF]">↗</span>
+            </a>
+          ) : (
+            dog.name
+          )}
+        </h2>
         <p className="mt-2 text-lg font-bold text-[#2DD4BF]">{city}</p>
         <p className="mt-1 text-sm font-semibold text-[#94a3b8]">
           Listed by {dog.org} · via RescueGroups.org · verified today
@@ -95,8 +120,7 @@ export default async function TodayPage() {
             pageUrl={`https://dontclonemetom.com${post.pagePath}`}
             cardPath={post.imagePath}
             cardFileName={post.imageFileName}
-            adoptionUrl={dog.url}
-            isOwnListing={dog.profileUrl !== null}
+            destination={destination}
             viewEvent="dcmt_today_viewed"
           />
         </div>

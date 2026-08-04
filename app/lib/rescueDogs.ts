@@ -3,6 +3,8 @@
 // the Instagram card, the /dogs pages, and the caption generator.
 // The API key stays server-side; clients only ever see trimmed results.
 
+import { isGenericAnimalUrl } from "./dogDestination";
+
 export type Dog = {
   id: string;
   name: string;
@@ -19,6 +21,9 @@ export type Dog = {
   // (see resolveDogUrl). Never let orgUrl stand in for profileUrl.
   profileUrl: string | null;
   orgUrl: string | null;
+  // What orgUrl actually is, so fallback labels stay honest:
+  // "adoptable-list" = the rescue's adoptable-dogs page, "website" = its site.
+  orgUrlKind: "adoptable-list" | "website" | null;
   url: string;
   org: string;
   orgCity: string;
@@ -122,17 +127,24 @@ export function normalizeDog(
   const loc = locRef ? (included.get(`locations:${locRef.id}`) as Record<string, string> | undefined) : undefined;
   const orgRef = a.relationships?.orgs?.data?.[0];
   const org = orgRef ? (included.get(`orgs:${orgRef.id}`) as Record<string, string> | undefined) : undefined;
+  // The org's adoptable-dogs page, then its homepage, kept separately as the
+  // fallback — with its kind, so the UI never over-promises what it opens.
+  const orgListUrl =
+    (orgRef ? ORG_URL_OVERRIDES[orgRef.id] : undefined) ??
+    normalizeHttpUrl(org?.adoptionUrl);
+  const orgUrl = orgListUrl ?? normalizeHttpUrl(org?.url);
+  const orgUrlKind = orgUrl ? (orgListUrl ? ("adoptable-list" as const) : ("website" as const)) : null;
   // This dog's own listing page. Not every animal record has one (only
-  // rescues with a RescueGroups mini-site publish them), so the org's
-  // adoptable-dogs page, then its homepage, is kept separately as a fallback.
+  // rescues with a RescueGroups mini-site publish them). A URL that is
+  // really a generic org or listings page is demoted to the fallback so it
+  // can never masquerade as the dog's own profile.
   let profileUrl = normalizeHttpUrl(at.url);
   if (profileUrl && DEAD_PROFILE_HOSTS.has(new URL(profileUrl).hostname.toLowerCase())) {
     profileUrl = null;
   }
-  const orgUrl =
-    (orgRef ? ORG_URL_OVERRIDES[orgRef.id] : undefined) ??
-    normalizeHttpUrl(org?.adoptionUrl) ??
-    normalizeHttpUrl(org?.url);
+  if (profileUrl && isGenericAnimalUrl(profileUrl, orgUrl)) {
+    profileUrl = null;
+  }
   const email = typeof org?.email === "string" && org.email.includes("@") ? org.email : null;
   return {
     id: a.id,
@@ -147,6 +159,7 @@ export function normalizeDog(
     distance: typeof at.distance === "number" ? at.distance : null,
     profileUrl,
     orgUrl,
+    orgUrlKind,
     url: resolveDogUrl({ profileUrl, orgUrl }),
     org: String(org?.name ?? ""),
     orgCity: org?.citystate ?? "",

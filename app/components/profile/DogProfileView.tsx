@@ -128,10 +128,11 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
                 href={p.adoptionUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Meet ${p.realName} — opens ${p.realName}’s own adoption page in a new tab`}
                 className="mt-4 inline-flex justify-center rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] transition hover:opacity-90"
                 style={{ background: accent }}
               >
-                Open the adoption listing →
+                Meet {p.realName} ↗
               </a>
             </section>
           )

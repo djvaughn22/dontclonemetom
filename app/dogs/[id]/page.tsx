@@ -8,6 +8,7 @@ import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
 import { buildListingDeckReport, listingDisplayName } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
+import { resolveDogDestination } from "../../lib/dogDestination";
 import { getDogProfile } from "../../lib/dogProfiles";
 import { dogCityLabel } from "../../lib/dogOfTheDay";
 import Link from "next/link";
@@ -169,8 +170,7 @@ export default async function DogPage({ params }: PageProps) {
           pageUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
           cardPath={`/api/social/dog-card/${dog.id}.png`}
           cardFileName={`dontclonemetom-${dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-card.png`}
-          adoptionUrl={dog.url}
-          isOwnListing={dog.profileUrl !== null}
+          destination={resolveDogDestination(dog)}
           viewEvent="dcmt_dog_viewed"
         />
       </div>

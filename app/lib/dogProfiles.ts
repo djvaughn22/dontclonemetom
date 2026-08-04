@@ -35,6 +35,8 @@ export type DogProfileV1 = {
   verifiedFacts: ProfileFact[];
   shelter?: { name: string; url?: string };
   location?: string;
+  /** the EXACT individual adoption page for this dog (never a shelter's
+   * multi-dog or search page) — the UI labels it "Meet [Name]" */
   adoptionUrl?: string;
   shareText: string;
   seoTitle: string;
