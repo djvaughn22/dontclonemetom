@@ -49,6 +49,7 @@ export type Dog = {
   city: string;
   distance: number | null;
   profileUrl: string | null;
+  sourceProfileUrl: string | null;
   orgUrl: string | null;
   orgUrlKind: "adoptable-list" | "website" | null;
   url: string;

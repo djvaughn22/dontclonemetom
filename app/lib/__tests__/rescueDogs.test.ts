@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { resolveDogDestination } from "../dogDestination";
 import {
   hasOwnListing,
   normalizeDog,
@@ -161,6 +162,29 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     const dog = normalizeDog(animal, included);
     expect(dog.profileUrl).toBeNull();
     expect(dog.url).toBe("https://rescue.example.org/");
+  });
+
+  it("demotes Mastino per-dog URLs (dead host) even though they look dog-specific, keeping the source URL", () => {
+    for (const url of [
+      "https://mastinorescue.rescuegroups.org/animals/detail?AnimalID=20515053",
+      "https://www.mastino-rescue-inc.org/animals/detail.php?AnimalID=20515053",
+    ]) {
+      const { animal, included } = rgAnimal({
+        attributes: { name: "Adolfo", url },
+        org: { name: "Mastino Rescue, Inc.", url: "http://www.mastino-rescue-inc.org/" },
+      });
+      const dog = normalizeDog(animal, included);
+      // Never presented as the dog's own page while the host is blocked…
+      expect(dog.profileUrl).toBeNull();
+      expect(dog.url).toBe("http://www.mastino-rescue-inc.org/");
+      // …but the exact source URL (AnimalID included) is preserved for rechecking.
+      expect(dog.sourceProfileUrl).toBe(url);
+      // The visitor-facing label is the honest rescue fallback, never "Meet".
+      const dest = resolveDogDestination(dog);
+      expect(dest.type).toBe("shelter-fallback");
+      expect(dest.label).toBe("Visit the rescue");
+      expect(dest.label).not.toContain("Meet");
+    }
   });
 
   it("drops per-dog URLs on a known-dead mini-site host and falls back to the rescue", () => {

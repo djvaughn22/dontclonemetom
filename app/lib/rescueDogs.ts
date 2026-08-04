@@ -20,6 +20,10 @@ export type Dog = {
   // adoptable-dogs page or website. url = the resolved card destination
   // (see resolveDogUrl). Never let orgUrl stand in for profileUrl.
   profileUrl: string | null;
+  // The per-dog URL exactly as the source supplied it, kept even when
+  // profileUrl is demoted (dead host, generic page) so a recovered host can
+  // be rechecked later. Never rendered as a link while demoted.
+  sourceProfileUrl: string | null;
   orgUrl: string | null;
   // What orgUrl actually is, so fallback labels stay honest:
   // "adoptable-list" = the rescue's adoptable-dogs page, "website" = its site.
@@ -106,10 +110,25 @@ const ORG_URL_OVERRIDES: Record<string, string> = {
   "3085": "https://24petconnect.com/STCHAdopt?at=DOG",
 };
 
-// Profile hosts currently serving a generic "site down" page for every
+// Profile hosts currently serving a generic or empty page for every
 // animal — treat their per-dog URLs as absent so cards fall back to the
 // rescue honestly instead of claiming a listing that doesn't load.
-const DEAD_PROFILE_HOSTS = new Set(["straypawsrescue.rescuegroups.org"]);
+// Matched with any leading "www." stripped.
+//
+// mastinorescue.rescuegroups.org (added 2026-08-04): redirects every per-dog
+//   URL to mastino-rescue-inc.org/animals/detail.php?AnimalID=… whose Wix
+//   animals section — including their own /animals list — renders an empty
+//   shell (no animal-data requests). Remove once a real per-dog page loads.
+const DEAD_PROFILE_HOSTS = new Set([
+  "straypawsrescue.rescuegroups.org",
+  "mastinorescue.rescuegroups.org",
+  "mastino-rescue-inc.org",
+]);
+
+function isDeadProfileHost(url: string): boolean {
+  const host = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+  return DEAD_PROFILE_HOSTS.has(host);
+}
 
 export function normalizeDog(
   a: RGResource,
@@ -138,8 +157,9 @@ export function normalizeDog(
   // rescues with a RescueGroups mini-site publish them). A URL that is
   // really a generic org or listings page is demoted to the fallback so it
   // can never masquerade as the dog's own profile.
-  let profileUrl = normalizeHttpUrl(at.url);
-  if (profileUrl && DEAD_PROFILE_HOSTS.has(new URL(profileUrl).hostname.toLowerCase())) {
+  const sourceProfileUrl = normalizeHttpUrl(at.url);
+  let profileUrl = sourceProfileUrl;
+  if (profileUrl && isDeadProfileHost(profileUrl)) {
     profileUrl = null;
   }
   if (profileUrl && isGenericAnimalUrl(profileUrl, orgUrl)) {
@@ -158,6 +178,7 @@ export function normalizeDog(
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
     profileUrl,
+    sourceProfileUrl,
     orgUrl,
     orgUrlKind,
     url: resolveDogUrl({ profileUrl, orgUrl }),

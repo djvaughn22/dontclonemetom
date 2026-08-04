@@ -28,6 +28,7 @@ function dog(overrides: Partial<Dog>): Dog {
     city: "Wildwood, MO",
     distance: 3,
     profileUrl: "https://rescue.example.org/billy",
+    sourceProfileUrl: "https://rescue.example.org/billy",
     orgUrl: "https://rescue.example.org/",
     orgUrlKind: "website",
     url: "https://rescue.example.org/billy",

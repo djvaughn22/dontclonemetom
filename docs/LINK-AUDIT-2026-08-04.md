@@ -35,9 +35,9 @@ everywhere** and gives every surface typed destination awareness.
 
 | Destination type | Dogs | Sources |
 |---|---|---|
-| exact-dog | 15 | Camp Chaos Puppy Rescue (2), Needy Paws Rescue (4), Mastino Rescue (6), Midwest Doberman Rescue of St. Louis (3) |
+| exact-dog | 9 | Camp Chaos Puppy Rescue (2), Needy Paws Rescue (4), Midwest Doberman Rescue of St. Louis (3) |
 | shelter-fallback / adoptable-list | 49 | STRAY PAWS RESCUE (25, dead mini-site → their /animals page), St Charles County Humane Services (24, 24petconnect list) |
-| shelter-fallback / website | 158 | Country Acres, 4 Paws 4 Rescue, HSMO (×2 orgs), APA of Missouri, St. Animal Pet Adoptions, All Paws, Advocates 4 Animals, Hope Animal Rescues, St. Clair County, No Time to Spare, Spencer Pet Rescue |
+| shelter-fallback / website | 164 | Country Acres, 4 Paws 4 Rescue, HSMO (×2 orgs), APA of Missouri, St. Animal Pet Adoptions, All Paws, Advocates 4 Animals, Hope Animal Rescues, St. Clair County, No Time to Spare, Spencer Pet Rescue, Mastino Rescue (6, dead per-dog host — see below) |
 | none | 0 | — |
 
 RescueGroups only supplies a per-dog URL when the rescue runs a mini-site;
@@ -48,12 +48,15 @@ build per-dog URLs from names — names are not unique (two LAYLAs at APA today)
 
 - Camp Chaos, Needy Paws, Midwest Doberman sample pages fetched: HTTP 200 with
   the dog's name confirmed in the page body.
-- **Mastino Rescue**: their RescueGroups URLs now redirect to
-  `mastino-rescue-inc.org/animals/detail.php?AnimalID=…` (id preserved). The
-  Wix page — including their own `/animals` list — renders an empty shell in
-  an automated browser (no animal-data requests observed), same wall as the
-  July audit. Kept as exact-dog because it is the rescue's official per-dog
-  URL; re-check by hand on a real phone when possible.
+- **Mastino Rescue (demoted 2026-08-04, same day)**: their RescueGroups URLs
+  redirect to `mastino-rescue-inc.org/animals/detail.php?AnimalID=…` (id
+  preserved) but the Wix page — including their own `/animals` list — renders
+  an empty shell (no animal-data requests observed), same wall as the July
+  audit. Both hosts are now in `DEAD_PROFILE_HOSTS`, so their 6 dogs resolve
+  to the honest "Visit the rescue" fallback (their website; their /animals
+  page is equally blank, so no adoptable-list override). The exact source URL
+  with the AnimalID is preserved on each dog as `sourceProfileUrl` — remove
+  the hosts from `DEAD_PROFILE_HOSTS` once a per-dog page actually loads.
 
 ## Tests
 
