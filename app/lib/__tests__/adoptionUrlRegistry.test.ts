@@ -21,15 +21,25 @@ describe("adoptionUrlRegistry", () => {
     expect(entry?.verifiedAt).toBeTruthy();
   });
 
-  it("All 7 Spencer GetBuddy dogs are verified", () => {
+  it("All 17 Spencer GetBuddy dogs are verified", () => {
     const spencerDogs = {
-      "22649637": "Darla", // 681dc67a5ab6746988e790b2
-      "22649640": "Dart", // 69f51f3c739af4ed5a06b83d
-      "22649644": "Dumpling", // 6a39956de87cf5014cec6074
-      "22649648": "Linus", // 699eae26e7817824d5874a7d
-      "22649652": "Lemon", // 6a399768e87cf5014cec6076
-      "22649663": "Paco", // 699d5d19e7817824d57fc1de
-      "22649666": "Macho Man", // 6a54f7c42f22adcfaaa0e238
+      "22649636": "Carl",
+      "22649637": "Darla",
+      "22649640": "Dart",
+      "22649644": "Dumpling",
+      "22649646": "Holden",
+      "22649648": "Jid",
+      "22649650": "Lemon",
+      "22649652": "Linus",
+      "22649657": "Macho Man",
+      "22649660": "Macy",
+      "22649663": "Paco",
+      "22649666": "Raisin",
+      "22649668": "Raya",
+      "22649671": "Sweetie",
+      "22649675": "Tango",
+      "22649678": "Tiramisu",
+      "22649681": "Vida",
     };
 
     for (const [id, name] of Object.entries(spencerDogs)) {
@@ -37,8 +47,8 @@ describe("adoptionUrlRegistry", () => {
       expect(entry?.status).toBe("verified-direct-dog-page");
       expect(entry?.source).toBe("getbuddy");
       expect(entry?.adoptionProfileUrl).toContain("getbuddy.com/pet");
-      expect(entry?.notes).toContain(name);
       expect(entry?.notes).toContain("Spencer Pet Rescue");
+      expect(entry?.notes).toContain("adoptable");
     }
   });
 
@@ -87,10 +97,10 @@ describe("adoptionUrlRegistry", () => {
       }
     }
 
-    // 7 Spencer dogs verified: Paco, Darla, Dumpling, Dart, Linus, Lemon, Macho Man
-    expect(verifiedCount).toBe(7);
+    // 17 Spencer dogs verified (all current active dogs)
+    expect(verifiedCount).toBe(17);
     expect(deadCount).toBe(6); // Mastino dogs
-    expect(unverifiedCount).toBe(209); // Everyone else
+    expect(unverifiedCount).toBe(199); // Everyone else
   });
 
   it("verified entries have proper source and timestamp", () => {

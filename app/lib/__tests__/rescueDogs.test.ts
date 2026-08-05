@@ -268,7 +268,7 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     const dest = resolveDogDestination(dog);
     expect(dest.type).toBe("exact-dog");
     expect(dest.url).toBe(url);
-    expect(dest.label).toBe("Meet Ramsey");
+    expect(dest.label).toBe("View Ramsey's adoption page");
   });
 
   it("resolves a relative profile path against the rescue's site instead of losing the dog", () => {
@@ -343,7 +343,7 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     // Verify the modal CTA shows the exact dog, not the generic rescue
     const dest = resolveDogDestination(dog);
     expect(dest.type).toBe("exact-dog");
-    expect(dest.label).toBe("Meet Paco");
+    expect(dest.label).toBe("View Paco's adoption page");
     expect(dest.url).toContain("getbuddy.com");
     expect(dest.url).toContain("699d5d19e7817824d57fc1de");
   });

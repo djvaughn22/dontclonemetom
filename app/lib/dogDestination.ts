@@ -41,8 +41,8 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
       type: "exact-dog",
       url: dog.adoption.adoptionProfileUrl,
       fallbackKind: null,
-      label: `Meet ${name}`,
-      ariaLabel: `Meet ${name} — opens ${name}’s own adoption page in a new tab`,
+      label: `View ${name}’s adoption page`,
+      ariaLabel: `View ${name}’s adoption page — opens in a new tab`,
     };
   }
 
@@ -52,8 +52,8 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
       type: "exact-dog",
       url: dog.profileUrl,
       fallbackKind: null,
-      label: `Meet ${name}`,
-      ariaLabel: `Meet ${name} — opens ${name}’s own adoption page in a new tab`,
+      label: `View ${name}’s adoption page`,
+      ariaLabel: `View ${name}’s adoption page — opens in a new tab`,
     };
   }
 
