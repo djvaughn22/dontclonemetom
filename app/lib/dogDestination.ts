@@ -64,23 +64,59 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
   return { type: "none", url: "", fallbackKind: null, label: "", ariaLabel: "" };
 }
 
-// Paths that are adoptable-dog lists or search pages, not an individual
-// animal. A URL with a query string is kept — ids ride in the query
-// (?AnimalID=123) and stripping or rejecting them would lose the dog.
-const GENERIC_LIST_PATH =
-  /^\/(?:animals?|adopt(?:ions?|able)?|adoptable-(?:dogs|pets|animals)|dogs|pets|available(?:-pets)?|search)?\/?$/i;
+// ---------------------------------------------------------------------------
+// URL classification — what kind of page does an adoption URL point at?
+//
+// A URL claimed to be a dog's own profile may only be presented as one when
+// it classifies as "animal-profile". Everything else (a homepage, a broad
+// adoptable-dogs list, a search page, a contact/application form) is demoted
+// to the honest shelter fallback so a generic page can never masquerade as
+// the named dog.
 
-// True when a URL claimed to be a dog's own profile is obviously a generic
-// page — the rescue's homepage, its adoptable-dogs list, or the same page
-// already used as the org fallback. Such a URL must not masquerade as an
-// individual profile; demoting it keeps the labels honest.
-export function isGenericAnimalUrl(url: string, orgUrl: string | null): boolean {
+export type AdoptionUrlClass =
+  | "animal-profile" // an individual animal's own page (or a deep page that may be one)
+  | "org-page" // literally the same page as the rescue's fallback URL
+  | "org-homepage" // the rescue's homepage / site root
+  | "animal-list" // a broad adoptable-dogs / available-pets listing page
+  | "search" // a search or search-results page
+  | "application" // application, contact, donate, about — never a dog
+  | "invalid"; // unparseable or non-web URL
+
+// Single-segment paths that are adoptable-dog lists, not an individual animal.
+const GENERIC_LIST_PATH =
+  /^\/(?:animals?|adopt(?:ions?|able)?|adoptable-(?:dogs|pets|animals)|dogs|pets|available(?:-pets|-dogs|-animals)?|our-(?:dogs|pets|animals)|meet-the-dogs|dogs-for-adoption|gallery|listings?)\/?$/i;
+
+// Search or search-results pages.
+const SEARCH_PATH = /(?:^|\/)(?:search|pet-?search|searchresults|results)(?:\.\w+)?\/?$/i;
+
+// Pages that exist for people-paperwork, never for a specific dog.
+const APPLICATION_PATH =
+  /^\/(?:contact(?:-us)?|about(?:-us)?|apply|applications?|adoption-(?:application|form)|adopt(?:ion)?-process|forms?|foster|volunteer|donate|donations?|events?|home|index(?:\.\w+)?)\/?$/i;
+
+// Query params that carry an individual animal's identity. A URL whose query
+// names a specific animal id is that animal's page (?AnimalID=123) — such
+// ids must never be stripped or rejected, or the dog is lost.
+const ANIMAL_ID_PARAM = /^(?:animal_?id|pet_?id|dog_?id|aid|id)$/i;
+
+function hasAnimalIdParam(parsed: URL): boolean {
+  for (const [key, value] of parsed.searchParams) {
+    if (ANIMAL_ID_PARAM.test(key) && /^\d+$/.test(value.trim())) return true;
+  }
+  return false;
+}
+
+export function classifyAdoptionUrl(url: string, orgUrl: string | null): AdoptionUrlClass {
   let parsed: URL;
   try {
     parsed = new URL(url);
   } catch {
-    return true;
+    return "invalid";
   }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "invalid";
+
+  // An animal id in the query names the exact animal regardless of path.
+  if (hasAnimalIdParam(parsed)) return "animal-profile";
+
   if (orgUrl) {
     try {
       const org = new URL(orgUrl);
@@ -90,12 +126,42 @@ export function isGenericAnimalUrl(url: string, orgUrl: string | null): boolean 
         trim(parsed.pathname) === trim(org.pathname) &&
         parsed.search === org.search
       ) {
-        return true;
+        return "org-page";
       }
     } catch {
       // Unparseable org URL — judge the profile URL on its own.
     }
   }
-  if (parsed.search) return false;
-  return GENERIC_LIST_PATH.test(parsed.pathname);
+
+  const path = parsed.pathname;
+
+  // Petfinder: /dog/<slug>/… is an animal; a member/org page is not.
+  const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+  if (host === "petfinder.com") {
+    if (/^\/(?:dog|cat|pet)\/[^/]+/i.test(path)) return "animal-profile";
+    if (/^\/member\//i.test(path)) return "org-homepage";
+  }
+  // A social-network page is an org presence, never a dog's own profile.
+  if (host === "facebook.com" || host === "m.facebook.com" || host === "instagram.com") {
+    return "org-homepage";
+  }
+
+  if (SEARCH_PATH.test(path)) return "search";
+  if (APPLICATION_PATH.test(path)) return "application";
+  if (GENERIC_LIST_PATH.test(path)) return "animal-list";
+  // Site root — with or without leftover query params, no recognized animal
+  // id means this is not a verified profile.
+  if (/^\/?$/.test(path)) return "org-homepage";
+
+  // A deep, non-generic path — treat as a candidate individual page. The
+  // redirect-following verifier (linkVerification.ts) is what confirms or
+  // refutes these against the live destination.
+  return "animal-profile";
+}
+
+// True when a URL claimed to be a dog's own profile is really a generic
+// page — the rescue's homepage, its adoptable-dogs list, a search page, an
+// application form, or the same page already used as the org fallback.
+export function isGenericAnimalUrl(url: string, orgUrl: string | null): boolean {
+  return classifyAdoptionUrl(url, orgUrl) !== "animal-profile";
 }

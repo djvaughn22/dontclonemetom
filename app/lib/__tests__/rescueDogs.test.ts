@@ -5,6 +5,7 @@ import {
   normalizeDog,
   normalizeHttpUrl,
   resolveDogUrl,
+  resolveRelativeProfileUrl,
 } from "../rescueDogs";
 
 // Minimal RescueGroups JSON:API animal + org fixtures.
@@ -253,6 +254,65 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     const dog = normalizeDog(animal, included);
     expect(dog.url).toBe("https://24petconnect.com/STCHAdopt?at=DOG");
     expect(dog.orgUrlKind).toBe("adoptable-list");
+  });
+
+  it("preserves the dog-specific URL end to end: feed → normalize → destination", () => {
+    const url = "https://rescue.example.org/animals/detail?AnimalID=22194580";
+    const { animal, included } = rgAnimal({
+      attributes: { name: "Ramsey", url },
+      org: { name: "Country Acres Rescue", url: "http://countryacresrescue.org/" },
+    });
+    const dog = normalizeDog(animal, included);
+    expect(dog.profileUrl).toBe(url);
+    expect(dog.sourceProfileUrl).toBe(url);
+    const dest = resolveDogDestination(dog);
+    expect(dest.type).toBe("exact-dog");
+    expect(dest.url).toBe(url);
+    expect(dest.label).toBe("Meet Ramsey");
+  });
+
+  it("resolves a relative profile path against the rescue's site instead of losing the dog", () => {
+    expect(
+      resolveRelativeProfileUrl("/animals/detail?AnimalID=5", "https://rescue.example.org/about"),
+    ).toBe("https://rescue.example.org/animals/detail?AnimalID=5");
+    expect(resolveRelativeProfileUrl("/x", null)).toBeNull();
+    expect(resolveRelativeProfileUrl("//evil.example.org/x", "https://rescue.example.org/")).toBeNull();
+
+    const { animal, included } = rgAnimal({
+      attributes: { name: "Ramsey", url: "/animals/detail?AnimalID=5" },
+      org: { name: "Rescue", url: "https://rescue.example.org/" },
+    });
+    const dog = normalizeDog(animal, included);
+    expect(dog.profileUrl).toBe("https://rescue.example.org/animals/detail?AnimalID=5");
+  });
+
+  it("demotes an animal URL that is the homepage wearing tracking params", () => {
+    const { animal, included } = rgAnimal({
+      attributes: { url: "https://countryacres.example.org/?fbclid=abc123" },
+      org: { name: "Country Acres Rescue", url: "https://other.example.org/" },
+    });
+    const dog = normalizeDog(animal, included);
+    expect(dog.profileUrl).toBeNull();
+    expect(dog.sourceProfileUrl).toBe("https://countryacres.example.org/?fbclid=abc123");
+    expect(resolveDogDestination(dog).type).toBe("shelter-fallback");
+  });
+
+  it("demotes search and application 'profile' URLs, keeping the source for rechecks", () => {
+    for (const url of [
+      "https://rescue.example.org/search",
+      "https://rescue.example.org/pet-search",
+      "https://rescue.example.org/adoption-application",
+      "https://rescue.example.org/contact-us",
+    ]) {
+      const { animal, included } = rgAnimal({
+        attributes: { url },
+        org: { name: "Rescue", url: "https://other.example.org/" },
+      });
+      const dog = normalizeDog(animal, included);
+      expect(dog.profileUrl).toBeNull();
+      expect(dog.sourceProfileUrl).toBe(url);
+      expect(dog.url).toBe("https://other.example.org/");
+    }
   });
 
   it("keeps a dog with no discoverable URL at all — never filtered out", () => {

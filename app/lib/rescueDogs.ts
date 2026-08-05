@@ -59,6 +59,23 @@ export function normalizeHttpUrl(value: unknown): string | null {
   }
 }
 
+// A rescue's feed sometimes carries the dog's page as a bare path
+// ("/animals/detail?AnimalID=5"). Resolve it against the rescue's own site
+// instead of throwing the dog's page away.
+export function resolveRelativeProfileUrl(
+  value: unknown,
+  orgUrl: string | null,
+): string | null {
+  if (typeof value !== "string" || !orgUrl) return null;
+  const s = value.trim();
+  if (!s.startsWith("/") || s.startsWith("//")) return null;
+  try {
+    return normalizeHttpUrl(new URL(s, new URL(orgUrl).origin).href);
+  } catch {
+    return null;
+  }
+}
+
 // One place decides where a dog card points: the dog's own listing first,
 // the rescue's page only as a fallback. An org URL must never override an
 // individual profile URL.
@@ -157,7 +174,8 @@ export function normalizeDog(
   // rescues with a RescueGroups mini-site publish them). A URL that is
   // really a generic org or listings page is demoted to the fallback so it
   // can never masquerade as the dog's own profile.
-  const sourceProfileUrl = normalizeHttpUrl(at.url);
+  const sourceProfileUrl =
+    normalizeHttpUrl(at.url) ?? resolveRelativeProfileUrl(at.url, orgUrl);
   let profileUrl = sourceProfileUrl;
   if (profileUrl && isDeadProfileHost(profileUrl)) {
     profileUrl = null;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isGenericAnimalUrl, resolveDogDestination } from "../dogDestination";
+import { classifyAdoptionUrl, isGenericAnimalUrl, resolveDogDestination } from "../dogDestination";
 import { resolveDogUrl } from "../rescueDogs";
 
 const base = {
@@ -164,5 +164,44 @@ describe("isGenericAnimalUrl — generic pages cannot masquerade as a dog's own 
 
   it("treats malformed URLs as generic (never trusted as a profile)", () => {
     expect(isGenericAnimalUrl("not a url", null)).toBe(true);
+  });
+});
+
+describe("classifyAdoptionUrl — every destination kind is told apart", () => {
+  it("individual animal profiles: id params and per-animal paths", () => {
+    expect(classifyAdoptionUrl("https://r.org/animals/detail?AnimalID=123", null)).toBe("animal-profile");
+    expect(classifyAdoptionUrl("https://r.org/anything?petid=44", null)).toBe("animal-profile");
+    expect(classifyAdoptionUrl("https://www.petfinder.com/dog/bella-12345/mo/st-louis/rescue-mo123/", null)).toBe("animal-profile");
+    expect(classifyAdoptionUrl("https://r.org/dogs/bella.html", null)).toBe("animal-profile");
+  });
+
+  it("organization homepages, with or without tracking params", () => {
+    expect(classifyAdoptionUrl("https://countryacresrescue.org/", null)).toBe("org-homepage");
+    expect(classifyAdoptionUrl("https://countryacresrescue.org/?fbclid=xyz", null)).toBe("org-homepage");
+    expect(classifyAdoptionUrl("https://www.petfinder.com/member/us/mo/st-louis/rescue-mo123/", null)).toBe("org-homepage");
+    expect(classifyAdoptionUrl("https://www.facebook.com/countryacresrescue", null)).toBe("org-homepage");
+  });
+
+  it("general animal-listing pages", () => {
+    expect(classifyAdoptionUrl("https://r.org/adoptable-dogs", null)).toBe("animal-list");
+    expect(classifyAdoptionUrl("https://r.org/our-dogs", null)).toBe("animal-list");
+    expect(classifyAdoptionUrl("https://r.org/available-pets/", null)).toBe("animal-list");
+  });
+
+  it("search pages", () => {
+    expect(classifyAdoptionUrl("https://r.org/search", null)).toBe("search");
+    expect(classifyAdoptionUrl("https://r.org/pet-search?type=dog", null)).toBe("search");
+  });
+
+  it("application and contact pages", () => {
+    expect(classifyAdoptionUrl("https://r.org/adoption-application", null)).toBe("application");
+    expect(classifyAdoptionUrl("https://r.org/contact-us", null)).toBe("application");
+    expect(classifyAdoptionUrl("https://r.org/forms", null)).toBe("application");
+  });
+
+  it("the org fallback page itself, and junk", () => {
+    expect(classifyAdoptionUrl("https://r.org/our-dogs", "https://r.org/our-dogs/")).toBe("org-page");
+    expect(classifyAdoptionUrl("not a url", null)).toBe("invalid");
+    expect(classifyAdoptionUrl("javascript:alert(1)", null)).toBe("invalid");
   });
 });

@@ -36,6 +36,24 @@ describe("dog-link surfaces use the shared destination resolver", () => {
   });
 });
 
+describe("a generic destination never gets an active exact-dog treatment", () => {
+  it("the results-grid tile only renders an external link for an exact-dog destination", () => {
+    const src = read("app/page.tsx");
+    // The full-tile overlay anchor exists only in the exact-dog branch;
+    // fallback dogs get an in-page details button instead.
+    expect(src).toContain('dest.type === "exact-dog"');
+    // "See details" is the in-page button label — it must never sit on an
+    // anchor, and no surface links a raw dog.url around the resolver.
+    expect(src).not.toMatch(/href=\{d\.url\}|href=\{dog\.url\}|href=\{detail\.url\}/);
+  });
+
+  for (const file of EXTERNAL_LINK_FILES) {
+    it(`${file}: never builds an href from the unresolved dog.url field`, () => {
+      expect(read(file)).not.toMatch(/href=\{(?:d|dog|detail)\.url\}/);
+    });
+  }
+});
+
 describe("external dog links are secure and honest", () => {
   for (const file of EXTERNAL_LINK_FILES) {
     it(`${file}: every target="_blank" link carries a no-opener rel`, () => {
