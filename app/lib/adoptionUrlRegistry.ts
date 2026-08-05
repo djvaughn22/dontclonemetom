@@ -760,13 +760,14 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: "2026-08-05T23:35:00Z",
     notes: "Verified GetBuddy: Jid aka Jeddy Bear, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
-  // Lemon — VERIFIED GetBuddy
+  // Lemon — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // pointed Lemon at 6a399409e87cf5014cec6072, which is Tango's page)
   "22649650": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399409e87cf5014cec6072",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399768e87cf5014cec6076",
     status: "verified-direct-dog-page",
     source: "getbuddy",
     verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Lemon, Spencer Pet Rescue, O Fallon IL, adoptable",
+    notes: "Verified GetBuddy: Lemon (Dalmatian), Spencer Pet Rescue, O Fallon IL, adoptable",
   },
   // Linus — VERIFIED GetBuddy
   "22649652": {
@@ -784,13 +785,19 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: "2026-08-05T23:30:00Z",
     notes: "Verified GetBuddy: Macho Man, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
-  // Macy — VERIFIED GetBuddy
+  // Macy — SAFETY DEMOTED 2026-08-05: prior commit 26a21ab claimed this
+  // GetBuddy page (681dc6795ab6746988e790ab) was Macy "renamed" to Yasmin,
+  // with no supporting evidence. Live check: Yasmin is a Female Hound-free
+  // Pit/Staffy/Akita/Elkhound/Boxer mix, 2yo — RescueGroups record for Macy
+  // (22649660) says Female Hound, Adult. Breed doesn't match; no alias
+  // proof. Also a duplicate of Vida's page in the prior commit. Falling
+  // back to the honest rescue-site link until a real match is confirmed.
   "22649660": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/681dc6795ab6746988e790ab",
-    status: "verified-direct-dog-page",
-    source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Macy (listed as Yasmin on GetBuddy), Spencer Pet Rescue, O Fallon IL, adoptable",
+    adoptionProfileUrl: null,
+    status: "name-mismatch",
+    source: "unknown",
+    verifiedAt: null,
+    notes: "Macy: no verified GetBuddy match. GetBuddy 681dc6795ab6746988e790ab is Yasmin (Hound vs Pit/Staffy/Akita mix — breed mismatch, unproven alias); do not relink without name/breed/photo evidence.",
   },
   // Paco — VERIFIED GetBuddy (original)
   "22649663": {
@@ -808,13 +815,17 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: "2026-08-05T23:35:00Z",
     notes: "Verified GetBuddy: Raisin, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
-  // Raya — VERIFIED GetBuddy
+  // Raya — SAFETY DEMOTED 2026-08-05: prior commit 26a21ab claimed this
+  // GetBuddy page (69d82a6ffa9cfc803fef5b5e) was Raya "renamed" to Nino.
+  // Live check: Nino is Male. RescueGroups record for Raya (22649668) says
+  // Female. A dog cannot change sex — this link is definitively wrong.
+  // Falling back to the honest rescue-site link.
   "22649668": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/69d82a6ffa9cfc803fef5b5e",
-    status: "verified-direct-dog-page",
-    source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Raya (listed as Nino on GetBuddy), Spencer Pet Rescue, O Fallon IL, adoptable",
+    adoptionProfileUrl: null,
+    status: "name-mismatch",
+    source: "unknown",
+    verifiedAt: null,
+    notes: "Raya: GetBuddy 69d82a6ffa9cfc803fef5b5e is Nino, a Male dog — Raya's RescueGroups record is Female. Confirmed wrong dog, not an alias. Do not relink without new evidence.",
   },
   // Sweetie — VERIFIED GetBuddy
   "22649671": {
@@ -824,13 +835,14 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: "2026-08-05T23:35:00Z",
     notes: "Verified GetBuddy: Sweetie, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
-  // Tango — VERIFIED GetBuddy
+  // Tango — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // pointed Tango at 68e779edd634356c103f77c6, which is Vida's page)
   "22649675": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/68e779edd634356c103f77c6",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399409e87cf5014cec6072",
     status: "verified-direct-dog-page",
     source: "getbuddy",
     verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Tango, Spencer Pet Rescue, O Fallon IL, adoptable",
+    notes: "Verified GetBuddy: Tango (Boxer/Pit Bull mix, male), Spencer Pet Rescue, O Fallon IL, adoptable",
   },
   // Tiramisu — VERIFIED GetBuddy
   "22649678": {
@@ -840,13 +852,15 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: "2026-08-05T23:35:00Z",
     notes: "Verified GetBuddy: Tiramisu, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
-  // Vida — VERIFIED GetBuddy
+  // Vida — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // pointed Vida at 681dc6795ab6746988e790ab, which is Yasmin's page — and
+  // was also duplicated onto Macy's entry)
   "22649681": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/681dc6795ab6746988e790ab",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/68e779edd634356c103f77c6",
     status: "verified-direct-dog-page",
     source: "getbuddy",
     verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Vida, Spencer Pet Rescue, O Fallon IL, adoptable",
+    notes: "Verified GetBuddy: Vida (Lab/Chow/Pit Bull mix, female), Spencer Pet Rescue, O Fallon IL, adoptable",
   },
 };
 
