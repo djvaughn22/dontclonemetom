@@ -17,8 +17,29 @@ describe("adoptionUrlRegistry", () => {
     expect(entry).not.toBeNull();
     expect(entry?.status).toBe("verified-direct-dog-page");
     expect(entry?.source).toBe("getbuddy");
-    expect(entry?.adoptionProfileUrl).toContain("getbuddy.com/pet");
+    expect(entry?.adoptionProfileUrl).toBe("https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de");
     expect(entry?.verifiedAt).toBeTruthy();
+  });
+
+  it("All 7 Spencer GetBuddy dogs are verified", () => {
+    const spencerDogs = {
+      "22649637": "Darla", // 681dc67a5ab6746988e790b2
+      "22649640": "Dart", // 69f51f3c739af4ed5a06b83d
+      "22649644": "Dumpling", // 6a39956de87cf5014cec6074
+      "22649648": "Linus", // 699eae26e7817824d5874a7d
+      "22649652": "Lemon", // 6a399768e87cf5014cec6076
+      "22649663": "Paco", // 699d5d19e7817824d57fc1de
+      "22649666": "Macho Man", // 6a54f7c42f22adcfaaa0e238
+    };
+
+    for (const [id, name] of Object.entries(spencerDogs)) {
+      const entry = getAdoptionUrlStatus(id);
+      expect(entry?.status).toBe("verified-direct-dog-page");
+      expect(entry?.source).toBe("getbuddy");
+      expect(entry?.adoptionProfileUrl).toContain("getbuddy.com/pet");
+      expect(entry?.notes).toContain(name);
+      expect(entry?.notes).toContain("Spencer Pet Rescue");
+    }
   });
 
   it("hasVerifiedAdoptionProfile returns true only for verified dogs", () => {
@@ -66,9 +87,10 @@ describe("adoptionUrlRegistry", () => {
       }
     }
 
-    expect(verifiedCount).toBe(1); // Only Paco
+    // 7 Spencer dogs verified: Paco, Darla, Dumpling, Dart, Linus, Lemon, Macho Man
+    expect(verifiedCount).toBe(7);
     expect(deadCount).toBe(6); // Mastino dogs
-    expect(unverifiedCount).toBe(215); // Everyone else
+    expect(unverifiedCount).toBe(209); // Everyone else
   });
 
   it("verified entries have proper source and timestamp", () => {

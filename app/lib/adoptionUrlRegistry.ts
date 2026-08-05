@@ -711,124 +711,141 @@ const org_22308787_data: Record<string, RegistryEntry> = {
 };
 
 const org_22649636_data: Record<string, RegistryEntry> = {
+  // Carl — still searching GetBuddy related-pets
   "22649636": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searched GetBuddy, looking for Carl match in related-pets",
   },
+  // Darla — verified GetBuddy direct link (dog name, rescue, location confirmed)
   "22649637": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/681dc67a5ab6746988e790b2",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Darla, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Dart (from Stranger Things) — verified GetBuddy direct link
   "22649640": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/69f51f3c739af4ed5a06b83d",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Dart (from Stranger Things), Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Dumpling — verified GetBuddy direct link
   "22649644": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a39956de87cf5014cec6074",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Dumpling, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Holden aka Harlan — still searching
   "22649646": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searched GetBuddy related-pets, looking for Holden/Harlan match",
   },
+  // Linus — verified GetBuddy direct link
   "22649648": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/699eae26e7817824d5874a7d",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Linus, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Unmatched RG ID — searching related-pets
   "22649650": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Lemon — verified GetBuddy direct link
   "22649652": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399768e87cf5014cec6076",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Lemon, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Unmatched RG ID — searching related-pets
   "22649657": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Unmatched RG ID — searching related-pets
   "22649660": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Paco — original verified
   "22649663": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de",
     status: "verified-direct-dog-page",
     source: "getbuddy",
     verifiedAt: "2026-08-05T00:00:00Z",
-    notes: "Page verified: Paco on GetBuddy with adoption details",
+    notes: "Verified GetBuddy: Paco, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Macho Man — verified GetBuddy direct link
   "22649666": {
-    adoptionProfileUrl: null,
-    status: "unverified",
-    source: "unknown",
-    verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a54f7c42f22adcfaaa0e238",
+    status: "verified-direct-dog-page",
+    source: "getbuddy",
+    verifiedAt: "2026-08-05T23:30:00Z",
+    notes: "Verified GetBuddy: Macho Man, Spencer Pet Rescue, O Fallon IL, adoptable",
   },
+  // Unmatched RG ID — searching related-pets
   "22649668": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Unmatched RG ID — searching related-pets
   "22649671": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Unmatched RG ID — searching related-pets
   "22649675": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Unmatched RG ID — searching related-pets
   "22649678": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
+  // Unmatched RG ID — searching related-pets
   "22649681": {
     adoptionProfileUrl: null,
     status: "unverified",
     source: "unknown",
     verifiedAt: null,
-    notes: "Spencer Pet Rescue / GetBuddy — not yet resolved",
+    notes: "Spencer Pet Rescue — searching GetBuddy related-pets for match",
   },
 };
 
