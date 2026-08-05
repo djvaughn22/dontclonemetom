@@ -1,18 +1,20 @@
 // One shared resolver decides where every adoptable-dog link on the site
 // points and what it may honestly say. Client-safe: pure functions, no env.
 //
-// The rule (never violated): when a dog has its own profile page, every
-// tap — photo, name, card, call-to-action — opens that exact page in one
-// step. A rescue's multi-dog page is only ever a clearly-labeled fallback,
+// The rule (never violated): when a dog has a verified adoption profile page,
+// every tap — photo, name, card, call-to-action — opens that exact page in
+// one step. A rescue’s multi-dog page is only ever a clearly-labeled fallback,
 // and a fallback label must never imply it opens the exact dog.
+
+import type { AdoptionUrl } from "./adoptionUrlSchema";
 
 export type DogDestinationType = "exact-dog" | "shelter-fallback" | "none";
 
 export type DogDestination = {
   type: DogDestinationType;
   url: string;
-  // shelter-fallback flavor: "adoptable-list" = the rescue's adoptable-dogs
-  // page, "website" = the rescue's own site. null otherwise.
+  // shelter-fallback flavor: "adoptable-list" = the rescue’s adoptable-dogs
+  // page, "website" = the rescue’s own site. null otherwise.
   fallbackKind: "adoptable-list" | "website" | null;
   // Honest visible label ("Meet Bella" only when the link opens Bella).
   label: string;
@@ -26,12 +28,25 @@ export type DogLinkFields = {
   profileUrl: string | null;
   orgUrl: string | null;
   orgUrlKind?: "adoptable-list" | "website" | null;
+  adoption?: AdoptionUrl; // NEW: canonical adoption URL field
 };
 
 export function resolveDogDestination(dog: DogLinkFields): DogDestination {
   const name = dog.name?.trim() || "this dog";
   const rescue = dog.org?.trim() || "the rescue";
 
+  // Use new adoption field if provided and verified
+  if (dog.adoption && dog.adoption.adoptionProfileUrl) {
+    return {
+      type: "exact-dog",
+      url: dog.adoption.adoptionProfileUrl,
+      fallbackKind: null,
+      label: `Meet ${name}`,
+      ariaLabel: `Meet ${name} — opens ${name}’s own adoption page in a new tab`,
+    };
+  }
+
+  // Fall back to legacy profileUrl for backward compatibility
   if (dog.profileUrl) {
     return {
       type: "exact-dog",
@@ -42,11 +57,15 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
     };
   }
 
-  if (dog.orgUrl) {
-    if ((dog.orgUrlKind ?? "website") === "adoptable-list") {
+  // Use adoption field if available for fallback URL
+  const fallbackUrl = dog.adoption?.rescueWebsiteUrl ?? dog.orgUrl;
+  const fallbackKind = dog.adoption?.rescueWebsiteUrlKind ?? (dog.orgUrlKind ?? "website");
+
+  if (fallbackUrl) {
+    if (fallbackKind === "adoptable-list") {
       return {
         type: "shelter-fallback",
-        url: dog.orgUrl,
+        url: fallbackUrl,
         fallbackKind: "adoptable-list",
         label: "View shelter listings",
         ariaLabel: `View ${rescue}’s adoptable-dog listings and look for ${name} there — opens in a new tab`,
@@ -54,7 +73,7 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
     }
     return {
       type: "shelter-fallback",
-      url: dog.orgUrl,
+      url: fallbackUrl,
       fallbackKind: "website",
       label: "Visit the rescue",
       ariaLabel: `Visit ${rescue}’s website and ask about ${name} — opens in a new tab`,

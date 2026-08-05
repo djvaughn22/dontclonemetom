@@ -4,6 +4,9 @@
 // The API key stays server-side; clients only ever see trimmed results.
 
 import { isGenericAnimalUrl } from "./dogDestination";
+import type { AdoptionUrl } from "./adoptionUrlSchema";
+import { emptyAdoptionUrl } from "./adoptionUrlSchema";
+import { getAdoptionUrlStatus, getVerifiedAdoptionUrl } from "./adoptionUrlRegistry";
 
 export type Dog = {
   id: string;
@@ -16,6 +19,11 @@ export type Dog = {
   photos: string[];
   city: string;
   distance: number | null;
+  // CANONICAL ADOPTION URLS — separated by status:
+  // adoption = verified individual dog page OR classified status (generic/unverified/dead)
+  adoption: AdoptionUrl;
+
+  // LEGACY (kept for backward compatibility, replaced by adoption.adoptionProfileUrl):
   // profileUrl = this dog's own listing page; orgUrl = the rescue's
   // adoptable-dogs page or website. url = the resolved card destination
   // (see resolveDogUrl). Never let orgUrl stand in for profileUrl.
@@ -127,6 +135,31 @@ const ORG_URL_OVERRIDES: Record<string, string> = {
   "3085": "https://24petconnect.com/STCHAdopt?at=DOG",
 };
 
+// Hand-verified individual dog adoption URLs for rescues whose RescueGroups
+// records lack per-dog URLs but publish them elsewhere. Keyed by RescueGroups
+// animal ID. Add an entry when a dog's verified individual page (e.g. GetBuddy,
+// Petfinder, or a rescue's own site) is confirmed but RescueGroups provides
+// nothing or a generic page. Remove once RescueGroups' upstream data improves.
+//
+// Format validation: only https:// URLs with clear per-dog identity (query
+// param like ?pet=ID or unique path segment). Every URL must be:
+//   1. Verified to reach a real dog's page (not a generic listing/homepage)
+//   2. Tested to confirm it names or displays the exact dog
+//   3. Preserved even if the page later closes (for rechecking)
+//
+// Spencer Pet Rescue publishes via GetBuddy; RescueGroups feed lacks
+// individual dog URLs for their rescuings (2026-08-04 audit). All 17 Spencer
+// dogs must be audited and mapped. START WITH PACO (22649663):
+const ADOPTION_URL_OVERRIDES: Record<string, string> = {
+  // Spencer Pet Rescue via GetBuddy (verified 2026-08-04):
+  "22649663": "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile",
+  // TODO: Map remaining 16 Spencer dogs to their GetBuddy pages:
+  // 22649636 Carl, 22649637 Darla, 22649640 Dart, 22649644 Dumpling,
+  // 22649646 Holden, 22649648 ?, 22649650 ?, 22649652 ?,
+  // 22649657 ?, 22649660 ?, 22649666 ?, 22649668 ?,
+  // 22649671 ?, 22649675 ?, 22649678 ?, 22649681 ?
+};
+
 // Profile hosts currently serving a generic or empty page for every
 // animal — treat their per-dog URLs as absent so cards fall back to the
 // rescue honestly instead of claiming a listing that doesn't load.
@@ -174,8 +207,11 @@ export function normalizeDog(
   // rescues with a RescueGroups mini-site publish them). A URL that is
   // really a generic org or listings page is demoted to the fallback so it
   // can never masquerade as the dog's own profile.
-  const sourceProfileUrl =
-    normalizeHttpUrl(at.url) ?? resolveRelativeProfileUrl(at.url, orgUrl);
+  // Priority: RescueGroups URL first, then override (e.g., GetBuddy for
+  // Spencer Pet Rescue when RescueGroups lacks the URL).
+  const rgProfileUrl = normalizeHttpUrl(at.url) ?? resolveRelativeProfileUrl(at.url, orgUrl);
+  const overrideUrl = ADOPTION_URL_OVERRIDES[a.id];
+  const sourceProfileUrl = rgProfileUrl ?? (overrideUrl ? normalizeHttpUrl(overrideUrl) : null);
   let profileUrl = sourceProfileUrl;
   if (profileUrl && isDeadProfileHost(profileUrl)) {
     profileUrl = null;
@@ -184,6 +220,38 @@ export function normalizeDog(
     profileUrl = null;
   }
   const email = typeof org?.email === "string" && org.email.includes("@") ? org.email : null;
+
+  // Build canonical adoption URL object — check registry first
+  const adoption: AdoptionUrl = (() => {
+    const registryEntry = getAdoptionUrlStatus(a.id);
+    if (registryEntry) {
+      // Use verified registry entry
+      return {
+        adoptionProfileUrl: registryEntry.adoptionProfileUrl,
+        adoptionProfileUrlOriginal: registryEntry.adoptionProfileUrl,
+        adoptionProfileUrlResolved: registryEntry.adoptionProfileUrl,
+        adoptionProfileUrlHttpStatus: registryEntry.adoptionProfileUrl ? 200 : null,
+        adoptionProfileUrlStatus: registryEntry.status,
+        adoptionProfileUrlSource: registryEntry.source,
+        adoptionProfileUrlVerifiedAt: registryEntry.verifiedAt,
+        adoptionProfileUrlDetail: registryEntry.notes,
+        rescueWebsiteUrl: orgUrl,
+        rescueWebsiteUrlKind: orgUrlKind,
+      };
+    }
+
+    // No registry entry — use profileUrl if verified, else fallback
+    const result = emptyAdoptionUrl();
+    if (profileUrl) {
+      result.adoptionProfileUrl = profileUrl;
+      result.adoptionProfileUrlOriginal = sourceProfileUrl;
+      result.adoptionProfileUrlStatus = "verified-direct-dog-page";
+    }
+    result.rescueWebsiteUrl = orgUrl;
+    result.rescueWebsiteUrlKind = orgUrlKind;
+    return result;
+  })();
+
   return {
     id: a.id,
     name: String(at.name ?? "").trim(),
@@ -195,6 +263,7 @@ export function normalizeDog(
     photos,
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
+    adoption,
     profileUrl,
     sourceProfileUrl,
     orgUrl,

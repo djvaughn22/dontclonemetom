@@ -323,4 +323,42 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     expect(dog.orgUrl).toBeNull();
     expect(dog.url).toBe("");
   });
+
+  it("uses hand-verified adoption URL overrides when RescueGroups lacks individual dog URLs", () => {
+    // Paco (Spencer Pet Rescue) — verified GetBuddy page (2026-08-04 audit)
+    const { animal, included } = rgAnimal({
+      id: "22649663",
+      attributes: { name: "Paco" },
+      org: { name: "Spencer Pet Rescue", url: "http://spencerpetrescue.info/" },
+    });
+    const dog = normalizeDog(animal, included);
+    // Verify the override was applied: no individual URL from RG, but GetBuddy
+    // from override is now the profileUrl
+    expect(dog.profileUrl).toBe(
+      "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile"
+    );
+    expect(dog.url).toBe(
+      "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile"
+    );
+    // Verify the modal CTA shows the exact dog, not the generic rescue
+    const dest = resolveDogDestination(dog);
+    expect(dest.type).toBe("exact-dog");
+    expect(dest.label).toBe("Meet Paco");
+    expect(dest.url).toContain("getbuddy.com");
+    expect(dest.url).toContain("699d5d19e7817824d57fc1de");
+  });
+
+  it("prioritizes RescueGroups individual URLs over overrides when both exist", () => {
+    // If RG ever provides a URL, it wins. Override is fallback only.
+    const rgUrl = "https://rescue.example.org/animals/detail?AnimalID=22649663";
+    const { animal, included } = rgAnimal({
+      id: "22649663",
+      attributes: { name: "Paco", url: rgUrl },
+      org: { name: "Spencer Pet Rescue", url: "http://spencerpetrescue.info/" },
+    });
+    const dog = normalizeDog(animal, included);
+    // RG URL wins
+    expect(dog.profileUrl).toBe(rgUrl);
+    expect(dog.url).toBe(rgUrl);
+  });
 });
