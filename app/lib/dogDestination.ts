@@ -35,25 +35,28 @@ export function resolveDogDestination(dog: DogLinkFields): DogDestination {
   const name = dog.name?.trim() || "this dog";
   const rescue = dog.org?.trim() || "the rescue";
 
-  // Use new adoption field if provided and verified
-  if (dog.adoption && dog.adoption.adoptionProfileUrl) {
+  // Canonical adoption data is authoritative.
+  if (
+    dog.adoption?.adoptionProfileUrlStatus === "verified-direct-dog-page" &&
+    dog.adoption.adoptionProfileUrl
+  ) {
     return {
       type: "exact-dog",
       url: dog.adoption.adoptionProfileUrl,
       fallbackKind: null,
-      label: `View ${name}’s adoption page`,
-      ariaLabel: `View ${name}’s adoption page — opens in a new tab`,
+      label: `View ${name}'s adoption page`,
+      ariaLabel: `View ${name}'s adoption page — opens in a new tab`,
     };
   }
 
-  // Fall back to legacy profileUrl for backward compatibility
-  if (dog.profileUrl) {
+  // Legacy compatibility only when canonical adoption data is absent.
+  if (!dog.adoption && dog.profileUrl) {
     return {
       type: "exact-dog",
       url: dog.profileUrl,
       fallbackKind: null,
-      label: `View ${name}’s adoption page`,
-      ariaLabel: `View ${name}’s adoption page — opens in a new tab`,
+      label: `View ${name}'s adoption page`,
+      ariaLabel: `View ${name}'s adoption page — opens in a new tab`,
     };
   }
 

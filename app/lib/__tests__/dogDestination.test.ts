@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { classifyAdoptionUrl, isGenericAnimalUrl, resolveDogDestination } from "../dogDestination";
 import { resolveDogUrl } from "../rescueDogs";
+import { emptyAdoptionUrl } from "../adoptionUrlSchema";
 
 const base = {
   name: "Bella",
@@ -42,9 +43,24 @@ describe("resolveDogDestination — the exact dog always wins", () => {
 
   it("labels the exact dog honestly and says the link leaves the site", () => {
     const dest = resolveDogDestination({ ...base, profileUrl: "https://r.org/a?AnimalID=1" });
-    expect(dest.label).toBe("Meet Bella");
+    expect(dest.label).toBe("View Bella's adoption page");
     expect(dest.ariaLabel).toContain("Bella");
     expect(dest.ariaLabel).toContain("new tab");
+  });
+
+  it("canonical rejection blocks a legacy wrong-dog URL", () => {
+    const dest = resolveDogDestination({
+      ...base,
+      profileUrl: "https://getbuddy.com/pet/wrong-dog",
+      adoption: {
+        ...emptyAdoptionUrl(),
+        adoptionProfileUrlStatus: "name-mismatch",
+        rescueWebsiteUrl: "https://rescue.example.org/",
+        rescueWebsiteUrlKind: "website",
+      },
+    });
+    expect(dest.type).toBe("shelter-fallback");
+    expect(dest.url).toBe("https://rescue.example.org/");
   });
 
   it("handles names with spaces and punctuation without touching the URL", () => {
@@ -52,7 +68,7 @@ describe("resolveDogDestination — the exact dog always wins", () => {
       const url = "https://r.org/animals/detail?AnimalID=77";
       const dest = resolveDogDestination({ ...base, name, profileUrl: url });
       expect(dest.url).toBe(url);
-      expect(dest.label).toBe(`Meet ${name.trim()}`);
+      expect(dest.label).toBe(`View ${name.trim()}'s adoption page`);
     }
   });
 });
@@ -121,7 +137,7 @@ describe("resolveDogDestination — fallbacks are identified and labeled honestl
   it("missing or blank names still resolve without crashing", () => {
     const dest = resolveDogDestination({ ...base, name: "  ", profileUrl: "https://r.org/a?AnimalID=9" });
     expect(dest.type).toBe("exact-dog");
-    expect(dest.label).toBe("Meet this dog");
+    expect(dest.label).toBe("View this dog's adoption page");
   });
 
   it("agrees with resolveDogUrl on the destination URL for every case", () => {

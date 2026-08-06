@@ -224,8 +224,11 @@ export function normalizeDog(
   // Build canonical adoption URL object — check registry first
   const adoption: AdoptionUrl = (() => {
     const registryEntry = getAdoptionUrlStatus(a.id);
-    if (registryEntry) {
-      // Use verified registry entry
+
+    // Verified and explicitly rejected registry decisions are authoritative.
+    // An unverified placeholder must not suppress a valid dog-specific URL
+    // already screened from the live RescueGroups record.
+    if (registryEntry && registryEntry.status !== "unverified") {
       return {
         adoptionProfileUrl: registryEntry.adoptionProfileUrl,
         adoptionProfileUrlOriginal: registryEntry.adoptionProfileUrl,
@@ -240,12 +243,32 @@ export function normalizeDog(
       };
     }
 
-    // No registry entry — use profileUrl if verified, else fallback
-    const result = emptyAdoptionUrl();
     if (profileUrl) {
-      result.adoptionProfileUrl = profileUrl;
+      return {
+        adoptionProfileUrl: profileUrl,
+        adoptionProfileUrlOriginal: sourceProfileUrl,
+        adoptionProfileUrlResolved: profileUrl,
+        adoptionProfileUrlHttpStatus: null,
+        adoptionProfileUrlStatus: "verified-direct-dog-page",
+        adoptionProfileUrlSource:
+          registryEntry && registryEntry.source !== "unknown"
+            ? registryEntry.source
+            : "rescuegroups-mini-site",
+        adoptionProfileUrlVerifiedAt: registryEntry?.verifiedAt ?? null,
+        adoptionProfileUrlDetail:
+          registryEntry?.notes ?? "Dog-specific URL from RescueGroups feed",
+        rescueWebsiteUrl: orgUrl,
+        rescueWebsiteUrlKind: orgUrlKind,
+      };
+    }
+
+    const result = emptyAdoptionUrl();
+    if (registryEntry) {
       result.adoptionProfileUrlOriginal = sourceProfileUrl;
-      result.adoptionProfileUrlStatus = "verified-direct-dog-page";
+      result.adoptionProfileUrlStatus = registryEntry.status;
+      result.adoptionProfileUrlSource = registryEntry.source;
+      result.adoptionProfileUrlVerifiedAt = registryEntry.verifiedAt;
+      result.adoptionProfileUrlDetail = registryEntry.notes;
     }
     result.rescueWebsiteUrl = orgUrl;
     result.rescueWebsiteUrlKind = orgUrlKind;
