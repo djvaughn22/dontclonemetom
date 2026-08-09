@@ -7,6 +7,7 @@ import { isGenericAnimalUrl } from "./dogDestination";
 import type { AdoptionUrl } from "./adoptionUrlSchema";
 import { emptyAdoptionUrl } from "./adoptionUrlSchema";
 import { getAdoptionUrlStatus, getVerifiedAdoptionUrl } from "./adoptionUrlRegistry";
+import { APA_ORG_ID, buildApaPetUrl } from "./apaAdoption";
 
 export type Dog = {
   id: string;
@@ -19,6 +20,10 @@ export type Dog = {
   photos: string[];
   city: string;
   distance: number | null;
+  // The shelter's own pet id, when the feed publishes one (e.g. APA of
+  // Missouri's "A318825") but no per-dog URL. Used to build/verify a
+  // rescue-specific deep link; null for rescues that don't publish one.
+  rescueId: string | null;
   // CANONICAL ADOPTION URLS — separated by status:
   // adoption = verified individual dog page OR classified status (generic/unverified/dead)
   adoption: AdoptionUrl;
@@ -207,9 +212,14 @@ export function normalizeDog(
   // rescues with a RescueGroups mini-site publish them). A URL that is
   // really a generic org or listings page is demoted to the fallback so it
   // can never masquerade as the dog's own profile.
-  // Priority: RescueGroups URL first, then override (e.g., GetBuddy for
-  // Spencer Pet Rescue when RescueGroups lacks the URL).
-  const rgProfileUrl = normalizeHttpUrl(at.url) ?? resolveRelativeProfileUrl(at.url, orgUrl);
+  // Priority: RescueGroups URL first, then a known rescue-specific deep link
+  // built from a shelter id RescueGroups does carry (APA of Missouri never
+  // publishes a per-dog `url`, only its own "A318825"-style rescueId), then
+  // a hand-verified override (e.g., GetBuddy for Spencer Pet Rescue).
+  const rescueId = typeof at.rescueId === "string" ? at.rescueId.trim() || null : null;
+  const apaPetUrl = orgRef?.id === APA_ORG_ID ? buildApaPetUrl(rescueId) : null;
+  const rgProfileUrl =
+    normalizeHttpUrl(at.url) ?? resolveRelativeProfileUrl(at.url, orgUrl) ?? apaPetUrl;
   const overrideUrl = ADOPTION_URL_OVERRIDES[a.id];
   const sourceProfileUrl = rgProfileUrl ?? (overrideUrl ? normalizeHttpUrl(overrideUrl) : null);
   let profileUrl = sourceProfileUrl;
@@ -286,6 +296,7 @@ export function normalizeDog(
     photos,
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
+    rescueId,
     adoption,
     profileUrl,
     sourceProfileUrl,

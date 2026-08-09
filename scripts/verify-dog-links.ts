@@ -56,6 +56,7 @@ async function main() {
       verdict = await verifyDogProfileUrl(url, {
         dogName: dog.name,
         animalId: dog.id,
+        sourcePetId: dog.rescueId,
         orgUrl: dog.orgUrl,
       });
       seen.set(url, verdict);

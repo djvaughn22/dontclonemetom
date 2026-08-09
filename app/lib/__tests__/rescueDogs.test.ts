@@ -361,4 +361,47 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     expect(dog.profileUrl).toBe(rgUrl);
     expect(dog.url).toBe(rgUrl);
   });
+
+  it("builds APA of Missouri's own petID deep link from rescueId when RG has no per-dog url (OTTO)", () => {
+    // OTTO (production bug): RescueGroups publishes no `url` attribute for
+    // APA org 1915, only their own shelter id in `rescueId` ("A318825"). The
+    // fix constructs APA's client-rendered deep link from that id instead of
+    // falling straight to the rescue homepage.
+    const { animal, included } = rgAnimal({
+      id: "22648268",
+      attributes: { name: "OTTO", rescueId: "A318825" },
+      org: { name: "Animal Protective Association of Missouri", url: "http://www.apamo.org" },
+    });
+    included.set("orgs:1915", included.get("orgs:900")!);
+    animal.relationships = { orgs: { data: [{ type: "orgs", id: "1915" }] } };
+    const dog = normalizeDog(animal, included);
+
+    expect(dog.rescueId).toBe("A318825");
+    expect(dog.profileUrl).toBe("https://apamo.org/adopt/adoptable-pets/?petID=A318825");
+    expect(dog.url).toBe("https://apamo.org/adopt/adoptable-pets/?petID=A318825");
+    expect(dog.url).not.toBe("https://apamo.org/");
+
+    const dest = resolveDogDestination(dog);
+    expect(dest.type).toBe("exact-dog");
+    expect(dest.url).toBe("https://apamo.org/adopt/adoptable-pets/?petID=A318825");
+    expect(dest.label).not.toBe("Visit the rescue");
+    expect(dest.label).toContain("OTTO");
+  });
+
+  it("does not build an APA petID link for a dog with no rescueId, or for a non-APA org", () => {
+    const noRescueId = rgAnimal({
+      id: "22648269",
+      attributes: { name: "NoId" },
+      org: { name: "Animal Protective Association of Missouri", url: "http://www.apamo.org" },
+    });
+    noRescueId.included.set("orgs:1915", noRescueId.included.get("orgs:900")!);
+    noRescueId.animal.relationships = { orgs: { data: [{ type: "orgs", id: "1915" }] } };
+    expect(normalizeDog(noRescueId.animal, noRescueId.included).profileUrl).toBeNull();
+
+    const otherOrg = rgAnimal({
+      attributes: { name: "NotApa", rescueId: "A318825" },
+      org: { name: "Some Other Rescue", url: "https://other.example.org/" },
+    });
+    expect(normalizeDog(otherOrg.animal, otherOrg.included).profileUrl).toBeNull();
+  });
 });

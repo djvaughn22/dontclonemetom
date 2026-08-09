@@ -19,6 +19,7 @@
 // DEAD_PROFILE_HOSTS in rescueDogs.ts (the Mastino/Stray Paws mechanism).
 
 import { classifyAdoptionUrl, type AdoptionUrlClass } from "./dogDestination";
+import { normalizeApaPetId, parseApaPetUrl } from "./apaAdoption";
 
 export type LinkVerdictStatus =
   | "exact-dog"
@@ -39,6 +40,10 @@ export type VerifyOptions = {
   dogName: string;
   // The source animal id (e.g. RescueGroups AnimalID) when known.
   animalId?: string | null;
+  // The shelter's own pet id when the source publishes one directly (e.g.
+  // APA of Missouri's "A318825"), for rescues whose deep-link query carries
+  // that id rather than the RescueGroups AnimalID.
+  sourcePetId?: string | null;
   orgUrl?: string | null;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
@@ -191,6 +196,43 @@ export async function verifyDogProfileUrl(
       httpStatus: res.status,
       classification: null,
       detail: `blocked or transient upstream status ${res.status} — never treated as dead`,
+    };
+  }
+
+  // APA of Missouri's adoptable-pets page renders the named pet's popup
+  // client-side — the server HTML we just fetched never carries the dog's
+  // name or id, so it is not evidence either way. Decide from the petID the
+  // URL itself carries instead of reading the body. Narrow to this one known
+  // page shape; every other rescue still falls through to the checks below.
+  const apaPet = parseApaPetUrl(current);
+  if (apaPet) {
+    if (!apaPet.petId) {
+      return {
+        status: "generic",
+        finalUrl: current,
+        httpStatus: res.status,
+        classification: "animal-list",
+        detail: "APA adoptable-pets page carries no petID — this is the list, not a specific dog",
+      };
+    }
+    const expectedApaId = normalizeApaPetId(opts.sourcePetId);
+    if (expectedApaId && apaPet.petId !== expectedApaId) {
+      return {
+        status: "wrong-dog",
+        finalUrl: current,
+        httpStatus: res.status,
+        classification: "animal-profile",
+        detail: `APA petID ${apaPet.petId} does not match this dog's shelter id ${expectedApaId}`,
+      };
+    }
+    return {
+      status: "exact-dog",
+      finalUrl: current,
+      httpStatus: res.status,
+      classification: "animal-profile",
+      detail: expectedApaId
+        ? "APA petID matches this dog's shelter id — the page is client-rendered, so raw HTML is not required"
+        : "APA petID present and this rescue's deep links are always dog-specific",
     };
   }
 

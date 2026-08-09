@@ -7,6 +7,7 @@
 // and a fallback label must never imply it opens the exact dog.
 
 import type { AdoptionUrl } from "./adoptionUrlSchema";
+import { parseApaPetUrl } from "./apaAdoption";
 
 export type DogDestinationType = "exact-dog" | "shelter-fallback" | "none";
 
@@ -135,6 +136,14 @@ export function classifyAdoptionUrl(url: string, orgUrl: string | null): Adoptio
     return "invalid";
   }
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return "invalid";
+
+  // APA of Missouri (apamo.org): the adoptable-pets page is client-rendered —
+  // it opens the named pet's popup itself once ?petID=<id> rides along. Judge
+  // this one known page shape on its query, not on raw server HTML: a petID
+  // present names an exact animal; its absence means it's still the list.
+  // Narrow to this host+path only — no other rescue is affected.
+  const apaPet = parseApaPetUrl(url);
+  if (apaPet) return apaPet.petId ? "animal-profile" : "animal-list";
 
   // An animal id in the query names the exact animal regardless of path.
   if (hasAnimalIdParam(parsed)) return "animal-profile";

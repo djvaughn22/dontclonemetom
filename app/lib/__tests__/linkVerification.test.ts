@@ -226,3 +226,49 @@ describe("verifyDogProfileUrl — uncertainty never kills a valid profile", () =
     expect(v.status).toBe("exact-dog");
   });
 });
+
+describe("verifyDogProfileUrl — APA of Missouri petID pages need no HTML evidence", () => {
+  const OTTO_URL = "https://apamo.org/adopt/adoptable-pets/?petID=A318825";
+
+  it("accepts Otto's petID page even when the raw HTML is the bare generic list markup", async () => {
+    const v = await verifyDogProfileUrl(OTTO_URL, {
+      dogName: "OTTO",
+      sourcePetId: "A318825",
+      orgUrl: "https://apamo.org/",
+      // The server HTML never names Otto or his id — APA's popup is
+      // client-rendered. This body proves the fetch happened; it must NOT
+      // be searched for evidence.
+      fetchImpl: scriptedFetch({
+        [OTTO_URL]: { status: 200, body: "<html><body>Adoptable Pets</body></html>" },
+      }),
+    });
+    expect(v.status).toBe("exact-dog");
+    expect(v.detail).not.toMatch(/page mentions|carries this dog's listing id/);
+  });
+
+  it("rejects a mismatched petID as this dog's page when the source id is known", async () => {
+    const wrongDogUrl = "https://apamo.org/adopt/adoptable-pets/?petID=A999999";
+    const v = await verifyDogProfileUrl(wrongDogUrl, {
+      dogName: "OTTO",
+      sourcePetId: "A318825",
+      orgUrl: "https://apamo.org/",
+      fetchImpl: scriptedFetch({
+        [wrongDogUrl]: { status: 200, body: "<html><body>Adoptable Pets</body></html>" },
+      }),
+    });
+    expect(v.status).toBe("wrong-dog");
+  });
+
+  it("demotes the bare adoptable-pets list (no petID) instead of treating it as a dog page", async () => {
+    const listUrl = "https://apamo.org/adopt/adoptable-pets/";
+    const v = await verifyDogProfileUrl(listUrl, {
+      dogName: "OTTO",
+      sourcePetId: "A318825",
+      orgUrl: "https://apamo.org/",
+      fetchImpl: scriptedFetch({
+        [listUrl]: { status: 200, body: "<html><body>Adoptable Pets</body></html>" },
+      }),
+    });
+    expect(v.status).toBe("generic");
+  });
+});

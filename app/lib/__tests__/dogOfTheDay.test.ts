@@ -14,6 +14,7 @@ import {
   withInstagramUtm,
 } from "../dailySocialCore";
 import type { Dog } from "../rescueDogs";
+import { emptyAdoptionUrl } from "../adoptionUrlSchema";
 
 function dog(overrides: Partial<Dog>): Dog {
   return {
@@ -27,6 +28,8 @@ function dog(overrides: Partial<Dog>): Dog {
     photos: ["https://cdn.rescuegroups.org/billy.jpg"],
     city: "Wildwood, MO",
     distance: 3,
+    rescueId: null,
+    adoption: emptyAdoptionUrl(),
     profileUrl: "https://rescue.example.org/billy",
     sourceProfileUrl: "https://rescue.example.org/billy",
     orgUrl: "https://rescue.example.org/",
