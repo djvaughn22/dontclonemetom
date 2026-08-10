@@ -177,7 +177,7 @@ export default async function DogPage({ params }: PageProps) {
 
       <p className="mt-8 text-xs font-semibold leading-5 text-[#94a3b8]">
         Availability can change at any time — the adoption listing above is the
-        source of truth. DontCloneMeTom.com is an independent rescue-first
+        source of truth. dontclonemetom.com is an independent rescue-first
         campaign and is not affiliated with the rescue or RescueGroups.org.
       </p>
 

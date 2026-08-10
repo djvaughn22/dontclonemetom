@@ -29,10 +29,10 @@ import { fetchAdoptableDogs, type Dog } from "./rescueDogs";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
-  siteName: "DontCloneMeTom.com",
+  siteName: "dontclonemetom.com",
   siteUrl: "https://dontclonemetom.com",
   markerPrefix: "Dog of the Day",
-  hashtags: ["#DontCloneMeTom", "#AdoptDontShop", "#RescueDog", "#StLouis"],
+  hashtags: ["#dontclonemetom", "#AdoptDontShop", "#RescueDog", "#StLouis"],
   startDate: "2026-07-12",
   version: 1,
 };
@@ -112,7 +112,7 @@ export function buildDogCaption(dateKey: string, dog: Dog): string {
     "",
     "Every good boy and girl deserves a good home.",
     "",
-    "DontCloneMeTom.com",
+    "dontclonemetom.com",
     "",
     `Listing via ${dog.org} · ${listingIdLine(dog)}`,
     "",

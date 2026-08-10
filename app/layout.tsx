@@ -7,19 +7,19 @@ import Script from "next/script";
 export const metadata: Metadata = {
   metadataBase: new URL("https://dontclonemetom.com"),
   title: {
-    default: "DontCloneMeTom",
-    template: "%s | DontCloneMeTom",
+    default: "dontclonemetom.com",
+    template: "%s | dontclonemetom.com",
   },
   description:
-    "DontCloneMeTom.com — a rescue-first campaign reminding the world that original dogs are waiting for homes today. Independent, unaffiliated, and tail-wagging.",
-  applicationName: "DontCloneMeTom.com",
-  appleWebApp: { capable: true, title: "DontCloneMe", statusBarStyle: "black-translucent" },
+    "dontclonemetom.com — real adoptable dogs, waiting for homes today. Independent, not for profit, and tail-wagging.",
+  applicationName: "dontclonemetom.com",
+  appleWebApp: { capable: true, title: "dontclonemetom", statusBarStyle: "black-translucent" },
   openGraph: {
-    title: "DontCloneMeTom.com — Rescue Dogs Are Already Here",
+    title: "dontclonemetom.com — Rescue Dogs Are Already Here",
     description:
-      "DontCloneMeTom.com — a rescue-first campaign reminding the world that original dogs are waiting for homes today. Independent, unaffiliated, and tail-wagging.",
+      "dontclonemetom.com — real adoptable dogs, waiting for homes today. Independent, not for profit, and tail-wagging.",
     url: "https://dontclonemetom.com",
-    siteName: "DontCloneMeTom.com",
+    siteName: "dontclonemetom.com",
     type: "website",
   },
 };
@@ -35,12 +35,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html suppressHydrationWarning lang="en" className="antialiased">
       <body>
         <OpenMirrorNav
-          site="DontCloneMeTom.com"
+          site="dontclonemetom.com"
           accent="#2DD4BF"
           links={[
             { emoji: "🐶", name: "Meet the Dogs", href: "/" },
             { emoji: "🌅", name: "Dog of the Day", href: "/today" },
-            { emoji: "ℹ️", name: "About DontCloneMeTom", href: "/about" },
+            { emoji: "ℹ️", name: "About", href: "/about" },
           ]}
         />
         {children}

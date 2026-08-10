@@ -34,7 +34,7 @@ describe("CardSpinner", () => {
     expect(html).toContain("Share This Card");
     expect(html).toContain("Dog Card"); // the day label
     expect(html).toContain("No. 1");
-    expect(html).toContain("DontCloneMeTom.com");
+    expect(html).toContain("dontclonemetom.com");
   });
 
   it("keeps the rescue's attribution quietly on the card", () => {

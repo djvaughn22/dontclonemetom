@@ -45,7 +45,7 @@ export function renderDogCard(
   options: {
     headline: string; // "DOG OF THE DAY" or "ADOPTABLE NEAR YOU"
     dateLine: string; // full date (daily) or "Card made <date>" (community)
-    footerUrl: string; // "DONTCLONEMETOM.COM/TODAY" or ".../DOGS/<id>"
+    footerUrl: string; // "dontclonemetom.com/today" or ".../dogs/<id>"
     note?: string; // e.g. availability notice on community cards
   },
 ) {

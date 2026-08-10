@@ -4,10 +4,10 @@ import type { MetadataRoute } from "next";
 // and idontcry.com.
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "DontCloneMeTom.com",
-    short_name: "DontCloneMe",
+    name: "dontclonemetom.com",
+    short_name: "dontclonemetom",
     description:
-      "A rescue-first campaign reminding the world that original dogs are waiting for homes today. Independent, unaffiliated, and tail-wagging.",
+      "Real adoptable dogs, waiting for homes today. Independent, not for profit, and tail-wagging.",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

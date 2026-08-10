@@ -149,7 +149,7 @@ async function makeShareCard(kind: "square" | "portrait", o: {
   ctx.beginPath(); ctx.moveTo(64, fy); ctx.lineTo(W - 64, fy); ctx.stroke();
   ctx.fillStyle = CARD_ACCENT;
   ctx.font = "900 54px system-ui, sans-serif";
-  ctx.fillText("🐶 DontCloneMeTom.com", 64, fy + 74);
+  ctx.fillText("🐶 dontclonemetom.com", 64, fy + 74);
   ctx.fillStyle = CARD_SUB;
   ctx.font = "700 30px system-ui, sans-serif";
   ctx.fillText("Real adoptable dogs near you — adopt, foster, share.", 64, fy + 122);
@@ -551,7 +551,7 @@ function FindDogs() {
                 </Link>
                 {detail.email && (
                   <a
-                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on DontCloneMeTom.com and would love to learn more!\n\nThank you!`)}`}
+                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on dontclonemetom.com and would love to learn more!\n\nThank you!`)}`}
                     className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
                   >
                     💌 Ask about {detail.name}
@@ -638,7 +638,7 @@ function FindDogs() {
   );
 }
 
-export default function DontCloneMeTom() {
+export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-10">
@@ -669,7 +669,7 @@ export default function DontCloneMeTom() {
             className="font-black leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(1.4rem, 7vw, 3.75rem)" }}
           >
-            <span className="text-[#e8edf5]">DontCloneMeTom</span>
+            <span className="text-[#e8edf5]">dontclonemetom</span>
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base font-bold text-[#2DD4BF] sm:text-lg">
@@ -736,7 +736,7 @@ export default function DontCloneMeTom() {
             <li>🐾 The live dog cards come from <strong className="text-[#e8edf5]">RescueGroups.org</strong>. Each card links to that dog&apos;s own listing when the rescue publishes one; some rescues don&apos;t, so those cards link to the rescue&apos;s adoptable-dogs page or website instead.</li>
             <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
           </ul>
-          <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share. Don&apos;t clone.</p>
+          <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share.</p>
         </section>
 
         {/* Thank you, Tom */}
@@ -763,7 +763,7 @@ export default function DontCloneMeTom() {
             title="Good dogs near you 🐶"
             text="Good dogs looking for homes near you — real adoptable dogs, right on the page. Take a look:"
             url="https://dontclonemetom.com"
-            imgLines={["Real adoptable dogs by ZIP, right on the page.", "Adopt. Foster. Share. Don't clone."]}
+            imgLines={["Real adoptable dogs by ZIP, right on the page.", "Adopt. Foster. Share."]}
             className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-xs font-black uppercase tracking-[0.15em] text-[#2DD4BF] hover:border-[#2DD4BF] transition"
           />
         </section>
@@ -874,7 +874,7 @@ export default function DontCloneMeTom() {
         {/* Disclaimer */}
         <section className="rounded-2xl border border-[#26324c] bg-[#141d2e] p-5 mb-6">
           <p className="text-xs font-semibold leading-6 text-[#94a3b8]">
-            <strong className="text-[#94a3b8]">Disclaimer:</strong> DontCloneMeTom.com is an
+            <strong className="text-[#94a3b8]">Disclaimer:</strong> dontclonemetom.com is an
             independent dog-rescue awareness project. It is not affiliated with, sponsored by, or
             endorsed by Tom Brady, Colossal Biosciences, ViaGen Pets, the NFL, the New England
             Patriots, the Tampa Bay Buccaneers, or any related trademark owner. No celebrity

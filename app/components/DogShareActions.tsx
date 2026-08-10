@@ -46,7 +46,7 @@ export default function DogShareActions({
     `See the verified listing: ${pageUrl}`,
     "",
     "Every good boy and girl deserves a good home.",
-    "DontCloneMeTom.com",
+    "dontclonemetom.com",
   ].join("\n");
 
   async function copy(kind: "caption" | "link") {
