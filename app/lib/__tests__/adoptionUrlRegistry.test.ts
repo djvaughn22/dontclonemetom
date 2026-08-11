@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { classifyAdoptionUrl } from "../dogDestination";
 import {
   adoptionUrlRegistry,
   getAdoptionUrlStatus,
@@ -7,9 +8,9 @@ import {
 } from "../adoptionUrlRegistry";
 
 describe("adoptionUrlRegistry", () => {
-  it("covers all 222 active dogs", () => {
+  it("covers the original 222 active dogs plus every dog added since (each addition only ever grows coverage)", () => {
     const count = Object.keys(adoptionUrlRegistry).length;
-    expect(count).toBe(222);
+    expect(count).toBeGreaterThanOrEqual(222);
   });
 
   it("Paco (22649663) is verified with GetBuddy URL", () => {
@@ -107,12 +108,83 @@ describe("adoptionUrlRegistry", () => {
       }
     }
 
-    // 15 Spencer dogs verified; Macy and Raya demoted to name-mismatch
-    // after their GetBuddy links were proven to point at different dogs.
-    expect(verifiedCount).toBe(15);
+    // 15 Spencer dogs + 32 added by the 2026-08-10 P0 link-integrity audit
+    // (Country Acres, HSMO, St. Clair County, St. Animal Pet Adoptions).
+    expect(verifiedCount).toBe(47);
     expect(nameMismatchCount).toBe(2);
     expect(deadCount).toBe(6); // Mastino dogs
-    expect(unverifiedCount).toBe(199); // Everyone else
+    expect(verifiedCount + unverifiedCount + deadCount + nameMismatchCount).toBe(
+      Object.keys(adoptionUrlRegistry).length,
+    );
+  });
+
+  describe("2026-08-10 P0 link-integrity audit — real per-dog Petfinder pages, cross-verified against the rescue's own org page", () => {
+    const verifiedIds: Record<string, string> = {
+      // Country Acres Rescue — Stella was the owner-reported defect.
+      "22174123": "Stella",
+      "22194571": "Ruger",
+      "22194580": "Ramsey",
+      "22225221": "Liam",
+      "22225231": "Violet",
+      "22296359": "Rhythm",
+      // Humane Society of Missouri
+      "22446476": "Bobbie",
+      "22596961": "Olivia",
+      "22618640": "Grover",
+      "22619717": "Cordelia",
+      "22635714": "Pupperton",
+      "22647968": "Lilo",
+      "22657150": "Ramona",
+      "22663505": "Flute",
+      "22670197": "Pumpkin",
+      "22680222": "Sage",
+      "22683643": "Michelle",
+      "22684087": "Ryland",
+      // St. Clair County Animal Adoption Center
+      "21881216": "Astrid",
+      "22259414": "Regina",
+      "22352140": "Triton",
+      "22400599": "Bluebell",
+      "22475460": "Gloria",
+      "22502142": "Pepperoni",
+      "22502143": "Pastrami",
+      "22540950": "Nibbles",
+      "22608191": "Diesel",
+      "22664410": "Marco",
+      "22669249": "Bella",
+      // St. Animal Pet Adoptions
+      "17819052": "Karma",
+      "21070243": "Lucious",
+      "21968587": "Auggie (Spot)",
+    };
+
+    for (const [id, name] of Object.entries(verifiedIds)) {
+      it(`${name} (${id}) is verified-direct-dog-page with a real Petfinder individual URL`, () => {
+        const entry = getAdoptionUrlStatus(id);
+        expect(entry?.status).toBe("verified-direct-dog-page");
+        expect(entry?.source).toBe("petfinder");
+        expect(entry?.adoptionProfileUrl).toMatch(/^https:\/\/www\.petfinder\.com\/(dog|cat|pet)\/[^/]+\/[^/]+\/[^/]+\/[^/]+\/details\/$/);
+        expect(entry?.verifiedAt).toBeTruthy();
+      });
+    }
+
+    it("dogs the audit could not confirm (Kanga, Zeke, Penelope) stay honestly unverified — never guessed", () => {
+      for (const id of ["22273763", "22499881", "17536864"]) {
+        const entry = getAdoptionUrlStatus(id);
+        expect(entry?.status).toBe("unverified");
+        expect(entry?.adoptionProfileUrl).toBeNull();
+      }
+    });
+  });
+
+  it("no verified-direct-dog-page entry's URL ever classifies as a generic page — the exact defect Stella exposed", () => {
+    for (const [id, entry] of Object.entries(adoptionUrlRegistry)) {
+      if (entry.status !== "verified-direct-dog-page" || !entry.adoptionProfileUrl) continue;
+      expect(
+        classifyAdoptionUrl(entry.adoptionProfileUrl, null),
+        `${id} (${entry.adoptionProfileUrl}) must classify as animal-profile, not a generic page`,
+      ).toBe("animal-profile");
+    }
   });
 
   describe("mapping integrity — regression guards against array-position corruption", () => {

@@ -405,3 +405,38 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     expect(normalizeDog(otherOrg.animal, otherOrg.included).profileUrl).toBeNull();
   });
 });
+
+describe("count integrity — a dog is never dropped for lacking a verified direct link", () => {
+  // The owner's link-integrity lock (2026-08-10): every displayed dog must
+  // link straight to its own page, but the total number of dogs shown must
+  // never shrink because of it. normalizeDog only ever demotes a URL to the
+  // honest rescue fallback — it must never remove the dog itself. This test
+  // guards against a future ".filter(hasVerifiedLink)" regression before the
+  // results reach the grid.
+  it("mapping raw records to Dog objects is 1:1 regardless of link status — verified, generic, or none", () => {
+    const records = [
+      // Has a real per-dog id in the query — verified-direct.
+      rgAnimal({ id: "1", attributes: { name: "Astrid", url: "https://r.org/animals/detail?AnimalID=1" } }),
+      // Only a generic org homepage — demoted to honest fallback.
+      rgAnimal({ id: "2", attributes: { name: "Bluebell" }, org: { name: "Rescue Two", url: "https://rescue-two.example.org/" } }),
+      // No URL of any kind.
+      rgAnimal({ id: "3", attributes: { name: "Carl" }, org: null }),
+      // A broad adoptable-dogs listing page masquerading as a profile — demoted.
+      rgAnimal({ id: "4", attributes: { name: "Diesel", url: "https://r.org/adoptable-dogs" } }),
+    ];
+    const included = new Map<string, Record<string, unknown>>();
+    for (const r of records) for (const [k, v] of r.included) included.set(k, v);
+
+    const dogs = records.map((r) => normalizeDog(r.animal, included));
+    expect(dogs).toHaveLength(records.length);
+    expect(dogs.map((d) => d.id)).toEqual(["1", "2", "3", "4"]);
+
+    // Every dog resolves to SOME destination — exact-dog, an honest
+    // fallback, or (only when the org itself is unknown) none — but every
+    // one of the four input dogs is still present and renderable.
+    for (const dog of dogs) {
+      const dest = resolveDogDestination(dog);
+      expect(["exact-dog", "shelter-fallback", "none"]).toContain(dest.type);
+    }
+  });
+});
