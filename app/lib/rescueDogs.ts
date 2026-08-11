@@ -324,9 +324,38 @@ export function normalizeZip(value: string | null | undefined): string {
   return /^\d{5}$/.test(value ?? "") ? (value as string) : "63040";
 }
 
+// RescueGroups' v5 API rejects any limit above 250 ("Invalid Limit") and a
+// single request only ever returns one page — a fixed limit=222 silently
+// truncated the real result set (306 real dogs within 50mi of 63040 vs. 222
+// returned, discovered 2026-08-10). Page through the full result instead.
+const RG_PAGE_LIMIT = 250;
+// Safety backstop against a runaway page count; the widest radius the site
+// offers (250mi of 63040) measured 1140 dogs = 5 pages, so 10 pages of
+// headroom is generous without risking an unbounded fetch loop.
+const RG_MAX_PAGES = 10;
+
+async function fetchAnimalsPage(key: string, zip: string, miles: number, page: number) {
+  const res = await fetch(
+    `https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=${RG_PAGE_LIMIT}&page=${page}&include=pictures,locations,orgs`,
+    {
+      method: "POST",
+      headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
+      body: JSON.stringify({ data: { filterRadius: { miles, postalcode: zip } } }),
+      cache: "no-store",
+    },
+  );
+  if (!res.ok) throw new Error(`upstream-${res.status}`);
+  return (await res.json()) as {
+    data?: RGResource[];
+    included?: RGResource[];
+    meta?: { pages?: number };
+  };
+}
+
 // Currently AVAILABLE dogs near a ZIP. Returns null when the key is missing
 // or the upstream fails (callers must treat null as "source unavailable",
-// never as "no dogs").
+// never as "no dogs"). Pages through the full result set — never silently
+// truncates the real pool to one page's worth of dogs.
 export async function fetchAdoptableDogs(
   zip: string,
   miles: number,
@@ -342,23 +371,22 @@ export async function fetchAdoptableDogs(
   }
 
   try {
-    const res = await fetch(
-      "https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=222&include=pictures,locations,orgs",
-      {
-        method: "POST",
-        headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
-        body: JSON.stringify({ data: { filterRadius: { miles: safeMiles, postalcode: zip } } }),
-        cache: "no-store",
-      },
-    );
-    if (!res.ok) return { dogs: null, reason: `upstream-${res.status}` };
+    const first = await fetchAnimalsPage(key, zip, safeMiles, 1);
+    const totalPages = Math.max(1, Math.min(RG_MAX_PAGES, first.meta?.pages ?? 1));
 
-    const json = (await res.json()) as { data?: RGResource[]; included?: RGResource[] };
-    const included = new Map(
-      (json.included ?? []).map((r) => [`${r.type}:${r.id}`, r.attributes]),
+    const rest = await Promise.all(
+      Array.from({ length: totalPages - 1 }, (_, i) => fetchAnimalsPage(key, zip, safeMiles, i + 2)),
     );
+    const pages = [first, ...rest];
 
-    const dogs = (json.data ?? []).map((a) => normalizeDog(a, included));
+    const included = new Map<string, Record<string, unknown>>();
+    const records: RGResource[] = [];
+    for (const page of pages) {
+      for (const r of page.included ?? []) included.set(`${r.type}:${r.id}`, r.attributes);
+      records.push(...(page.data ?? []));
+    }
+
+    const dogs = records.map((a) => normalizeDog(a, included));
     dogs.sort((x, y) => (x.distance ?? 999) - (y.distance ?? 999));
 
     cache.set(cacheKey, { at: Date.now(), dogs });
@@ -366,6 +394,93 @@ export async function fetchAdoptableDogs(
   } catch {
     return { dogs: null, reason: "fetch-failed" };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Public-display eligibility (2026-08-10 link-integrity lock).
+//
+// A generic rescue homepage, adoptable-list page, search page, or dead/
+// mismatched listing must never be a PUBLIC dog card's destination. Only a
+// dog with a verified individual page may be surfaced by the site's own
+// selection surfaces (results grid, Dog of the Day). The honest
+// "shelter-fallback" resolution in dogDestination.ts still exists and is
+// still correct for a directly-addressed /dogs/[id] page someone already
+// has a link to — this eligibility gate is about what the site itself
+// chooses to show, not about breaking existing deep links.
+export function isPubliclyEligible(dog: Pick<Dog, "adoption">): boolean {
+  return (
+    dog.adoption.adoptionProfileUrlStatus === "verified-direct-dog-page" &&
+    Boolean(dog.adoption.adoptionProfileUrl)
+  );
+}
+
+// The measured count of dogs the production homepage displayed at its
+// default view (63040, 50mi) on 2026-08-10, before this eligibility filter
+// existed — the locked floor "publicly displayed must never decrease"
+// is measured against. See docs/LINK-INTEGRITY-BASELINE-2026-08-10.md.
+export const PUBLIC_DISPLAY_BASELINE = 222;
+
+// The widest radius the site is willing to search on a visitor's behalf —
+// 250mi is already the largest user-facing choice on the homepage itself
+// (RADIUS_OPTIONS in app/page.tsx), so widening the search never reaches
+// further than a visitor could already select by hand.
+const MAX_SEARCH_MILES = 250;
+
+export type PubliclyEligibleResult = {
+  dogs: Dog[];
+  requestedMiles: number;
+  effectiveMiles: number;
+  widened: boolean;
+  candidatesConsidered: number;
+};
+
+// Verified-direct dogs near a ZIP. Fetches the requested radius and the
+// site's own maximum radius (250mi) in parallel — cheaper than walking a
+// ladder of radii one at a time — and uses the smaller of the two that
+// still meets the display floor, widening only when the requested radius
+// alone doesn't have enough verified dogs. Never fabricates a dog or a
+// link — if even 250mi can't reach the floor, returns every verified dog
+// found there and says so honestly via `widened`.
+export async function fetchPubliclyEligibleDogs(
+  zip: string,
+  requestedMiles: number,
+  targetCount: number = PUBLIC_DISPLAY_BASELINE,
+): Promise<{ result: PubliclyEligibleResult | null; reason?: string }> {
+  const safeRequested = Math.min(MAX_SEARCH_MILES, Math.max(5, requestedMiles || 50));
+
+  const [requested, widest] =
+    safeRequested === MAX_SEARCH_MILES
+      ? [await fetchAdoptableDogs(zip, safeRequested), null]
+      : await Promise.all([fetchAdoptableDogs(zip, safeRequested), fetchAdoptableDogs(zip, MAX_SEARCH_MILES)]);
+
+  if (requested.dogs) {
+    const eligible = requested.dogs.filter(isPubliclyEligible);
+    if (eligible.length >= targetCount || !widest) {
+      return {
+        result: {
+          dogs: eligible,
+          requestedMiles: safeRequested,
+          effectiveMiles: safeRequested,
+          widened: false,
+          candidatesConsidered: requested.dogs.length,
+        },
+      };
+    }
+  }
+
+  if (widest?.dogs) {
+    return {
+      result: {
+        dogs: widest.dogs.filter(isPubliclyEligible),
+        requestedMiles: safeRequested,
+        effectiveMiles: MAX_SEARCH_MILES,
+        widened: true,
+        candidatesConsidered: widest.dogs.length,
+      },
+    };
+  }
+
+  return { result: null, reason: requested.reason ?? widest?.reason ?? "no-eligible-dogs" };
 }
 
 // One dog by its stable RescueGroups id — powers the permanent /dogs/[id]

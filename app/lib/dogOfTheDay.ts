@@ -25,7 +25,7 @@ import {
   readPublishConfig,
   recentPublishedCaptions,
 } from "./instagramPublisherCore";
-import { fetchAdoptableDogs, type Dog } from "./rescueDogs";
+import { fetchAdoptableDogs, isPubliclyEligible, type Dog } from "./rescueDogs";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
@@ -45,7 +45,10 @@ export function listingIdLine(dog: Pick<Dog, "id">) {
   return `Listing ID: ${dog.id}`;
 }
 
-// A dog is eligible only when every fact the card shows actually exists.
+// A dog is eligible only when every fact the card shows actually exists —
+// and, since 2026-08-10, only when it has a verified direct adoption page.
+// Dog of the Day is a public selection surface; it must never feature a
+// dog whose only destination is a generic rescue homepage.
 export function eligibleDogs(dogs: Dog[]): Dog[] {
   const seen = new Set<string>();
 
@@ -60,7 +63,8 @@ export function eligibleDogs(dogs: Dog[]): Dog[] {
         dog.photo &&
         dog.org &&
         (dog.city || dog.orgCity) &&
-        dog.url.startsWith("http"),
+        dog.url.startsWith("http") &&
+        isPubliclyEligible(dog),
     );
   });
 }

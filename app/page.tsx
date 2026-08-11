@@ -307,6 +307,12 @@ function FindDogs() {
   const [miles, setMiles] = useState(50);
   const [dogs, setDogs] = useState<Dog[] | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "fallback">("loading");
+  // When the requested radius doesn't have enough dogs with a verified
+  // direct link, the API widens the search (never past 250mi, the site's
+  // own existing maximum) so the count never shrinks — effectiveMiles keeps
+  // the on-page copy honest about how far it actually had to look.
+  const [effectiveMiles, setEffectiveMiles] = useState(50);
+  const [widened, setWidened] = useState(false);
   const [showMore, setShowMore] = useState(false);
   const [detail, setDetail] = useState<Dog | null>(null);
   const [photoIdx, setPhotoIdx] = useState(0);
@@ -349,6 +355,8 @@ function FindDogs() {
           if (dead) return;
           if (j?.dogs?.length) {
             setDogs(j.dogs);
+            setEffectiveMiles(typeof j.miles === "number" ? j.miles : miles);
+            setWidened(Boolean(j.widened));
             setStatus("ok");
           } else {
             setDogs(null);
@@ -439,7 +447,16 @@ function FindDogs() {
         ))}
       </div>
       <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
-        Real adoptable dogs <strong className="text-[#e8edf5]">within {miles} miles of your ZIP</strong> — live from the rescues themselves. Tap a dog to meet them.
+        {status === "ok" && widened ? (
+          <>
+            Every dog below links straight to its own adoption page. That took looking{" "}
+            <strong className="text-[#e8edf5]">out to {effectiveMiles} miles</strong> — fewer than {miles} miles had enough dogs with a verified direct link.
+          </>
+        ) : (
+          <>
+            Real adoptable dogs <strong className="text-[#e8edf5]">within {miles} miles of your ZIP</strong> — live from the rescues themselves, every one linking straight to its own adoption page.
+          </>
+        )}
       </p>
 
       {/* Live adoptable dogs near the ZIP (dogs only). */}

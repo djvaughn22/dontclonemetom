@@ -23,6 +23,14 @@ const EXTERNAL_LINK_FILES = [
   "app/components/profile/DogProfileView.tsx",
 ];
 
+describe("the public dogs API only ever serves publicly-eligible dogs", () => {
+  it("app/api/adoptable-pets/route.ts uses fetchPubliclyEligibleDogs, never the raw unfiltered fetch", () => {
+    const src = read("app/api/adoptable-pets/route.ts");
+    expect(src).toContain("fetchPubliclyEligibleDogs");
+    expect(src).not.toMatch(/\bfetchAdoptableDogs\b/);
+  });
+});
+
 describe("dog-link surfaces use the shared destination resolver", () => {
   for (const file of DOG_LINK_SURFACES) {
     it(`${file} resolves dog links through resolveDogDestination`, () => {

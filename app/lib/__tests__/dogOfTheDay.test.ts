@@ -29,7 +29,12 @@ function dog(overrides: Partial<Dog>): Dog {
     city: "Wildwood, MO",
     distance: 3,
     rescueId: null,
-    adoption: emptyAdoptionUrl(),
+    adoption: {
+      ...emptyAdoptionUrl(),
+      adoptionProfileUrl: "https://rescue.example.org/billy",
+      adoptionProfileUrlStatus: "verified-direct-dog-page",
+      adoptionProfileUrlSource: "rescue-owned-site",
+    },
     profileUrl: "https://rescue.example.org/billy",
     sourceProfileUrl: "https://rescue.example.org/billy",
     orgUrl: "https://rescue.example.org/",
@@ -57,6 +62,27 @@ describe("eligibility — never publish an incomplete dog", () => {
     ];
 
     expect(eligibleDogs(dogs).map((d) => d.id)).toEqual(["1"]);
+  });
+
+  it("2026-08-10 lock: never features a dog without a verified direct link — unverified, generic, dead, or name-mismatch are all excluded", () => {
+    const dogs = [
+      dog({ id: "verified" }),
+      dog({ id: "unverified", adoption: emptyAdoptionUrl() }),
+      dog({
+        id: "dead",
+        adoption: { ...emptyAdoptionUrl(), adoptionProfileUrlStatus: "dead-or-removed" },
+      }),
+      dog({
+        id: "mismatch",
+        adoption: { ...emptyAdoptionUrl(), adoptionProfileUrlStatus: "name-mismatch" },
+      }),
+      dog({
+        id: "no-url-but-marked-verified",
+        adoption: { ...emptyAdoptionUrl(), adoptionProfileUrlStatus: "verified-direct-dog-page", adoptionProfileUrl: null },
+      }),
+    ];
+
+    expect(eligibleDogs(dogs).map((d) => d.id)).toEqual(["verified"]);
   });
 });
 
