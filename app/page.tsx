@@ -330,26 +330,31 @@ function DogOfTheDay() {
   return (
     <Link
       href={pagePath}
-      className="mx-auto mt-5 flex max-w-md items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF]"
+      className="mx-auto mt-5 flex max-w-md items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] sm:gap-5 sm:p-4"
     >
       {featured.photo ? (
+        // Face-first portrait crop: same object-fit: cover + top-biased
+        // object-position convention as DogTile's photos above (50% 25%),
+        // nudged higher since this portrait is meant to read as a close-up
+        // rather than a list thumbnail — no per-photo focal-point data exists
+        // to crop more precisely than that.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={featured.photo}
           alt={featured.name}
-          className="h-20 w-20 shrink-0 rounded-xl object-cover"
-          style={{ objectPosition: "50% 25%" }}
+          className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
+          style={{ objectPosition: "50% 18%" }}
         />
       ) : (
-        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#0b1220] text-3xl">🐶</div>
+        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-[#0b1220] text-4xl sm:h-36 sm:w-36 sm:text-5xl">🐶</div>
       )}
       <div className="min-w-0 flex-1">
         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2DD4BF]">Dog of the Day</p>
-        <p className="mt-0.5 truncate text-lg font-black text-[#e8edf5]">{featured.name}</p>
-        <p className="truncate text-xs font-semibold text-[#94a3b8]">
+        <p className="mt-0.5 truncate text-xl font-black text-[#e8edf5] sm:text-2xl">{featured.name}</p>
+        <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">
           {[featured.org, featured.city].filter(Boolean).join(" · ")}
         </p>
-        <p className="mt-1 text-xs font-black text-[#2DD4BF]">View {featured.name} →</p>
+        <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
       </div>
     </Link>
   );
