@@ -302,6 +302,59 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
   );
 }
 
+type FeaturedDog = { id: string; name: string; photo: string | null; org: string; city: string };
+
+// Today's actual Dog of the Day, reused from the same selection engine as
+// /today (see app/api/dog-of-the-day/route.ts → app/lib/dogOfTheDay.ts).
+function DogOfTheDay() {
+  const [featured, setFeatured] = useState<FeaturedDog | null>(null);
+  const [pagePath, setPagePath] = useState<string | null>(null);
+
+  useEffect(() => {
+    let dead = false;
+    fetch("/api/dog-of-the-day")
+      .then((r) => r.json())
+      .then((j) => {
+        if (dead || !j?.dog) return;
+        setFeatured(j.dog);
+        setPagePath(j.pagePath);
+      })
+      .catch(() => {});
+    return () => {
+      dead = true;
+    };
+  }, []);
+
+  if (!featured || !pagePath) return null;
+
+  return (
+    <Link
+      href={pagePath}
+      className="mx-auto mt-5 flex max-w-md items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF]"
+    >
+      {featured.photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={featured.photo}
+          alt={featured.name}
+          className="h-20 w-20 shrink-0 rounded-xl object-cover"
+          style={{ objectPosition: "50% 25%" }}
+        />
+      ) : (
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#0b1220] text-3xl">🐶</div>
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2DD4BF]">Dog of the Day</p>
+        <p className="mt-0.5 truncate text-lg font-black text-[#e8edf5]">{featured.name}</p>
+        <p className="truncate text-xs font-semibold text-[#94a3b8]">
+          {[featured.org, featured.city].filter(Boolean).join(" · ")}
+        </p>
+        <p className="mt-1 text-xs font-black text-[#2DD4BF]">View {featured.name} →</p>
+      </div>
+    </Link>
+  );
+}
+
 function FindDogs() {
   const [zip, setZip] = useState("63040");
   const [miles, setMiles] = useState(50);
@@ -658,11 +711,11 @@ function FindDogs() {
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
-      <div className="mx-auto max-w-3xl px-5 py-10">
+      <div className="mx-auto max-w-3xl px-5 py-8">
 
         {/* Hero — the domain is the whole hook (…Tom.com) */}
-        <section className="text-center mb-10">
-          <Link href="/dogs/isaiah" className="group mb-4 inline-flex flex-col items-center gap-3">
+        <section className="text-center mb-6">
+          <Link href="/dogs/isaiah" className="group mb-3 inline-flex flex-col items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/isaiah-icon.jpg"
@@ -689,15 +742,10 @@ export default function HomePage() {
             <span className="text-[#e8edf5]">dontclonemetom</span>
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
-          <p className="mx-auto mt-4 max-w-md text-base font-bold text-[#2DD4BF] sm:text-lg">
-            Good boys and girls near you
-            <br />
-            looking for good homes
+          <p className="mx-auto mt-3 max-w-sm text-sm font-bold text-[#94a3b8] sm:text-base">
+            Real adoptable dogs near you.
           </p>
-          <p className="mx-auto mb-8 mt-2 max-w-sm text-sm font-semibold text-[#94a3b8]">
-            Real, adoptable, and closer than you think.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="#find"
               className="inline-flex justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] hover:opacity-90 transition"
@@ -711,28 +759,7 @@ export default function HomePage() {
               Share
             </a>
           </div>
-          {/* The rescue behind the face above. */}
-          <a
-            href="https://home2homecanineorphanage.org/adopt"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mx-auto mt-4 flex max-w-md items-center justify-between gap-3 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] px-5 py-3.5 text-left transition hover:border-[#2DD4BF]"
-          >
-            <span className="text-sm font-bold leading-6 text-[#e8edf5]">
-              🏠 Isaiah came from <strong className="text-[#2DD4BF]">Home 2 Home Canine Orphanage</strong> — near St. Louis? Meet their dogs.
-            </span>
-            <span className="text-[#2DD4BF] font-black">→</span>
-          </a>
-          {/* Free card maker — fun on-ramp, adoption stays the mission */}
-          <Link
-            href="/cards"
-            className="mx-auto mt-3 flex max-w-md items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-3.5 text-left transition hover:border-[#2DD4BF]"
-          >
-            <span className="text-sm font-bold leading-6 text-[#e8edf5]">
-              🃏 Got a dog? Make their trading card — spin a new nickname, share today&apos;s card.
-            </span>
-            <span className="text-[#2DD4BF] font-black">→</span>
-          </Link>
+          <DogOfTheDay />
         </section>
 
         {/* Live adoptable dogs by ZIP */}
