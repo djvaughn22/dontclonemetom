@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { buildDogOfTheDay, dogCityLabel } from "../../lib/dogOfTheDay";
 import { chicagoDateKey } from "../../lib/dailySocialCore";
 
@@ -6,11 +6,18 @@ import { chicagoDateKey } from "../../lib/dailySocialCore";
 // Same selection engine as /today (app/lib/dogOfTheDay.ts) — no separate
 // logic. Keeps the homepage a client component while still surfacing the
 // server-only-fetched featured dog.
+//
+// `offset` walks the same deterministic ring `selectDogForDate` already
+// exposes for the admin "choose another dog" control — the homepage
+// "Spin another dog" button reuses it instead of adding new selection logic.
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const rawOffset = parseInt(req.nextUrl.searchParams.get("offset") ?? "0", 10);
+  const offset = Number.isFinite(rawOffset) && rawOffset > 0 ? rawOffset : 0;
+
   try {
-    const { dog, post } = await buildDogOfTheDay(chicagoDateKey());
+    const { dog, post } = await buildDogOfTheDay(chicagoDateKey(), { offset });
     return NextResponse.json({
       dog: {
         id: dog.id,

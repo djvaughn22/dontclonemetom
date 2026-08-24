@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { resolveDogDestination } from "./lib/dogDestination";
+import SpinButton from "./components/SpinButton";
 
 const shareLines = [
   "There’s a good dog near you looking for a home.",
@@ -279,15 +280,8 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
         <p className="mt-1.5 truncate text-[11px] font-black text-[#2DD4BF]">
           {direct ? `Meet ${d.name} ↗` : "See details"}
         </p>
-        <div className="relative z-20 mt-2 flex flex-wrap gap-1.5">
-          <Link
-            href={`/cards?dog=${d.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="inline-block rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-[11px] font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
-          >
-            🃏 Make a Dog Card
-          </Link>
-          {direct && (
+        {direct && (
+          <div className="relative z-20 mt-2 flex flex-wrap gap-1.5">
             <button
               type="button"
               onClick={onOpen}
@@ -295,8 +289,8 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
             >
               Details
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -306,57 +300,89 @@ type FeaturedDog = { id: string; name: string; photo: string | null; org: string
 
 // Today's actual Dog of the Day, reused from the same selection engine as
 // /today (see app/api/dog-of-the-day/route.ts → app/lib/dogOfTheDay.ts).
+// "Spin another dog" walks the same deterministic ring one step further
+// (the `offset` param `selectDogForDate` already supports) instead of
+// introducing a second selection path — replaces this widget's content in
+// place, never a second card.
 function DogOfTheDay() {
   const [featured, setFeatured] = useState<FeaturedDog | null>(null);
   const [pagePath, setPagePath] = useState<string | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const requestRef = useRef(0);
 
   useEffect(() => {
     let dead = false;
-    fetch("/api/dog-of-the-day")
+    const requestId = ++requestRef.current;
+
+    fetch(`/api/dog-of-the-day${offset > 0 ? `?offset=${offset}` : ""}`)
       .then((r) => r.json())
       .then((j) => {
-        if (dead || !j?.dog) return;
+        if (dead || requestRef.current !== requestId) return;
+        if (!j?.dog) {
+          // The ring ran out of dogs at this offset (spun past every
+          // eligible dog) — wrap back to the start of the spin sequence
+          // rather than leaving stale content on screen.
+          if (offset !== 1) setOffset(1);
+          return;
+        }
         setFeatured(j.dog);
         setPagePath(j.pagePath);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (!dead && requestRef.current === requestId) setSpinning(false);
+      });
+
     return () => {
       dead = true;
     };
-  }, []);
+  }, [offset]);
 
   if (!featured || !pagePath) return null;
 
   return (
-    <Link
-      href={pagePath}
-      className="mx-auto mt-5 flex max-w-md items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] sm:gap-5 sm:p-4"
-    >
-      {featured.photo ? (
-        // Face-first portrait crop: same object-fit: cover + top-biased
-        // object-position convention as DogTile's photos above (50% 25%),
-        // nudged higher since this portrait is meant to read as a close-up
-        // rather than a list thumbnail — no per-photo focal-point data exists
-        // to crop more precisely than that.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={featured.photo}
-          alt={featured.name}
-          className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
-          style={{ objectPosition: "50% 18%" }}
+    <div className="mx-auto mt-5 max-w-md">
+      <Link
+        href={pagePath}
+        className="flex items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] sm:gap-5 sm:p-4"
+      >
+        {featured.photo ? (
+          // Face-first portrait crop: same object-fit: cover + top-biased
+          // object-position convention as DogTile's photos above (50% 25%),
+          // nudged higher since this portrait is meant to read as a close-up
+          // rather than a list thumbnail — no per-photo focal-point data exists
+          // to crop more precisely than that.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={featured.photo}
+            alt={featured.name}
+            className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
+            style={{ objectPosition: "50% 18%" }}
+          />
+        ) : (
+          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-[#0b1220] text-4xl sm:h-36 sm:w-36 sm:text-5xl">🐶</div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2DD4BF]">Dog of the Day</p>
+          <p className="mt-0.5 truncate text-xl font-black text-[#e8edf5] sm:text-2xl">{featured.name}</p>
+          <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">
+            {[featured.org, featured.city].filter(Boolean).join(" · ")}
+          </p>
+          <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
+        </div>
+      </Link>
+      <div className="mt-2 flex justify-center">
+        <SpinButton
+          onSpin={() => {
+            setSpinning(true);
+            setOffset((o) => o + 1);
+          }}
+          spinning={spinning}
+          label="Spin another dog"
         />
-      ) : (
-        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-[#0b1220] text-4xl sm:h-36 sm:w-36 sm:text-5xl">🐶</div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2DD4BF]">Dog of the Day</p>
-        <p className="mt-0.5 truncate text-xl font-black text-[#e8edf5] sm:text-2xl">{featured.name}</p>
-        <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">
-          {[featured.org, featured.city].filter(Boolean).join(" · ")}
-        </p>
-        <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
       </div>
-    </Link>
+    </div>
   );
 }
 

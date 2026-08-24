@@ -6,11 +6,12 @@ import type { Metadata } from "next";
 import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
+import DogSpinControl from "../../components/DogSpinControl";
 import { buildListingDeckReport, listingDisplayName } from "../../lib/cards/tradingCards";
 import { fetchDogById } from "../../lib/rescueDogs";
 import { resolveDogDestination } from "../../lib/dogDestination";
 import { getDogProfile } from "../../lib/dogProfiles";
-import { dogCityLabel } from "../../lib/dogOfTheDay";
+import { dogCityLabel, DOG_OF_THE_DAY_ZIP, DOG_OF_THE_DAY_MILES } from "../../lib/dogOfTheDay";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -111,6 +112,10 @@ export default async function DogPage({ params }: PageProps) {
         Listed by {dog.org} · via RescueGroups.org · Last verified {verifiedAt} CT
       </p>
 
+      <div className="mt-3">
+        <DogSpinControl currentId={dog.id} zip={DOG_OF_THE_DAY_ZIP} miles={DOG_OF_THE_DAY_MILES} />
+      </div>
+
       {/* The trading card — real name, real photo; the seven names are
           built for this dog. The rescue's info stays quietly on the card.
           Hidden entirely until all seven cards have passed review. */}
@@ -128,6 +133,7 @@ export default async function DogPage({ params }: PageProps) {
           </p>
         </div>
         <CardSpinner
+          key={dog.id}
           realName={listingDisplayName(dog.name)}
           photoUrl={dog.photo ?? undefined}
           photoSrcForImage={dog.photo ? `/api/photo?u=${encodeURIComponent(dog.photo)}` : undefined}
@@ -164,6 +170,7 @@ export default async function DogPage({ params }: PageProps) {
 
       <div className="mt-8">
         <DogShareActions
+          key={dog.id}
           dogId={dog.id}
           dogName={dog.name}
           city={city}

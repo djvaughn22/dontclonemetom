@@ -114,6 +114,12 @@ describe("deterministic daily selection", () => {
       selectDogForDate("2026-07-12", pool, new Set(pool.map((d) => d.id))),
     ).toBeNull();
   });
+
+  it("single-dog pool: spinning past the only eligible dog fails gracefully (null), never a crash", () => {
+    const single = [dog({ id: "only" })];
+    expect(selectDogForDate("2026-07-12", single, new Set(), 0)!.id).toBe("only");
+    expect(selectDogForDate("2026-07-12", single, new Set(), 1)).toBeNull();
+  });
 });
 
 describe("caption parity", () => {
