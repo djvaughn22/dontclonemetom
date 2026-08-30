@@ -406,6 +406,56 @@ describe("normalizeDog — URL handling from the raw API record", () => {
   });
 });
 
+describe("normalizeDog — photo survives the raw-record → Dog transformation", () => {
+  // Regression: the dog detail page (app/dogs/[id]/page.tsx) reads dog.photo
+  // from the exact same normalizeDog() output the homepage and Dog of the
+  // Day use. If this transformation ever dropped or misordered the photo,
+  // every surface fed by it — including the detail page's new unconditional
+  // photo block — would break at once.
+  function rgAnimalWithPictures(pictures: { id: string; order?: number; url: string }[]) {
+    const included = new Map<string, Record<string, unknown>>();
+    for (const pic of pictures) {
+      included.set(`pictures:${pic.id}`, { order: pic.order, large: { url: pic.url } });
+    }
+    return {
+      animal: {
+        type: "animals",
+        id: "22684087",
+        attributes: { name: "Ryland", breedString: "Mixed" },
+        relationships: {
+          pictures: { data: pictures.map((p) => ({ type: "pictures", id: p.id })) },
+        },
+      },
+      included,
+    };
+  }
+
+  it("carries the picture URL from the raw record onto dog.photo", () => {
+    const { animal, included } = rgAnimalWithPictures([
+      { id: "1", order: 0, url: "https://cdn.rescuegroups.org/ryland-1.jpg" },
+    ]);
+    const dog = normalizeDog(animal, included);
+    expect(dog.photo).toBe("https://cdn.rescuegroups.org/ryland-1.jpg");
+    expect(dog.photos).toEqual(["https://cdn.rescuegroups.org/ryland-1.jpg"]);
+  });
+
+  it("picks the lowest-order picture as the primary photo regardless of feed order", () => {
+    const { animal, included } = rgAnimalWithPictures([
+      { id: "2", order: 1, url: "https://cdn.rescuegroups.org/ryland-2.jpg" },
+      { id: "1", order: 0, url: "https://cdn.rescuegroups.org/ryland-1.jpg" },
+    ]);
+    const dog = normalizeDog(animal, included);
+    expect(dog.photo).toBe("https://cdn.rescuegroups.org/ryland-1.jpg");
+  });
+
+  it("is null (never a broken/empty string) when the listing has no pictures", () => {
+    const { animal, included } = rgAnimalWithPictures([]);
+    const dog = normalizeDog(animal, included);
+    expect(dog.photo).toBeNull();
+    expect(dog.photos).toEqual([]);
+  });
+});
+
 describe("count integrity — a dog is never dropped for lacking a verified direct link", () => {
   // The owner's link-integrity lock (2026-08-10): every displayed dog must
   // link straight to its own page, but the total number of dogs shown must

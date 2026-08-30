@@ -16,6 +16,30 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+// The dog's own photo — the one thing every visitor came to see. Rendered
+// unconditionally (unlike the trading-card deck below, which only appears
+// once a dog's seven names pass review), so a dog with no reviewed deck
+// yet still shows its picture. Falls back to the same 🐶 placeholder the
+// homepage tiles use when a listing has no photo at all.
+export function DogPhoto({ photo, name }: { photo: string | null; name: string }) {
+  return (
+    <div className="mt-6 overflow-hidden rounded-3xl border border-[#26324c] bg-[#141d2e]">
+      {photo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={photo}
+          alt={`${name}, an adoptable dog`}
+          className="aspect-[4/3] w-full object-cover"
+        />
+      ) : (
+        <div className="flex aspect-[4/3] w-full items-center justify-center text-6xl">
+          🐶
+        </div>
+      )}
+    </div>
+  );
+}
+
 type PageProps = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -111,6 +135,8 @@ export default async function DogPage({ params }: PageProps) {
       <p className="mt-2 text-sm font-semibold text-[#94a3b8]">
         Listed by {dog.org} · via RescueGroups.org · Last verified {verifiedAt} CT
       </p>
+
+      <DogPhoto photo={dog.photo} name={dog.name} />
 
       <div className="mt-3">
         <DogSpinControl currentId={dog.id} zip={DOG_OF_THE_DAY_ZIP} miles={DOG_OF_THE_DAY_MILES} />
