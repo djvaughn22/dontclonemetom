@@ -20,8 +20,16 @@ export const APA_PET_URL_BASE = "https://apamo.org/adopt/adoptable-pets/";
 
 const APA_HOSTS = new Set(["apamo.org"]);
 const APA_PET_PATH = /^\/adopt\/adoptable-pets\/?$/i;
-// APA/PetPoint shelter ids look like A318825.
-const APA_PET_ID = /^A\d{4,10}$/i;
+// TWO GENERATIONS OF APA PET IDS, both valid in a ?petID= query:
+//   legacy PetPoint  "A318825"  — what RescueGroups still publishes, and what
+//                                 APA retired when they migrated (see
+//                                 officialAvailability.ts and the MOO fix).
+//   current Shelterluv "2480"   — what apamo.org's own feed and links use now.
+// Accepting only the legacy shape would mean that the day RescueGroups starts
+// carrying APA's real ids, the site would reject every one of them as "no pet
+// named" — turning the recovery into a second outage. Whether an id is still
+// live is decided by APA's official feed, never by its shape.
+const APA_PET_ID = /^(?:A\d{4,10}|\d{1,10})$/i;
 
 export type ApaPetUrl = {
   // null when the adoptable-pets page was linked without naming a pet.

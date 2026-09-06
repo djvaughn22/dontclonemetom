@@ -90,10 +90,19 @@ describe("APA Missouri deep-link rule — guardrails", () => {
     expect(dest.url).toBe("https://apamo.org/");
   });
 
-  it("normalizeApaPetId rejects ids that aren't shaped like APA's", () => {
+  it("normalizeApaPetId accepts both APA id generations and rejects junk", () => {
+    // Legacy PetPoint ids — what RescueGroups still publishes.
     expect(normalizeApaPetId("A318825")).toBe("A318825");
-    expect(normalizeApaPetId("318825")).toBeNull();
+    // Current Shelterluv ids — what apamo.org itself uses since the 2026
+    // migration. Rejecting these (as this test used to require) would mean
+    // that the moment APA's real ids reach us, every one is thrown away.
+    // Shape says "this names a pet"; APA's official feed says whether that
+    // pet is still there.
+    expect(normalizeApaPetId("2480")).toBe("2480");
+    expect(normalizeApaPetId("318825")).toBe("318825");
     expect(normalizeApaPetId("")).toBeNull();
+    expect(normalizeApaPetId("not-an-id")).toBeNull();
+    expect(normalizeApaPetId("A12")).toBeNull();
     expect(normalizeApaPetId(undefined)).toBeNull();
   });
 

@@ -11,6 +11,16 @@
 // photo, a real name, an identified rescue, and a working original listing
 // URL are eligible. Nothing about a dog is ever invented — the caption and
 // card carry only source-verified facts.
+//
+// 2026-09-06 — DOG OF THE DAY IS THE HIGHEST-VALUE PLACEMENT ON THE SITE, so
+// it now carries the strictest bar: the dog's individual adoption destination
+// must be CONFIRMED, not merely dog-shaped. MOO held this slot while her APA
+// page said "PET NOT FOUND", because eligibility only ever asked whether the
+// URL looked like a dog page. A dog is featured only when the shelter's own
+// official feed carries her, or a live destination check confirms her. An
+// unconfirmed or unreachable destination does not get the slot — the ring
+// simply walks on to the next dog, so the slot is never left holding a dead
+// listing and never left empty while a good dog is available.
 
 import {
   activeHashtags,
@@ -26,6 +36,8 @@ import {
   recentPublishedCaptions,
 } from "./instagramPublisherCore";
 import { fetchAdoptableDogs, isPubliclyEligible, type Dog } from "./rescueDogs";
+import { hasConfirmedDestination } from "./adoptionUrlSchema";
+import { verifyDogProfileUrl } from "./linkVerification";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
@@ -98,6 +110,120 @@ export function selectDogForDate(
   return null;
 }
 
+// The same deterministic ring selectDogForDate walks, but returned in order
+// so a candidate whose destination fails confirmation can be replaced by the
+// next one instead of leaving the slot on a dead listing.
+export function candidateRingForDate(
+  dateKey: string,
+  dogs: Dog[],
+  excludeIds: Set<string>,
+  offset = 0,
+): Dog[] {
+  const eligible = eligibleDogs(dogs).sort((a, b) => Number(a.id) - Number(b.id));
+  if (!eligible.length) return [];
+
+  const start = hashSeed(`dontclonemetom|${dateKey}`) % eligible.length;
+  const ring: Dog[] = [];
+  for (let step = 0; step < eligible.length; step += 1) {
+    const dog = eligible[(start + step) % eligible.length];
+    if (excludeIds.has(dog.id)) continue;
+    ring.push(dog);
+  }
+  return ring.slice(Math.max(0, offset));
+}
+
+// ---------------------------------------------------------------------------
+// Featured-placement confirmation.
+//
+// A dog earns the Dog of the Day slot only when her individual destination is
+// actually confirmed. Two ways to earn it, strongest first:
+//
+//   1. Her rescue publishes an official availability feed and that feed
+//      carries her (already resolved during the inventory fetch — free).
+//   2. A live destination check confirms the page is hers and does not say
+//      the listing is over.
+//
+// "uncertain" (blocked, timed out, unreadable) does NOT earn the slot. It is
+// not evidence she is gone either — she stays in the grid; she just isn't
+// promoted to the one placement that creates the most adoption intent.
+
+// How many candidates may be checked before giving up. Bounded so a bad day
+// upstream can never turn one page render into an unbounded fetch storm.
+export const MAX_FEATURE_VERIFY_ATTEMPTS = 8;
+
+// Selection is deterministic, so the same dog is re-checked on every render.
+// Remember the verdict briefly to keep the homepage to (usually) zero
+// outbound checks and to stay a polite visitor to the rescues.
+const featureVerdictCache = new Map<string, { at: number; ok: boolean; detail: string }>();
+const FEATURE_VERDICT_MS = 30 * 60 * 1000;
+
+export function __resetFeatureVerdictCacheForTests() {
+  featureVerdictCache.clear();
+}
+
+export type FeatureCheck = { confirmed: boolean; detail: string };
+
+export async function confirmFeatureEligibility(
+  dog: Dog,
+  options: { fetchImpl?: typeof fetch; now?: number } = {},
+): Promise<FeatureCheck> {
+  // Already confirmed against the shelter's own official record.
+  if (hasConfirmedDestination(dog.adoption)) {
+    return { confirmed: true, detail: dog.adoption.adoptionProfileUrlDetail };
+  }
+
+  const url = dog.adoption.adoptionProfileUrl;
+  if (!url) {
+    return { confirmed: false, detail: "no individual adoption destination to confirm" };
+  }
+
+  const now = options.now ?? Date.now();
+  const cacheKey = `${dog.id}|${url}`;
+  const hit = featureVerdictCache.get(cacheKey);
+  if (hit && now - hit.at < FEATURE_VERDICT_MS) {
+    return { confirmed: hit.ok, detail: hit.detail };
+  }
+
+  const verdict = await verifyDogProfileUrl(url, {
+    dogName: dog.name,
+    animalId: dog.id,
+    sourcePetId: dog.rescueId,
+    orgUrl: dog.orgUrl,
+    fetchImpl: options.fetchImpl,
+  });
+
+  const ok = verdict.status === "exact-dog";
+  const detail = `${verdict.status}: ${verdict.detail}`;
+  featureVerdictCache.set(cacheKey, { at: now, ok, detail });
+  return { confirmed: ok, detail };
+}
+
+// Walk the ring until a dog's destination is confirmed. Returns the first
+// confirmed dog plus everything that was rejected on the way, so the reason a
+// dog lost the slot is loggable instead of invisible.
+export async function selectConfirmedDogForDate(
+  dateKey: string,
+  dogs: Dog[],
+  excludeIds: Set<string>,
+  offset = 0,
+  options: { fetchImpl?: typeof fetch; maxAttempts?: number } = {},
+): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
+  const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset);
+  const maxAttempts = options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS;
+  const rejected: { dog: Dog; detail: string }[] = [];
+
+  let attempts = 0;
+  for (const candidate of ring) {
+    if (attempts >= maxAttempts) break;
+    attempts += 1;
+    const check = await confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl });
+    if (check.confirmed) return { dog: candidate, rejected, attempts };
+    rejected.push({ dog: candidate, detail: check.detail });
+  }
+
+  return { dog: null, rejected, attempts };
+}
+
 export function dogCityLabel(dog: Dog): string {
   return dog.city || dog.orgCity;
 }
@@ -164,25 +290,26 @@ export async function buildDogOfTheDay(
     ? await recentlyFeaturedDogIds()
     : new Set<string>();
 
-  const dog = selectDogForDate(dateKey, dogs, excludeIds, options.offset ?? 0);
+  const { dog, rejected, attempts } = await selectConfirmedDogForDate(
+    dateKey,
+    dogs,
+    excludeIds,
+    options.offset ?? 0,
+  );
 
-  if (!dog) {
-    throw new Error("no eligible dog found near 63040 (photo + name + rescue + listing URL required)");
+  if (rejected.length) {
+    // Actionable, and carries nothing about any visitor.
+    console.warn(
+      `[dog-of-the-day] ${rejected.length} candidate(s) failed destination confirmation: ` +
+        rejected.map((r) => `${r.dog.id} ${r.dog.name} (${r.dog.org}) -> ${r.detail}`).join(" | "),
+    );
   }
 
-  // At publish time, confirm the original listing is still reachable.
-  // 2xx–4xx counts as reachable (many shelter sites answer bots with 403);
-  // network failure or 5xx does not.
-  if (options.forPublish) {
-    try {
-      const listing = await fetch(dog.url, { method: "GET", redirect: "follow" });
-      if (listing.status >= 500) {
-        throw new Error(`original listing returned ${listing.status}: ${dog.url}`);
-      }
-    } catch (error) {
-      if (error instanceof Error && error.message.startsWith("original listing")) throw error;
-      throw new Error(`original listing unreachable: ${dog.url}`);
-    }
+  if (!dog) {
+    throw new Error(
+      `no dog could be confirmed for the featured slot after ${attempts} attempt(s) — ` +
+        "a dog is featured only when her adoption destination is confirmed",
+    );
   }
 
   const city = dogCityLabel(dog);

@@ -39,8 +39,8 @@ describe("DogPhoto wiring on the live-listing detail page", () => {
     expect(src).toMatch(/<DogPhoto\s+photo=\{dog\.photo\}\s+name=\{dog\.name\}\s*\/>/);
   });
 
-  it("places the photo after the header/verification line and before the breed/age/sex pills and description", () => {
-    const headerIdx = src.indexOf("Last verified {verifiedAt} CT");
+  it("places the photo after the header/freshness line and before the breed/age/sex pills and description", () => {
+    const headerIdx = src.indexOf("{freshness.text}");
     const photoIdx = src.indexOf("<DogPhoto");
     const pillsIdx = src.indexOf("{details.length ? (");
     const descIdx = src.indexOf("{dog.desc ? (");
@@ -57,7 +57,7 @@ describe("DogPhoto wiring on the live-listing detail page", () => {
   });
 
   it("leaves the trading-card feature (CardSpinner) and its review gate untouched", () => {
-    expect(src).toContain("{!needsReview && deck.length === 7 && (");
+    expect(src).toContain("!needsReview && deck.length === 7 && (");
     expect(src).toContain("<CardSpinner");
   });
 });

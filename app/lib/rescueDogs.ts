@@ -7,7 +7,9 @@ import { isGenericAnimalUrl } from "./dogDestination";
 import type { AdoptionUrl } from "./adoptionUrlSchema";
 import { emptyAdoptionUrl } from "./adoptionUrlSchema";
 import { getAdoptionUrlStatus, getVerifiedAdoptionUrl } from "./adoptionUrlRegistry";
-import { APA_ORG_ID, buildApaPetUrl } from "./apaAdoption";
+import { APA_ORG_ID, APA_PET_URL_BASE, buildApaPetUrl, parseApaPetUrl } from "./apaAdoption";
+import { checkApaIndex, loadApaIndex, type ApaIndex } from "./officialAvailability";
+import { findIdentityConflict, type IdentityConflict } from "./identityIntegrity";
 
 export type Dog = {
   id: string;
@@ -24,6 +26,15 @@ export type Dog = {
   // Missouri's "A318825") but no per-dog URL. Used to build/verify a
   // rescue-specific deep link; null for rescues that don't publish one.
   rescueId: string | null;
+  // When the UPSTREAM FEED last showed this dog (RescueGroups `updatedDate`).
+  // A feed refresh updates this and NOTHING else — it is never evidence the
+  // destination is still alive. See adoptionUrlSchema.ts.
+  feedSeenAt: string | null;
+  // Set when the record contradicts itself about which dog it describes
+  // (MOO's listing, whose description is about "Abigail"). A conflicting
+  // record keeps its name and photo but has its description suppressed and
+  // is barred from public selection surfaces.
+  identityConflict: IdentityConflict | null;
   // CANONICAL ADOPTION URLS — separated by status:
   // adoption = verified individual dog page OR classified status (generic/unverified/dead)
   adoption: AdoptionUrl;
@@ -174,10 +185,18 @@ const ADOPTION_URL_OVERRIDES: Record<string, string> = {
 //   URL to mastino-rescue-inc.org/animals/detail.php?AnimalID=… whose Wix
 //   animals section — including their own /animals list — renders an empty
 //   shell (no animal-data requests). Remove once a real per-dog page loads.
+// stonecountyhumanesociety.rescuegroups.org (added 2026-09-06, found by the
+//   adoption-integrity audit): their entire RescueGroups mini-site is retired
+//   — every per-dog URL AND the site root answer HTTP 410 Gone. RescueGroups
+//   still lists 21 of their dogs as available, so the feed and the
+//   destination flatly disagree; 410 is the server stating deliberately that
+//   the resource is permanently gone, so the destination wins. Verified
+//   21/21 dead on 2026-09-06. Remove once a per-dog page loads again.
 const DEAD_PROFILE_HOSTS = new Set([
   "straypawsrescue.rescuegroups.org",
   "mastinorescue.rescuegroups.org",
   "mastino-rescue-inc.org",
+  "stonecountyhumanesociety.rescuegroups.org",
 ]);
 
 function isDeadProfileHost(url: string): boolean {
@@ -246,7 +265,10 @@ export function normalizeDog(
         adoptionProfileUrlHttpStatus: registryEntry.adoptionProfileUrl ? 200 : null,
         adoptionProfileUrlStatus: registryEntry.status,
         adoptionProfileUrlSource: registryEntry.source,
-        adoptionProfileUrlVerifiedAt: registryEntry.verifiedAt,
+        // A registry entry is a person's hand-audit of the destination, so it
+        // may carry a real destination timestamp — but only when it has one.
+        destinationVerifiedAt: registryEntry.verifiedAt,
+        destinationVerificationMethod: registryEntry.verifiedAt ? "manual-audit" : "none",
         adoptionProfileUrlDetail: registryEntry.notes,
         rescueWebsiteUrl: orgUrl,
         rescueWebsiteUrlKind: orgUrlKind,
@@ -264,9 +286,12 @@ export function normalizeDog(
           registryEntry && registryEntry.source !== "unknown"
             ? registryEntry.source
             : "rescuegroups-mini-site",
-        adoptionProfileUrlVerifiedAt: registryEntry?.verifiedAt ?? null,
+        // NOT a destination check. The feed handed us a dog-shaped URL and
+        // that is all we know until something confirms the destination.
+        destinationVerifiedAt: registryEntry?.verifiedAt ?? null,
+        destinationVerificationMethod: registryEntry?.verifiedAt ? "manual-audit" : "none",
         adoptionProfileUrlDetail:
-          registryEntry?.notes ?? "Dog-specific URL from RescueGroups feed",
+          registryEntry?.notes ?? "Dog-specific URL from the source feed — destination not yet confirmed",
         rescueWebsiteUrl: orgUrl,
         rescueWebsiteUrlKind: orgUrlKind,
       };
@@ -277,7 +302,8 @@ export function normalizeDog(
       result.adoptionProfileUrlOriginal = sourceProfileUrl;
       result.adoptionProfileUrlStatus = registryEntry.status;
       result.adoptionProfileUrlSource = registryEntry.source;
-      result.adoptionProfileUrlVerifiedAt = registryEntry.verifiedAt;
+      result.destinationVerifiedAt = registryEntry.verifiedAt;
+      result.destinationVerificationMethod = registryEntry.verifiedAt ? "manual-audit" : "none";
       result.adoptionProfileUrlDetail = registryEntry.notes;
     }
     result.rescueWebsiteUrl = orgUrl;
@@ -285,9 +311,16 @@ export function normalizeDog(
     return result;
   })();
 
+  const dogName = String(at.name ?? "").trim();
+  const rawDesc = decodeEntities(String(at.descriptionText ?? "")).trim();
+  // A record that names one dog and describes another is quarantined here,
+  // at the single place every surface reads from, so no surface can publish
+  // the conflicting description by forgetting to check.
+  const identityConflict = findIdentityConflict(dogName, rawDesc);
+
   return {
     id: a.id,
-    name: String(at.name ?? "").trim(),
+    name: dogName,
     breed: String(at.breedString ?? "Mixed"),
     age: String(at.ageString ?? at.ageGroup ?? ""),
     sex: String(at.sex ?? ""),
@@ -297,6 +330,13 @@ export function normalizeDog(
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
     rescueId,
+    feedSeenAt:
+      typeof at.updatedDate === "string" && at.updatedDate.trim()
+        ? at.updatedDate.trim()
+        : typeof at.createdDate === "string" && at.createdDate.trim()
+          ? at.createdDate.trim()
+          : null,
+    identityConflict,
     adoption,
     profileUrl,
     sourceProfileUrl,
@@ -306,7 +346,10 @@ export function normalizeDog(
     org: String(org?.name ?? ""),
     orgCity: org?.citystate ?? "",
     email,
-    desc: decodeEntities(String(at.descriptionText ?? "")).trim(),
+    // Suppressed while the record disagrees with itself about which dog it
+    // is — the name and photo stay, so an existing link still resolves to
+    // something honest, but a story about another animal is never published.
+    desc: identityConflict ? "" : rawDesc,
     facts: [
       flag(at.isHousetrained, "Housetrained", "Not housetrained yet"),
       flag(at.isDogsOk, "Good with dogs", "Prefers to be the only dog"),
@@ -314,6 +357,112 @@ export function normalizeDog(
       flag(at.isKidsOk, "Good with kids", "Better without young kids"),
     ].filter((f): f is string => f !== null),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Official-record enrichment (2026-09-06 adoption-integrity fix).
+//
+// normalizeDog() is synchronous and can only judge a URL by its SHAPE. That
+// is exactly how MOO ended up "verified": her URL was built from APA's own
+// pet id, so it looked like a dog page, and nothing ever asked APA whether
+// the dog was still there. APA had migrated shelter software and retired
+// every A#####-shaped id — the page answers HTTP 200 and renders
+// "PET NOT FOUND".
+//
+// So after normalization, dogs whose rescue publishes an official
+// availability feed get checked against it. One feed fetch covers the whole
+// batch. The three outcomes are kept strictly distinct:
+//
+//   available   -> destination confirmed; destinationVerifiedAt is set.
+//   unavailable -> dead-or-removed; the dog-specific URL is withdrawn.
+//   unknown     -> unverified. NEVER "available", never "dead". A feed we
+//                  could not reach changes nothing about whether the dog is
+//                  there; it only means we cannot claim she is.
+export function applyOfficialAvailability(dog: Dog, apaIndex: ApaIndex | null): Dog {
+  const url = dog.adoption.adoptionProfileUrl ?? dog.adoption.adoptionProfileUrlOriginal;
+  if (!url) return dog;
+
+  const apa = parseApaPetUrl(url);
+  if (!apa) return dog; // No official feed for this rescue — unchanged.
+
+  const petId = apa.petId ?? dog.rescueId;
+  const check = checkApaIndex(apaIndex, petId);
+
+  // Whatever the verdict, an APA dog's fallback should be APA's live
+  // adoptable-pets directory rather than their homepage — it is the page a
+  // visitor whose dog is gone actually needs, and it is honestly labeled
+  // "View shelter listings" by resolveDogDestination.
+  const withDirectory = {
+    ...dog.adoption,
+    rescueWebsiteUrl: APA_PET_URL_BASE,
+    rescueWebsiteUrlKind: "adoptable-list" as const,
+  };
+
+  if (check.verdict === "available") {
+    return {
+      ...dog,
+      adoption: {
+        ...withDirectory,
+        adoptionProfileUrl: url,
+        adoptionProfileUrlResolved: check.officialUrl ?? url,
+        adoptionProfileUrlStatus: "verified-direct-dog-page",
+        adoptionProfileUrlSource: "shelter-id-deep-link",
+        destinationVerifiedAt: check.checkedAt,
+        destinationVerificationMethod: "official-feed",
+        adoptionProfileUrlDetail: check.detail,
+      },
+    };
+  }
+
+  if (check.verdict === "unavailable") {
+    return {
+      ...dog,
+      url: APA_PET_URL_BASE,
+      profileUrl: null,
+      adoption: {
+        ...withDirectory,
+        // The dog-specific link is withdrawn the moment the shelter's own
+        // record stops carrying her. No surface can offer it again.
+        adoptionProfileUrl: null,
+        adoptionProfileUrlOriginal: url,
+        adoptionProfileUrlResolved: url,
+        adoptionProfileUrlStatus: "dead-or-removed",
+        destinationVerifiedAt: check.checkedAt,
+        destinationVerificationMethod: "official-feed",
+        adoptionProfileUrlDetail: check.detail,
+      },
+    };
+  }
+
+  return {
+    ...dog,
+    url: APA_PET_URL_BASE,
+    profileUrl: null,
+    adoption: {
+      ...withDirectory,
+      adoptionProfileUrl: null,
+      adoptionProfileUrlOriginal: url,
+      adoptionProfileUrlStatus: "unverified",
+      destinationVerifiedAt: null,
+      destinationVerificationMethod: "none",
+      adoptionProfileUrlDetail: check.detail,
+    },
+  };
+}
+
+// Enrich a whole batch with one feed fetch. Skipped entirely when no dog in
+// the batch comes from a rescue that has an official feed.
+export async function withOfficialAvailability(
+  dogs: Dog[],
+  options: { fetchImpl?: typeof fetch } = {},
+): Promise<Dog[]> {
+  const needsApa = dogs.some((d) =>
+    parseApaPetUrl(d.adoption.adoptionProfileUrl ?? d.adoption.adoptionProfileUrlOriginal ?? "") !== null,
+  );
+  if (!needsApa) return dogs;
+
+  const apaIndex = await loadApaIndex(options);
+  return dogs.map((dog) => applyOfficialAvailability(dog, apaIndex));
 }
 
 // Small in-memory cache so repeat calls don't hammer the free API.
@@ -386,7 +535,9 @@ export async function fetchAdoptableDogs(
       records.push(...(page.data ?? []));
     }
 
-    const dogs = records.map((a) => normalizeDog(a, included));
+    // Shape-screen every record, then ask the shelters that publish an
+    // official availability feed whether these dogs are actually still there.
+    const dogs = await withOfficialAvailability(records.map((a) => normalizeDog(a, included)));
     dogs.sort((x, y) => (x.distance ?? 999) - (y.distance ?? 999));
 
     cache.set(cacheKey, { at: Date.now(), dogs });
@@ -407,7 +558,11 @@ export async function fetchAdoptableDogs(
 // still correct for a directly-addressed /dogs/[id] page someone already
 // has a link to — this eligibility gate is about what the site itself
 // chooses to show, not about breaking existing deep links.
-export function isPubliclyEligible(dog: Pick<Dog, "adoption">): boolean {
+export function isPubliclyEligible(dog: Pick<Dog, "adoption" | "identityConflict">): boolean {
+  // A record that contradicts itself about which dog it is never gets chosen
+  // by the site. It keeps its page for anyone holding a link; it just isn't
+  // something we hand to a new visitor as a dog to fall in love with.
+  if (dog.identityConflict) return false;
   return (
     dog.adoption.adoptionProfileUrlStatus === "verified-direct-dog-page" &&
     Boolean(dog.adoption.adoptionProfileUrl)
@@ -418,6 +573,15 @@ export function isPubliclyEligible(dog: Pick<Dog, "adoption">): boolean {
 // default view (63040, 50mi) on 2026-08-10, before this eligibility filter
 // existed — the locked floor "publicly displayed must never decrease"
 // is measured against. See docs/LINK-INTEGRITY-BASELINE-2026-08-10.md.
+//
+// 2026-09-06 — READ THIS BEFORE TREATING THE NUMBER AS A GOAL. When this
+// floor was measured, 50 of the dogs it counted had dead destinations (29 APA
+// links retired by a shelter-software migration, 21 Stone County links
+// answering HTTP 410). A count is only worth defending if every dog in it is
+// real. This target still drives the radius widening — reach further to find
+// MORE verified dogs — but it must never be satisfied by keeping an
+// unverified or dead dog on the page. Showing 204 real dogs beats showing
+// 254 with 50 dead ends, every time.
 export const PUBLIC_DISPLAY_BASELINE = 222;
 
 // The widest radius the site is willing to search on a visitor's behalf —
@@ -510,7 +674,11 @@ export async function fetchDogById(
     const included = new Map(
       (json.included ?? []).map((r) => [`${r.type}:${r.id}`, r.attributes]),
     );
-    return { dog: normalizeDog(record, included) };
+    // A single dog's page must apply the same official-record check the grid
+    // does — this is the page a shared link lands on, so it is the page that
+    // most needs to be honest about whether she is still available.
+    const [dog] = await withOfficialAvailability([normalizeDog(record, included)]);
+    return { dog };
   } catch {
     return { dog: null, reason: "fetch-failed" };
   }

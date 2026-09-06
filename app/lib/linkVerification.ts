@@ -17,9 +17,27 @@
 // Used by scripts/verify-dog-links.ts to sweep every active listing; a host
 // whose per-dog URLs confirmably land generic graduates into
 // DEAD_PROFILE_HOSTS in rescueDogs.ts (the Mastino/Stray Paws mechanism).
+//
+// 2026-09-06 — TWO RULES CHANGED AFTER THE MOO FAILURE:
+//
+// 1. HTTP 200 IS NOT ALIVE. A shelter platform will happily answer 200 with
+//    a page whose content is "PET NOT FOUND — this pet is no longer available
+//    for adoption". Every 2xx destination is now read for those markers
+//    before anything else, and a marker means "gone", not "fine".
+//
+// 2. APA IS DECIDED BY APA'S OWN FEED, NOT BY THE URL. The old rule accepted
+//    "the URL carries a petID" as proof, because apamo.org renders its pet
+//    pages client-side. That was true right up until APA migrated from
+//    PetPoint to Shelterluv and retired every A#####-shaped id at once — at
+//    which point the rule certified 29 dead links as "exact-dog". A petID is
+//    now checked against APA's official adoptable-pets feed. Feed
+//    unreachable = "uncertain", never "exact-dog".
 
 import { classifyAdoptionUrl, type AdoptionUrlClass } from "./dogDestination";
 import { normalizeApaPetId, parseApaPetUrl } from "./apaAdoption";
+import { checkApaAvailability } from "./officialAvailability";
+import { findUnavailableMarker } from "./unavailableListing";
+import { safeFetch, VERIFIER_USER_AGENT } from "./safeFetch";
 
 export type LinkVerdictStatus =
   | "exact-dog"
@@ -50,8 +68,10 @@ export type VerifyOptions = {
   maxRedirects?: number;
 };
 
-const UA =
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) DontCloneMeTom-link-check";
+// Every outbound check identifies itself honestly through safeFetch's
+// VERIFIER_USER_AGENT. We never impersonate a browser to get past a site's
+// bot protection — a rescue that does not want automated traffic gets
+// "uncertain", not a workaround.
 
 // Statuses that mean "we were blocked or the server hiccuped", not "the
 // profile is gone": never demote on these.
@@ -79,170 +99,192 @@ function nameToken(dogName: string): string | null {
   return first && first.length >= 3 ? first.toLowerCase() : null;
 }
 
+// Hosts a listing check is allowed to end up on, derived from where it
+// started. A link that redirects off its own provider and its rescue's own
+// site is not proof of anything about this dog, so it is refused rather than
+// followed and believed.
+function allowedHosts(url: string, orgUrl: string | null | undefined): string[] {
+  const hosts = new Set<string>();
+  for (const candidate of [url, orgUrl ?? ""]) {
+    if (!candidate) continue;
+    try {
+      const host = new URL(candidate).hostname.toLowerCase().replace(/^www\./, "");
+      hosts.add(host);
+      // A provider commonly moves between its apex and a subdomain
+      // (rescue.org -> app.rescue.org); allow within the registrable-ish
+      // suffix, never across providers.
+      const parts = host.split(".");
+      if (parts.length > 2) hosts.add(parts.slice(-2).join("."));
+    } catch {
+      // ignore an unparseable candidate
+    }
+  }
+  return [...hosts];
+}
+
 export async function verifyDogProfileUrl(
   url: string,
   opts: VerifyOptions,
 ): Promise<LinkVerdict> {
-  const fetchImpl = opts.fetchImpl ?? fetch;
-  const timeoutMs = opts.timeoutMs ?? 12_000;
-  const maxRedirects = opts.maxRedirects ?? 5;
-
-  let current = url;
-  let res: Response | null = null;
-
-  for (let hop = 0; hop <= maxRedirects; hop += 1) {
-    let parsed: URL;
-    try {
-      parsed = new URL(current);
-    } catch {
+  // APA of Missouri is decided by APA's own official adoptable-pets feed,
+  // BEFORE any page fetch. Their pet pages are client-rendered, so fetching
+  // one can never answer the question; the feed can, and it is the shelter's
+  // own record of who is actually there.
+  const apaPetAtSource = parseApaPetUrl(url);
+  if (apaPetAtSource) {
+    if (!apaPetAtSource.petId) {
       return {
         status: "generic",
-        finalUrl: current,
+        finalUrl: url,
         httpStatus: null,
-        classification: "invalid",
-        detail: `unparseable URL after ${hop} redirect(s)`,
-      };
-    }
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-      return {
-        status: "generic",
-        finalUrl: current,
-        httpStatus: null,
-        classification: "invalid",
-        detail: `non-web protocol ${parsed.protocol} after ${hop} redirect(s)`,
-      };
-    }
-
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      res = await fetchImpl(current, {
-        method: "GET",
-        redirect: "manual",
-        headers: { "User-Agent": UA, Accept: "text/html,*/*" },
-        signal: controller.signal,
-      });
-    } catch {
-      clearTimeout(timer);
-      return {
-        status: "uncertain",
-        finalUrl: current,
-        httpStatus: null,
-        classification: null,
-        detail: "network failure or timeout — profile standing unchanged",
-      };
-    }
-    clearTimeout(timer);
-
-    if (res.status >= 300 && res.status < 400) {
-      const location = res.headers.get("location");
-      if (!location) {
-        return {
-          status: "uncertain",
-          finalUrl: current,
-          httpStatus: res.status,
-          classification: null,
-          detail: "redirect without a Location header",
-        };
-      }
-      try {
-        current = new URL(location, current).href;
-      } catch {
-        return {
-          status: "uncertain",
-          finalUrl: current,
-          httpStatus: res.status,
-          classification: null,
-          detail: `unresolvable redirect target: ${location}`,
-        };
-      }
-      continue;
-    }
-    break;
-  }
-
-  if (!res) {
-    return {
-      status: "uncertain",
-      finalUrl: current,
-      httpStatus: null,
-      classification: null,
-      detail: "no response",
-    };
-  }
-  if (res.status >= 300 && res.status < 400) {
-    return {
-      status: "uncertain",
-      finalUrl: current,
-      httpStatus: res.status,
-      classification: null,
-      detail: "too many redirects",
-    };
-  }
-
-  if (res.status === 404 || res.status === 410) {
-    return {
-      status: "gone",
-      finalUrl: current,
-      httpStatus: res.status,
-      classification: null,
-      detail: `listing returns ${res.status}`,
-    };
-  }
-  if (TRANSIENT_STATUS.has(res.status) || res.status >= 400) {
-    return {
-      status: "uncertain",
-      finalUrl: current,
-      httpStatus: res.status,
-      classification: null,
-      detail: `blocked or transient upstream status ${res.status} — never treated as dead`,
-    };
-  }
-
-  // APA of Missouri's adoptable-pets page renders the named pet's popup
-  // client-side — the server HTML we just fetched never carries the dog's
-  // name or id, so it is not evidence either way. Decide from the petID the
-  // URL itself carries instead of reading the body. Narrow to this one known
-  // page shape; every other rescue still falls through to the checks below.
-  const apaPet = parseApaPetUrl(current);
-  if (apaPet) {
-    if (!apaPet.petId) {
-      return {
-        status: "generic",
-        finalUrl: current,
-        httpStatus: res.status,
         classification: "animal-list",
         detail: "APA adoptable-pets page carries no petID — this is the list, not a specific dog",
       };
     }
     const expectedApaId = normalizeApaPetId(opts.sourcePetId);
-    if (expectedApaId && apaPet.petId !== expectedApaId) {
+    if (expectedApaId && apaPetAtSource.petId !== expectedApaId) {
       return {
         status: "wrong-dog",
-        finalUrl: current,
-        httpStatus: res.status,
+        finalUrl: url,
+        httpStatus: null,
         classification: "animal-profile",
-        detail: `APA petID ${apaPet.petId} does not match this dog's shelter id ${expectedApaId}`,
+        detail: `APA petID ${apaPetAtSource.petId} does not match this dog's shelter id ${expectedApaId}`,
+      };
+    }
+
+    const availability = await checkApaAvailability(apaPetAtSource.petId, {
+      fetchImpl: opts.fetchImpl,
+    });
+    if (availability.verdict === "available") {
+      return {
+        status: "exact-dog",
+        finalUrl: availability.officialUrl ?? url,
+        httpStatus: null,
+        classification: "animal-profile",
+        detail: availability.detail,
+      };
+    }
+    if (availability.verdict === "unavailable") {
+      return {
+        status: "gone",
+        finalUrl: url,
+        httpStatus: null,
+        classification: "animal-profile",
+        detail: availability.detail,
       };
     }
     return {
-      status: "exact-dog",
-      finalUrl: current,
-      httpStatus: res.status,
+      status: "uncertain",
+      finalUrl: url,
+      httpStatus: null,
       classification: "animal-profile",
-      detail: expectedApaId
-        ? "APA petID matches this dog's shelter id — the page is client-rendered, so raw HTML is not required"
-        : "APA petID present and this rescue's deep links are always dog-specific",
+      detail: availability.detail,
     };
   }
 
-  // 2xx — classify where the redirects actually landed.
-  const classification = classifyAdoptionUrl(current, opts.orgUrl ?? null);
+  const outcome = await safeFetch(url, {
+    allowHosts: allowedHosts(url, opts.orgUrl),
+    timeoutMs: opts.timeoutMs ?? 12_000,
+    maxRedirects: opts.maxRedirects ?? 5,
+    userAgent: VERIFIER_USER_AGENT,
+    fetchImpl: opts.fetchImpl,
+  });
+
+  if (!outcome.ok) {
+    // A URL we refuse to follow is a real defect in the link, not a network
+    // blip: it can never be presented as this dog's page.
+    if (
+      outcome.reason === "invalid-url" ||
+      outcome.reason === "blocked-protocol" ||
+      outcome.reason === "blocked-host"
+    ) {
+      return {
+        status: "generic",
+        finalUrl: outcome.finalUrl,
+        httpStatus: outcome.status,
+        classification: "invalid",
+        detail: outcome.detail,
+      };
+    }
+    // Off-allowlist means the link left its provider — we cannot confirm the
+    // dog there, and we will not follow it, so the link stands unproven.
+    return {
+      status: "uncertain",
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
+      classification: null,
+      detail: `${outcome.detail} — profile standing unchanged`,
+    };
+  }
+
+  if (outcome.status === 404 || outcome.status === 410) {
+    return {
+      status: "gone",
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
+      classification: null,
+      detail: `listing returns ${outcome.status}`,
+    };
+  }
+  if (TRANSIENT_STATUS.has(outcome.status) || outcome.status >= 400) {
+    return {
+      status: "uncertain",
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
+      classification: null,
+      detail: `blocked or transient upstream status ${outcome.status} — never treated as dead`,
+    };
+  }
+
+  // 2xx. Before anything else: does the page itself say this listing is over?
+  // This is the check MOO's link needed and did not have.
+  const marker = findUnavailableMarker(outcome.body);
+  if (marker) {
+    return {
+      status: "gone",
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
+      classification: null,
+      detail: `destination returned ${outcome.status} but says "${marker.label}": ${marker.excerpt}`,
+    };
+  }
+
+  // A different APA page may be where the redirects landed; decide it by the
+  // same official-feed rule rather than by reading a client-rendered shell.
+  const apaPetAtDestination = parseApaPetUrl(outcome.finalUrl);
+  if (apaPetAtDestination) {
+    if (!apaPetAtDestination.petId) {
+      return {
+        status: "generic",
+        finalUrl: outcome.finalUrl,
+        httpStatus: outcome.status,
+        classification: "animal-list",
+        detail: "redirected to APA's adoptable-pets list, which names no specific dog",
+      };
+    }
+    const availability = await checkApaAvailability(apaPetAtDestination.petId, {
+      fetchImpl: opts.fetchImpl,
+    });
+    return {
+      status:
+        availability.verdict === "available"
+          ? "exact-dog"
+          : availability.verdict === "unavailable"
+            ? "gone"
+            : "uncertain",
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
+      classification: "animal-profile",
+      detail: availability.detail,
+    };
+  }
+
+  const classification = classifyAdoptionUrl(outcome.finalUrl, opts.orgUrl ?? null);
   if (classification !== "animal-profile") {
     return {
       status: "generic",
-      finalUrl: current,
-      httpStatus: res.status,
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
       classification,
       detail: `final destination classifies as ${classification}`,
     };
@@ -252,21 +294,21 @@ export async function verifyDogProfileUrl(
   const expectedIds = opts.animalId
     ? [opts.animalId, ...extractAnimalIds(url)]
     : extractAnimalIds(url);
-  const finalIds = extractAnimalIds(current);
+  const finalIds = extractAnimalIds(outcome.finalUrl);
   if (expectedIds.length && finalIds.length) {
     if (finalIds.some((id) => expectedIds.includes(id))) {
       return {
         status: "exact-dog",
-        finalUrl: current,
-        httpStatus: res.status,
+        finalUrl: outcome.finalUrl,
+        httpStatus: outcome.status,
         classification,
         detail: "final URL carries this dog's listing id",
       };
     }
     return {
       status: "wrong-dog",
-      finalUrl: current,
-      httpStatus: res.status,
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
       classification,
       detail: `final URL names a different animal id (${finalIds.join(",")})`,
     };
@@ -274,24 +316,12 @@ export async function verifyDogProfileUrl(
 
   // No id to compare — look for the dog's name in the page itself.
   const token = nameToken(opts.dogName);
-  let body = "";
-  try {
-    body = (await res.text()).slice(0, 400_000);
-  } catch {
-    return {
-      status: "uncertain",
-      finalUrl: current,
-      httpStatus: res.status,
-      classification,
-      detail: "profile-shaped destination but the page body was unreadable",
-    };
-  }
-  const haystack = body.toLowerCase();
+  const haystack = outcome.body.toLowerCase();
   if (token && haystack.includes(token)) {
     return {
       status: "exact-dog",
-      finalUrl: current,
-      httpStatus: res.status,
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
       classification,
       detail: `page mentions "${opts.dogName.trim().split(/\s+/)[0]}"`,
     };
@@ -299,16 +329,16 @@ export async function verifyDogProfileUrl(
   if (expectedIds.length && haystack.includes(expectedIds[0])) {
     return {
       status: "exact-dog",
-      finalUrl: current,
-      httpStatus: res.status,
+      finalUrl: outcome.finalUrl,
+      httpStatus: outcome.status,
       classification,
       detail: "page carries this dog's listing id",
     };
   }
   return {
     status: "uncertain",
-    finalUrl: current,
-    httpStatus: res.status,
+    finalUrl: outcome.finalUrl,
+    httpStatus: outcome.status,
     classification,
     detail:
       "profile-shaped destination without positive dog confirmation — recheck later, do not demote",

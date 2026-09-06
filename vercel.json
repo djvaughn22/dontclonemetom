@@ -3,6 +3,10 @@
     {
       "path": "/api/social/instagram/publish",
       "schedule": "45 13 * * *"
+    },
+    {
+      "path": "/api/integrity-audit",
+      "schedule": "20 11 * * *"
     }
   ]
 }

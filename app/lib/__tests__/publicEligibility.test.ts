@@ -28,6 +28,8 @@ function dog(overrides: Partial<Dog> = {}): Dog {
     city: "Wildwood, MO",
     distance: 3,
     rescueId: null,
+    feedSeenAt: null,
+    identityConflict: null,
     adoption: {
       ...emptyAdoptionUrl(),
       adoptionProfileUrl: "https://www.petfinder.com/dog/billy-abc123/mo/wildwood/rescue-mo1/details/",

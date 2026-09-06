@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { verifyDogProfileUrl } from "../linkVerification";
+import { APA_FEED_URL, __resetApaCacheForTests } from "../officialAvailability";
 
 // A tiny scripted fetch: URL → response. Unlisted URLs throw like a network
 // failure would.
@@ -227,23 +228,83 @@ describe("verifyDogProfileUrl — uncertainty never kills a valid profile", () =
   });
 });
 
-describe("verifyDogProfileUrl — APA of Missouri petID pages need no HTML evidence", () => {
+describe("verifyDogProfileUrl — APA of Missouri is decided by APA's own feed", () => {
+  beforeEach(() => __resetApaCacheForTests());
   const OTTO_URL = "https://apamo.org/adopt/adoptable-pets/?petID=A318825";
 
-  it("accepts Otto's petID page even when the raw HTML is the bare generic list markup", async () => {
+  // SUPERSEDED RULE (2026-09-06). This block used to assert that a petID in
+  // the URL was itself proof — "APA petID pages need no HTML evidence" — on
+  // the reasoning that their pet page is client-rendered so its HTML can
+  // never confirm anything. The reasoning was right; the conclusion was not.
+  // When APA migrated from PetPoint to Shelterluv, every A#####-shaped id
+  // retired at once and that rule certified 29 dead links as "exact-dog",
+  // MOO's among them, while she held the Dog of the Day slot.
+  //
+  // The page still cannot be read. So the question is put to the only source
+  // that can answer it: APA's own adoptable-pets feed.
+
+  it("confirms a petID the official APA feed still carries", async () => {
     const v = await verifyDogProfileUrl(OTTO_URL, {
       dogName: "OTTO",
       sourcePetId: "A318825",
       orgUrl: "https://apamo.org/",
-      // The server HTML never names Otto or his id — APA's popup is
-      // client-rendered. This body proves the fetch happened; it must NOT
-      // be searched for evidence.
       fetchImpl: scriptedFetch({
-        [OTTO_URL]: { status: 200, body: "<html><body>Adoptable Pets</body></html>" },
+        [APA_FEED_URL]: {
+          status: 200,
+          body: JSON.stringify([{ animal_id: "A318825", name: "Otto", isAdoptable: 1 }]),
+        },
       }),
     });
     expect(v.status).toBe("exact-dog");
     expect(v.detail).not.toMatch(/page mentions|carries this dog's listing id/);
+  });
+
+  it("calls a petID the official feed no longer carries GONE — the MOO regression", async () => {
+    const mooUrl = "https://apamo.org/adopt/adoptable-pets/?petID=A313601";
+    const v = await verifyDogProfileUrl(mooUrl, {
+      dogName: "MOO",
+      sourcePetId: "A313601",
+      orgUrl: "https://apamo.org/",
+      // APA's live feed after the Shelterluv migration: numeric ids only.
+      // A313601 is simply not in it, and her page renders "PET NOT FOUND".
+      fetchImpl: scriptedFetch({
+        [APA_FEED_URL]: {
+          status: 200,
+          body: JSON.stringify([
+            { animal_id: "2480", name: "Cherry Pie", isAdoptable: 1 },
+            { animal_id: "17795", name: "Bella", isAdoptable: 1 },
+          ]),
+        },
+      }),
+    });
+    expect(v.status).toBe("gone");
+    expect(v.status).not.toBe("exact-dog");
+  });
+
+  it("treats a pet the feed carries but marks not adoptable as gone", async () => {
+    const v = await verifyDogProfileUrl(OTTO_URL, {
+      dogName: "OTTO",
+      sourcePetId: "A318825",
+      orgUrl: "https://apamo.org/",
+      fetchImpl: scriptedFetch({
+        [APA_FEED_URL]: {
+          status: 200,
+          body: JSON.stringify([{ animal_id: "A318825", name: "Otto", isAdoptable: 0 }]),
+        },
+      }),
+    });
+    expect(v.status).toBe("gone");
+  });
+
+  it("stays UNCERTAIN — never exact-dog, never gone — when the feed is unreachable", async () => {
+    const v = await verifyDogProfileUrl(OTTO_URL, {
+      dogName: "OTTO",
+      sourcePetId: "A318825",
+      orgUrl: "https://apamo.org/",
+      // Nothing scripted for the feed: the fetch fails.
+      fetchImpl: scriptedFetch({}),
+    });
+    expect(v.status).toBe("uncertain");
   });
 
   it("rejects a mismatched petID as this dog's page when the source id is known", async () => {
