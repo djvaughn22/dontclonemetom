@@ -41,7 +41,7 @@ import { verifyDogProfileUrl } from "./linkVerification";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
-  siteName: "dontclonemetom.com",
+  siteName: "DontCloneMeTom.com",
   siteUrl: "https://dontclonemetom.com",
   markerPrefix: "Dog of the Day",
   hashtags: ["#dontclonemetom", "#AdoptDontShop", "#RescueDog", "#StLouis"],
@@ -242,7 +242,7 @@ export function buildDogCaption(dateKey: string, dog: Dog): string {
     "",
     "Every good boy and girl deserves a good home.",
     "",
-    "dontclonemetom.com",
+    "DontCloneMeTom.com",
     "",
     `Listing via ${dog.org} · ${listingIdLine(dog)}`,
     "",

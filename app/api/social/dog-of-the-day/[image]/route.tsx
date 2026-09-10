@@ -27,7 +27,7 @@ export async function GET(
     return renderDogCard(dog, {
       headline: "DOG OF THE DAY",
       dateLine: post.fullDate,
-      footerUrl: "dontclonemetom.com/today",
+      footerUrl: "DontCloneMeTom.com/today",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "unavailable";

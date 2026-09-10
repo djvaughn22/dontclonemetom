@@ -163,7 +163,7 @@ export async function renderCardImage(o: {
   ctx.textAlign = "right";
   ctx.fillStyle = color;
   ctx.font = "900 30px system-ui, sans-serif";
-  ctx.fillText("🐾 dontclonemetom.com", W - M - 56, fy + 56);
+  ctx.fillText("🐾 DontCloneMeTom.com", W - M - 56, fy + 56);
 
   const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/png"));
   if (!blob) throw new Error("card image failed");

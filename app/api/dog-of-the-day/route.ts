@@ -25,6 +25,10 @@ export async function GET(req: NextRequest) {
         photo: dog.photo,
         org: dog.org,
         city: dogCityLabel(dog),
+        // Feed facts the dog tiles already show publicly (breed/age) — the
+        // hero teaser line, nothing inferred. Never temperament or medical.
+        breed: dog.breed,
+        age: dog.age,
       },
       pagePath: post.pagePath,
     });

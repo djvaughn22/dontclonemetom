@@ -327,7 +327,7 @@ export default async function DogPage({ params }: PageProps) {
         {unavailable
           ? `${dog.org} is the source of truth for who is available — always check with them directly. `
           : "Availability can change at any time — the adoption listing above is the source of truth. "}
-        dontclonemetom.com is an independent rescue-first campaign and is not
+        DontCloneMeTom.com is an independent rescue-first campaign and is not
         affiliated with the rescue or RescueGroups.org.
       </p>
 

@@ -128,7 +128,7 @@ export default function TradingCard({
       )}
       <div className="mt-3.5 flex items-center justify-between border-t border-[#26324c] px-1 pt-3 text-[11px] font-black uppercase tracking-[0.12em]">
         <span className="text-[#94a3b8]">{face.dayLabel}</span>
-        <span style={{ color }}>🐾 dontclonemetom.com</span>
+        <span style={{ color }}>🐾 DontCloneMeTom.com</span>
       </div>
     </div>
   );

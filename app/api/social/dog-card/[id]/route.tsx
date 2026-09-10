@@ -25,7 +25,7 @@ export async function GET(
   return renderDogCard(dog, {
     headline: "ADOPTABLE NEAR YOU",
     dateLine: `Card made ${formatFullDate(chicagoDateKey())}`,
-    footerUrl: `dontclonemetom.com/dogs/${dog.id}`,
+    footerUrl: `DontCloneMeTom.com/dogs/${dog.id}`,
     note: "Availability can change — check the listing for the latest.",
   });
 }

@@ -1,8 +1,11 @@
-// Brand/copy guard (owner, 2026-08-09): the public brand is exactly
-// "dontclonemetom.com" — lowercase, one word, including ".com". No public
-// surface may render "DontCloneMeTom", "Dont Clone Me Tom", or any other
-// cased/spaced variant. The site stays anonymous (no owner name/bio), not
-// for personal profit, and never asks Tom Brady for anything.
+// Brand/copy guard (owner, 2026-09-09 — supersedes the 2026-08-09 lowercase
+// lock): the public brand is exactly "DontCloneMeTom.com" — CamelCase, one
+// word, always including ".com". No public surface may render the lowercase
+// "dontclonemetom.com", a spaced variant, or the bare name without ".com".
+// URLs stay lowercase (https://dontclonemetom.com) — this guard is about
+// visible branding and metadata, not URL casing.
+// The site stays anonymous (no owner name/bio), not for personal profit, and
+// never asks Tom Brady for anything.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -14,34 +17,112 @@ const layout = read("layout.tsx");
 const manifest = read("manifest.ts");
 const homepage = read("page.tsx");
 const about = read("about/page.tsx");
+const dogDetail = read("dogs/[id]/page.tsx");
+const shareActions = read("components/DogShareActions.tsx");
+const tradingCard = read("components/cards/TradingCard.tsx");
+const dogOfTheDayLib = read("lib/dogOfTheDay.ts");
+
+export const BRAND = "DontCloneMeTom.com";
 
 // Banned public-facing brand renderings — case- and space-sensitive.
 const BANNED_BRAND_STRINGS = [
   "Dont Clone Me Tom",
   "Don't Clone Me Tom",
-  "DontCloneMeTom",
+  "DontClone Me Tom",
   "DONT CLONE ME TOM",
-  "DontCloneMeTom.com",
   "DONTCLONEMETOM.COM",
+  "DONTCLONEMETOM",
 ];
 
-describe("locked public brand: dontclonemetom.com", () => {
-  it("layout metadata, nav brand, and manifest use only the lowercase brand", () => {
-    for (const banned of BANNED_BRAND_STRINGS) {
-      expect(layout).not.toContain(banned);
-      expect(manifest).not.toContain(banned);
+// Every source line that mentions the brand at all. A line is allowed to
+// carry a lowercase spelling ONLY when it is a real URL, an npm/package or
+// machine key, a filename slug, a hashtag, or a code comment.
+function brandLines(src: string) {
+  return src.split("\n").filter((l) => /dontclonemetom/i.test(l));
+}
+
+function offendingLowercaseLines(src: string) {
+  return brandLines(src).filter((line) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//") || trimmed.startsWith("*")) return false; // comments
+    // Strip the legitimate lowercase forms, then see if any lowercase
+    // spelling survives — if one does, it is visible copy that was missed.
+    const stripped = line
+      .replace(/https?:\/\/[a-z0-9.\-/]*dontclonemetom[a-z0-9.\-/]*/gi, "")
+      .replace(/#dontclonemetom/g, "")
+      .replace(/dontclonemetom-\$?\{?/g, "")
+      .replace(/"dontclonemetom"/g, "")
+      .replace(/daily-dontclonemetom/g, "")
+      .replace(/dontclonemetom\|/g, "");
+    return /dontclonemetom/.test(stripped);
+  });
+}
+
+describe("locked public brand: DontCloneMeTom.com", () => {
+  const surfaces: Array<[string, string]> = [
+    ["layout.tsx", layout],
+    ["manifest.ts", manifest],
+    ["page.tsx", homepage],
+    ["about/page.tsx", about],
+    ["dogs/[id]/page.tsx", dogDetail],
+    ["components/DogShareActions.tsx", shareActions],
+    ["components/cards/TradingCard.tsx", tradingCard],
+    ["lib/dogOfTheDay.ts", dogOfTheDayLib],
+  ];
+
+  it("never renders a spaced, shouted, or otherwise mangled brand variant", () => {
+    for (const [name, src] of surfaces) {
+      for (const banned of BANNED_BRAND_STRINGS) {
+        expect(src, `${name} must not contain ${banned}`).not.toContain(banned);
+      }
     }
-    expect(layout).toContain('site="dontclonemetom.com"');
-    expect(manifest).toContain('name: "dontclonemetom.com"');
   });
 
-  it("homepage hero and about page render the brand lowercase, never the old CamelCase form", () => {
-    for (const banned of BANNED_BRAND_STRINGS) {
-      expect(homepage).not.toContain(banned);
-      expect(about).not.toContain(banned);
+  it("never leaves a lowercase brand in visible copy (URLs, keys and slugs excepted)", () => {
+    for (const [name, src] of surfaces) {
+      expect(offendingLowercaseLines(src), `${name} has lowercase brand copy`).toEqual([]);
     }
-    expect(homepage).toContain("dontclonemetom");
-    expect(about).toContain("dontclonemetom.com");
+  });
+
+  it("layout metadata, nav brand, and manifest use the exact brand", () => {
+    expect(layout).toContain(`default: "${BRAND}"`);
+    expect(layout).toContain(`template: "%s | ${BRAND}"`);
+    expect(layout).toContain(`applicationName: "${BRAND}"`);
+    expect(layout).toContain(`siteName: "${BRAND}"`);
+    expect(layout).toContain(`site="${BRAND}"`);
+    expect(manifest).toContain(`name: "${BRAND}"`);
+    expect(manifest).toContain(`short_name: "${BRAND}"`);
+  });
+
+  it("homepage hero renders the wordmark as DontCloneMeTom + .com", () => {
+    // The hero splits the wordmark so the ".com" carries the accent color;
+    // together the two spans must read exactly "DontCloneMeTom.com".
+    expect(homepage).toMatch(
+      /<span className="text-\[#e8edf5\]">DontCloneMeTom<\/span>\s*<span className="text-\[#2DD4BF\]">\.com<\/span>/
+    );
+  });
+
+  it("about page and dog-detail disclaimer name the brand with .com", () => {
+    expect(about).toContain(BRAND);
+    expect(dogDetail).toContain(`${BRAND} is an independent rescue-first campaign`);
+  });
+
+  it("share caption and card footers carry the exact brand", () => {
+    expect(shareActions).toContain(`"${BRAND}"`);
+    expect(tradingCard).toContain(`🐾 ${BRAND}`);
+    expect(dogOfTheDayLib).toContain(`siteName: "${BRAND}"`);
+  });
+
+  it("keeps real URLs lowercase — branding changed, addresses did not", () => {
+    expect(layout).toContain('new URL("https://dontclonemetom.com")');
+    expect(layout).toContain('url: "https://dontclonemetom.com"');
+    expect(dogOfTheDayLib).toContain('siteUrl: "https://dontclonemetom.com"');
+    // No source may emit a CamelCase host inside an actual URL.
+    for (const [name, src] of surfaces) {
+      expect(src, `${name} must not put a cased host in a URL`).not.toMatch(
+        /https?:\/\/[^\s"'`]*DontCloneMeTom/
+      );
+    }
   });
 });
 

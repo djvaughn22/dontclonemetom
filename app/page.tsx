@@ -150,7 +150,7 @@ async function makeShareCard(kind: "square" | "portrait", o: {
   ctx.beginPath(); ctx.moveTo(64, fy); ctx.lineTo(W - 64, fy); ctx.stroke();
   ctx.fillStyle = CARD_ACCENT;
   ctx.font = "900 54px system-ui, sans-serif";
-  ctx.fillText("🐶 dontclonemetom.com", 64, fy + 74);
+  ctx.fillText("🐶 DontCloneMeTom.com", 64, fy + 74);
   ctx.fillStyle = CARD_SUB;
   ctx.font = "700 30px system-ui, sans-serif";
   ctx.fillText("Real adoptable dogs near you — adopt, foster, share.", 64, fy + 122);
@@ -296,7 +296,15 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
   );
 }
 
-type FeaturedDog = { id: string; name: string; photo: string | null; org: string; city: string };
+type FeaturedDog = {
+  id: string;
+  name: string;
+  photo: string | null;
+  org: string;
+  city: string;
+  breed?: string;
+  age?: string;
+};
 
 // Today's actual Dog of the Day, reused from the same selection engine as
 // /today (see app/api/dog-of-the-day/route.ts → app/lib/dogOfTheDay.ts).
@@ -309,6 +317,11 @@ function DogOfTheDay() {
   const [pagePath, setPagePath] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const [spinning, setSpinning] = useState(false);
+  // "unavailable" only after the fetch actually settled with no dog — the
+  // hero heading stays put either way (2026-09-09: this widget used to
+  // `return null`, so a slow or failing feed silently deleted the Dog of the
+  // Day identity from the hero and left Isaiah reading as the site's hero).
+  const [state, setState] = useState<"loading" | "ready" | "unavailable">("loading");
   const requestRef = useRef(0);
 
   useEffect(() => {
@@ -319,17 +332,24 @@ function DogOfTheDay() {
       .then((r) => r.json())
       .then((j) => {
         if (dead || requestRef.current !== requestId) return;
-        if (!j?.dog) {
+        if (!j?.dog || !j?.pagePath) {
           // The ring ran out of dogs at this offset (spun past every
           // eligible dog) — wrap back to the start of the spin sequence
           // rather than leaving stale content on screen.
-          if (offset !== 1) setOffset(1);
+          if (offset !== 1) {
+            setOffset(1);
+            return;
+          }
+          setState("unavailable");
           return;
         }
         setFeatured(j.dog);
         setPagePath(j.pagePath);
+        setState("ready");
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!dead && requestRef.current === requestId) setState("unavailable");
+      })
       .finally(() => {
         if (!dead && requestRef.current === requestId) setSpinning(false);
       });
@@ -339,50 +359,100 @@ function DogOfTheDay() {
     };
   }, [offset]);
 
-  if (!featured || !pagePath) return null;
+  // Feed facts the dog tiles already show publicly. Never inferred.
+  const teaser = featured
+    ? [featured.breed, featured.age?.split(" ").slice(0, 2).join(" ")]
+        .filter((s): s is string => Boolean(s && s.trim()))
+        .join(" · ")
+    : "";
+  const where = featured ? [featured.org, featured.city].filter(Boolean).join(" · ") : "";
 
   return (
-    <div className="mx-auto mt-5 max-w-md">
-      <Link
-        href={pagePath}
-        className="flex items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] sm:gap-5 sm:p-4"
+    <section aria-labelledby="dog-of-the-day-heading" className="mx-auto mt-6 max-w-md">
+      <h2
+        id="dog-of-the-day-heading"
+        className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF]"
       >
-        {featured.photo ? (
-          // Face-first portrait crop: same object-fit: cover + top-biased
-          // object-position convention as DogTile's photos above (50% 25%),
-          // nudged higher since this portrait is meant to read as a close-up
-          // rather than a list thumbnail — no per-photo focal-point data exists
-          // to crop more precisely than that.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={featured.photo}
-            alt={featured.name}
-            className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
-            style={{ objectPosition: "50% 18%" }}
-          />
-        ) : (
-          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-[#0b1220] text-4xl sm:h-36 sm:w-36 sm:text-5xl">🐶</div>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#2DD4BF]">Dog of the Day</p>
-          <p className="mt-0.5 truncate text-xl font-black text-[#e8edf5] sm:text-2xl">{featured.name}</p>
-          <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">
-            {[featured.org, featured.city].filter(Boolean).join(" · ")}
-          </p>
-          <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
+        Dog of the Day
+      </h2>
+
+      {state === "ready" && featured && pagePath ? (
+        <>
+          <Link
+            href={pagePath}
+            aria-label={`Dog of the Day: meet ${featured.name}${where ? `, ${where}` : ""}`}
+            className="mt-2 flex items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF] sm:gap-5 sm:p-4"
+          >
+            {featured.photo ? (
+              // Face-first portrait crop: same object-fit: cover + top-biased
+              // object-position convention as DogTile's photos above (50% 25%),
+              // nudged higher since this portrait is meant to read as a close-up
+              // rather than a list thumbnail — no per-photo focal-point data exists
+              // to crop more precisely than that.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={featured.photo}
+                alt={`${featured.name}, an adoptable dog${teaser ? ` — ${teaser}` : ""}`}
+                className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
+                style={{ objectPosition: "50% 18%" }}
+              />
+            ) : (
+              <div
+                role="img"
+                aria-label={`No photo available for ${featured.name}`}
+                className="flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-[#0b1220] text-4xl sm:h-36 sm:w-36 sm:text-5xl"
+              >
+                🐶
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xl font-black text-[#e8edf5] sm:text-2xl">{featured.name}</p>
+              {teaser && (
+                <p className="truncate text-xs font-semibold text-[#e8edf5] sm:text-sm">{teaser}</p>
+              )}
+              {where && (
+                <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">{where}</p>
+              )}
+              <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
+            </div>
+          </Link>
+          <div className="mt-2 flex justify-center">
+            <SpinButton
+              onSpin={() => {
+                setSpinning(true);
+                setOffset((o) => o + 1);
+              }}
+              spinning={spinning}
+              label="Spin another dog"
+            />
+          </div>
+        </>
+      ) : state === "loading" ? (
+        <div
+          aria-hidden
+          className="mt-2 flex animate-pulse items-center gap-4 rounded-2xl border border-[#26324c] bg-[#141d2e] p-3 sm:gap-5 sm:p-4"
+        >
+          <div className="h-28 w-28 shrink-0 rounded-2xl bg-[#0b1220] sm:h-36 sm:w-36" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-5 w-2/3 rounded bg-[#0b1220]" />
+            <div className="h-3 w-1/2 rounded bg-[#0b1220]" />
+            <div className="h-3 w-3/4 rounded bg-[#0b1220]" />
+          </div>
         </div>
-      </Link>
-      <div className="mt-2 flex justify-center">
-        <SpinButton
-          onSpin={() => {
-            setSpinning(true);
-            setOffset((o) => o + 1);
-          }}
-          spinning={spinning}
-          label="Spin another dog"
-        />
-      </div>
-    </div>
+      ) : (
+        // Feed unavailable — the hero still says Dog of the Day and still
+        // offers a real way through to today's dog rather than disappearing.
+        <Link
+          href="/today"
+          className="mt-2 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-4 py-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
+        >
+          <span className="text-sm font-bold text-[#94a3b8]">
+            Today&rsquo;s dog is taking a minute to load.
+          </span>
+          <span className="shrink-0 text-xs font-black text-[#2DD4BF]">Open →</span>
+        </Link>
+      )}
+    </section>
   );
 }
 
@@ -652,7 +722,7 @@ function FindDogs() {
                 </Link>
                 {detail.email && (
                   <a
-                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on dontclonemetom.com and would love to learn more!\n\nThank you!`)}`}
+                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on DontCloneMeTom.com and would love to learn more!\n\nThank you!`)}`}
                     className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
                   >
                     💌 Ask about {detail.name}
@@ -744,39 +814,24 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-8">
 
-        {/* Hero — the domain is the whole hook (…Tom.com) */}
+        {/* Hero — the domain is the whole hook (…Tom.com), and the featured
+            dog IS the hero. Isaiah keeps his spot below as the site's mascot
+            link; he must never stand in for the Dog of the Day. */}
         <section className="text-center mb-6">
-          <Link href="/dogs/isaiah" className="group mb-3 inline-flex flex-col items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/isaiah-icon.jpg"
-              alt="Isaiah, a black-and-white dog — tap to meet him"
-              width={128}
-              height={128}
-              className="rounded-full transition group-hover:scale-[1.04]"
-              style={{
-                width: 128,
-                height: 128,
-                border: "3px solid #2DD4BF",
-                boxShadow: "0 10px 30px rgba(0,0,0,0.45)",
-              }}
-            />
-            <span className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-black text-[#e8edf5] transition group-hover:border-[#2DD4BF]">
-              Isaiah · <span className="text-[#2DD4BF]">Batdog</span>
-              <span className="ml-2 text-[#94a3b8]">Meet Isaiah →</span>
-            </span>
-          </Link>
           <h1
             className="font-black leading-[1.05] tracking-tight"
             style={{ fontSize: "clamp(1.4rem, 7vw, 3.75rem)" }}
           >
-            <span className="text-[#e8edf5]">dontclonemetom</span>
+            <span className="text-[#e8edf5]">DontCloneMeTom</span>
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
           <p className="mx-auto mt-3 max-w-sm text-sm font-bold text-[#94a3b8] sm:text-base">
             Real adoptable dogs near you.
           </p>
-          <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+
+          <DogOfTheDay />
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="#find"
               className="inline-flex justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] hover:opacity-90 transition"
@@ -790,7 +845,25 @@ export default function HomePage() {
               Share
             </a>
           </div>
-          <DogOfTheDay />
+
+          <Link
+            href="/dogs/isaiah"
+            className="group mt-6 inline-flex min-h-11 items-center gap-3 rounded-full border border-[#26324c] bg-[#141d2e] py-1.5 pl-1.5 pr-4 transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/isaiah-icon.jpg"
+              alt="Isaiah, a black-and-white dog"
+              width={40}
+              height={40}
+              className="rounded-full"
+              style={{ width: 40, height: 40, border: "2px solid #2DD4BF" }}
+            />
+            <span className="text-xs font-black text-[#e8edf5]">
+              Isaiah · <span className="text-[#2DD4BF]">Batdog</span>
+              <span className="ml-2 text-[#94a3b8]">Meet Isaiah →</span>
+            </span>
+          </Link>
         </section>
 
         {/* Live adoptable dogs by ZIP */}
@@ -949,7 +1022,7 @@ export default function HomePage() {
         {/* Disclaimer */}
         <section className="rounded-2xl border border-[#26324c] bg-[#141d2e] p-5 mb-6">
           <p className="text-xs font-semibold leading-6 text-[#94a3b8]">
-            <strong className="text-[#94a3b8]">Disclaimer:</strong> dontclonemetom.com is an
+            <strong className="text-[#94a3b8]">Disclaimer:</strong> DontCloneMeTom.com is an
             independent dog-rescue awareness project. It is not affiliated with, sponsored by, or
             endorsed by Tom Brady, Colossal Biosciences, ViaGen Pets, the NFL, the New England
             Patriots, the Tampa Bay Buccaneers, or any related trademark owner. No celebrity
