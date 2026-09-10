@@ -94,7 +94,7 @@ async function main() {
   const hidden = (pool ?? []).filter((d) => !displayedIds.has(d.id));
 
   console.log("=".repeat(78));
-  console.log("DONTCLONEMETOM — ADOPTION INTEGRITY AUDIT");
+  console.log("DontCloneMeTom.com — ADOPTION INTEGRITY AUDIT");
   console.log("=".repeat(78));
   console.log(`ran at            ${new Date().toISOString()}`);
   console.log(`search            ZIP ${ZIP}, requested ${MILES}mi, effective ${result.effectiveMiles}mi (widened: ${result.widened})`);
