@@ -814,9 +814,12 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-8">
 
-        {/* Hero — the domain is the whole hook (…Tom.com), and the featured
-            dog IS the hero. Isaiah keeps his spot below as the site's mascot
-            link; he must never stand in for the Dog of the Day. */}
+        {/* Hero — the domain is the whole hook (…Tom.com). Order is fixed:
+            wordmark, subtitle, Isaiah's brand pet tag, then the Dog of the
+            Day. Isaiah is the permanent brand icon (his face in a circle,
+            turquoise ring) and reads as a tag, not a card or a CTA pill; the
+            dog beneath him is the dynamic one and he must never stand in for
+            it. Locked by app/__tests__/dogOfTheDayHero.test.tsx. */}
         <section className="text-center mb-6">
           <h1
             className="font-black leading-[1.05] tracking-tight"
@@ -828,6 +831,29 @@ export default function HomePage() {
           <p className="mx-auto mt-3 max-w-sm text-sm font-bold text-[#94a3b8] sm:text-base">
             Real adoptable dogs near you.
           </p>
+
+          {/* Isaiah's pet tag: face in a circle with the brand ring, one
+              compact line of copy under it. Deliberately narrow (w-fit) so it
+              can't read as a nav pill or an adoption card, and with no
+              "Meet Isaiah →" CTA wording — the whole tag is the link. */}
+          <Link
+            href="/dogs/isaiah"
+            aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"
+            className="group mx-auto mt-4 flex w-fit flex-col items-center gap-1.5 rounded-2xl px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/isaiah-icon.jpg"
+              alt="Isaiah, a black-and-white dog"
+              width={56}
+              height={56}
+              className="rounded-full object-cover"
+              style={{ width: 56, height: 56, border: "2px solid #2DD4BF" }}
+            />
+            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#94a3b8] transition group-hover:text-[#e8edf5]">
+              Isaiah <span className="text-[#2DD4BF]">· Batdog</span>
+            </span>
+          </Link>
 
           <DogOfTheDay />
 
@@ -845,25 +871,6 @@ export default function HomePage() {
               Share
             </a>
           </div>
-
-          <Link
-            href="/dogs/isaiah"
-            className="group mt-6 inline-flex min-h-11 items-center gap-3 rounded-full border border-[#26324c] bg-[#141d2e] py-1.5 pl-1.5 pr-4 transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/isaiah-icon.jpg"
-              alt="Isaiah, a black-and-white dog"
-              width={40}
-              height={40}
-              className="rounded-full"
-              style={{ width: 40, height: 40, border: "2px solid #2DD4BF" }}
-            />
-            <span className="text-xs font-black text-[#e8edf5]">
-              Isaiah · <span className="text-[#2DD4BF]">Batdog</span>
-              <span className="ml-2 text-[#94a3b8]">Meet Isaiah →</span>
-            </span>
-          </Link>
         </section>
 
         {/* Live adoptable dogs by ZIP */}

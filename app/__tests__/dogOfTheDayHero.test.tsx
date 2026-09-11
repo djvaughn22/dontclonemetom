@@ -32,18 +32,72 @@ describe("homepage hero: Dog of the Day", () => {
     expect(hero).toContain(">\n        Dog of the Day\n      <");
   });
 
-  it("mounts inside the hero section, above the mascot chip", () => {
+  it("mounts inside the hero in the fixed order: brand, subtitle, Isaiah, dog", () => {
     const heroSection = homepage.slice(
       homepage.indexOf("{/* Hero"),
       homepage.indexOf('{/* Live adoptable dogs by ZIP */}')
     );
     expect(heroSection).toContain("<DogOfTheDay />");
-    // Isaiah stays in the hero, but below the featured dog — he must never
-    // read as the Dog of the Day.
-    expect(heroSection.indexOf("<DogOfTheDay />")).toBeLessThan(
-      heroSection.indexOf('href="/dogs/isaiah"')
-    );
     expect(heroSection).toContain('href="/dogs/isaiah"');
+
+    // 2026-09-10: Isaiah is the brand icon and sits directly under the
+    // subtitle, as a pet tag; the Dog of the Day follows him, then the spin
+    // control, then the main action buttons. Every step of that order is
+    // asserted so a future edit can't quietly reshuffle the hero again.
+    const order = [
+      '<span className="text-[#2DD4BF]">.com</span>', // wordmark
+      "Real adoptable dogs near you.", // subtitle
+      'href="/dogs/isaiah"', // Isaiah's pet tag
+      "<DogOfTheDay />", // "DOG OF THE DAY" + dynamic card + spin
+      "See dogs near me", // main action buttons
+      "Share",
+    ].map((needle) => {
+      const at = heroSection.indexOf(needle);
+      expect(at, `hero must contain ${needle}`).toBeGreaterThan(-1);
+      return at;
+    });
+    for (let i = 1; i < order.length; i += 1) {
+      expect(order[i], `hero order broke at step ${i + 1}`).toBeGreaterThan(order[i - 1]);
+    }
+  });
+
+  it("presents Isaiah as a compact brand pet tag, not a card or a CTA pill", () => {
+    // The <Link …>…</Link> itself — not the comment above it, which is allowed
+    // to name the wording this tag deliberately dropped.
+    const hrefAt = homepage.indexOf('href="/dogs/isaiah"');
+    const tag = homepage.slice(
+      homepage.lastIndexOf("<Link", hrefAt),
+      homepage.indexOf("</Link>", hrefAt)
+    );
+
+    // His face, in a clean circle, with the turquoise brand ring.
+    expect(tag).toContain("/isaiah-icon.jpg");
+    expect(tag).toContain("rounded-full");
+    expect(tag).toContain("2px solid #2DD4BF");
+    // Compact label in the established copy — no "Meet Isaiah →" CTA wording,
+    // which made the tag read as an ordinary button.
+    expect(tag).toContain("Batdog");
+    expect(tag).not.toContain("Meet Isaiah");
+    // Narrow by construction, so it can't spread into a nav pill.
+    expect(tag).toContain("w-fit");
+    // Still a real link, still keyboard-visible, still labelled.
+    expect(tag).toContain("focus-visible:outline");
+    expect(tag).toContain('aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"');
+  });
+
+  it("keeps Isaiah permanent and never lets him take the dynamic slot", () => {
+    // He is hard-coded on purpose (he is the brand), which is exactly why the
+    // dog below him must keep coming from the feed.
+    expect(homepage).toContain('href="/dogs/isaiah"');
+    expect(homepage.match(/href="\/dogs\/isaiah"/g)?.length).toBe(1);
+    const heroSection = homepage.slice(
+      homepage.indexOf("{/* Hero"),
+      homepage.indexOf('{/* Live adoptable dogs by ZIP */}')
+    );
+    // Isaiah is outside the DogOfTheDay widget entirely.
+    expect(heroSection.indexOf('href="/dogs/isaiah"')).toBeLessThan(
+      heroSection.indexOf("<DogOfTheDay />")
+    );
   });
 
   it("never disappears: the label survives loading and unavailable states", () => {
