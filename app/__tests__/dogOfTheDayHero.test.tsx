@@ -33,7 +33,6 @@ describe("homepage hierarchy and Dog of the Day", () => {
       'Don’t clone me. Adopt me.',
       'id="find"',
       '<FindDogs />',
-      '<DogOfTheDay />',
       'Why these sources?',
     ].map((needle) => {
       const at = home.indexOf(needle);
@@ -41,7 +40,21 @@ describe("homepage hierarchy and Dog of the Day", () => {
       return at;
     });
     for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThan(order[i - 1]);
-    expect(home.match(/<DogOfTheDay \/>/g)).toHaveLength(1);
+    expect(homepage.match(/<DogOfTheDay \/>/g)).toHaveLength(1);
+  });
+
+  it("bounds the preview before the daily feature and puts expansion afterwards", () => {
+    const discovery = homepage.slice(homepage.indexOf("function FindDogs()"), homepage.indexOf("export default function HomePage"));
+    const preview = discovery.indexOf('aria-label="Adoptable dog preview"');
+    const daily = discovery.indexOf("<DogOfTheDay />");
+    const additional = discovery.indexOf('aria-label="Additional adoptable dogs"');
+    expect(preview).toBeGreaterThan(-1);
+    expect(daily).toBeGreaterThan(preview);
+    expect(additional).toBeGreaterThan(daily);
+    expect(discovery.slice(preview, daily)).toContain("dogs.slice(0, 3).map");
+    expect(discovery.slice(preview, daily)).not.toContain("dogs.map");
+    expect(discovery.slice(daily)).toContain("dogs.slice(2).map");
+    expect(discovery.slice(daily)).toContain("See all dogs ({dogs.length})");
   });
 
   it("keeps the permanent face crop prominent on mobile and desktop", () => {
@@ -59,7 +72,7 @@ describe("homepage hierarchy and Dog of the Day", () => {
   it("retains automatic ZIP results and direct dog sharing", () => {
     expect(homepage).toContain('useState("63040")');
     expect(homepage).toContain('fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`)');
-    expect(homepage).toContain('<DogTile key={d.id}');
+    expect(homepage).toContain('<DogTile dog={d}');
     expect(homepage).toContain('Find Dogs Near Me');
     expect(hero).toContain('url={`https://dontclonemetom.com${pagePath}`}');
   });

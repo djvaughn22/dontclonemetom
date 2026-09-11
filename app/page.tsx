@@ -316,6 +316,7 @@ function DogOfTheDay() {
   const [featured, setFeatured] = useState<FeaturedDog | null>(null);
   const [pagePath, setPagePath] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
+  const [retry, setRetry] = useState(0);
   const [spinning, setSpinning] = useState(false);
   // Keep the daily feature visible while loading or when the feed is unavailable.
   const [state, setState] = useState<"loading" | "ready" | "unavailable">("loading");
@@ -325,15 +326,23 @@ function DogOfTheDay() {
     let dead = false;
     const requestId = ++requestRef.current;
 
-    fetch(`/api/dog-of-the-day${offset > 0 ? `?offset=${offset}` : ""}`)
-      .then((r) => r.json())
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    fetch(`/api/dog-of-the-day${offset > 0 ? `?offset=${offset}` : ""}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error("Daily dog unavailable");
+        return r.json();
+      })
       .then((j) => {
         if (dead || requestRef.current !== requestId) return;
-        if (!j?.dog || !j?.pagePath) {
+        if (!j?.dog?.id || !j.dog.name || !j.dog.photo || j.pagePath !== `/dogs/${j.dog.id}`) {
           // The ring ran out of dogs at this offset (spun past every
           // eligible dog) — wrap back to the start of the spin sequence
           // rather than leaving stale content on screen.
-          if (offset !== 1) {
+          if (offset > 1) {
             setOffset(1);
             return;
           }
@@ -348,13 +357,16 @@ function DogOfTheDay() {
         if (!dead && requestRef.current === requestId) setState("unavailable");
       })
       .finally(() => {
+        clearTimeout(timeout);
         if (!dead && requestRef.current === requestId) setSpinning(false);
       });
 
     return () => {
       dead = true;
+      clearTimeout(timeout);
+      controller.abort();
     };
-  }, [offset]);
+  }, [offset, retry]);
 
   // Feed facts the dog tiles already show publicly. Never inferred.
   const teaser = featured
@@ -435,7 +447,8 @@ function DogOfTheDay() {
         </>
       ) : state === "loading" ? (
         <div
-          aria-hidden
+          role="status"
+          aria-label="Loading Dog of the Day"
           className="mt-2 flex animate-pulse items-center gap-4 rounded-2xl border border-[#26324c] bg-[#141d2e] p-3 sm:gap-5 sm:p-4"
         >
           <div className="h-28 w-28 shrink-0 rounded-2xl bg-[#0b1220] sm:h-36 sm:w-36" />
@@ -446,16 +459,19 @@ function DogOfTheDay() {
           </div>
         </div>
       ) : (
-        // Keep an honest route to retry when the feed is unavailable.
-        <Link
-          href="/today"
-          className="mt-2 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-4 py-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
-        >
-          <span className="text-sm font-bold text-[#94a3b8]">
-            Today&rsquo;s dog is taking a minute to load.
-          </span>
-          <span className="shrink-0 text-xs font-black text-[#2DD4BF]">Open →</span>
-        </Link>
+        <div role="status" className="mt-2 rounded-2xl border border-[#26324c] bg-[#141d2e] p-4">
+          <p className="text-sm font-bold text-[#94a3b8]">
+            Dog of the Day is temporarily unavailable. We couldn’t confirm a live adoption listing. Please try again.
+          </p>
+          <button
+            type="button"
+            onClick={() => { setState("loading"); setOffset(0); setRetry((r) => r + 1); }}
+            className="mt-3 min-h-14 rounded-xl border border-[#26324c] px-4 py-3 text-sm font-black text-[#2DD4BF]"
+          >
+            Retry Dog of the Day
+          </button>
+          <Link href="/today" className="ml-3 inline-flex items-center text-sm font-bold text-[#2DD4BF]">Open today’s page →</Link>
+        </div>
       )}
     </section>
   );
@@ -589,7 +605,7 @@ function FindDogs() {
           Find Dogs Near Me ↗
         </button>
       </div>
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="text-xs font-black uppercase tracking-[0.12em] text-[#94a3b8]">Within</span>
         {RADIUS_OPTIONS.map((m) => (
           <button
@@ -625,12 +641,33 @@ function FindDogs() {
           Fetching good dogs near {clean}…
         </p>
       )}
-      {status === "ok" && dogs && (
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {dogs.map((d) => (
-            <DogTile key={d.id} dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
-          ))}
-        </div>
+      <section aria-label="Adoptable dog preview">
+        {status === "ok" && dogs && (
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {dogs.slice(0, 3).map((d, index) => (
+              <div key={d.id} className={index === 2 ? "hidden min-w-0 sm:block" : "min-w-0"}>
+                <DogTile dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <DogOfTheDay />
+
+      {status === "ok" && dogs && dogs.length > 2 && (
+        <details className={dogs.length === 3 ? "sm:hidden" : ""}>
+          <summary className="cursor-pointer rounded-xl border border-[#26324c] px-4 py-3 text-sm font-black text-[#2DD4BF]">
+            See all dogs ({dogs.length})
+          </summary>
+          <div aria-label="Additional adoptable dogs" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {dogs.slice(2).map((d, index) => (
+              <div key={d.id} className={index === 0 ? "min-w-0 sm:hidden" : "min-w-0"}>
+                <DogTile dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
+              </div>
+            ))}
+          </div>
+        </details>
       )}
 
       {/* In-page dog detail — meet them without leaving tom.com */}
@@ -734,7 +771,7 @@ function FindDogs() {
                     💌 Ask about {detail.name}
                   </a>
                 )}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <ShareMenu
                     label={`📣 Share ${detail.name}`}
                     title={`Meet ${detail.name} 🐶`}
@@ -791,7 +828,7 @@ function FindDogs() {
       <p className="mb-2 mt-5 text-xs font-black uppercase tracking-[0.12em] text-[#94a3b8]">
         Still looking? Two more big adoption networks:
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <a
           href={petfinderUrl}
           target="_blank"
@@ -865,8 +902,6 @@ export default function HomePage() {
           </p>
           <FindDogs />
         </section>
-
-        <DogOfTheDay />
 
         {/* Why this source */}
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
