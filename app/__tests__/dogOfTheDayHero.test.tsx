@@ -1,13 +1,3 @@
-// Dog of the Day hero guard (2026-09-09).
-//
-// Regression this locks: the homepage hero's featured-dog widget used to
-// `return null` whenever the feed was slow or errored, so the "Dog of the
-// Day" identity vanished from the hero and the Isaiah/Batdog mascot chip was
-// left standing as the site's hero. The hero must always say "Dog of the
-// Day", must take its dog from the live selection engine (never a hard-coded
-// dog), and its CTA must be a real link to that exact dog's detail page so
-// the first click lands — no interstitial, no client-only navigation that
-// 404s before hydration.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -25,79 +15,53 @@ function heroSource() {
   return homepage.slice(start, end === -1 ? undefined : end);
 }
 
-describe("homepage hero: Dog of the Day", () => {
+describe("homepage hierarchy and Dog of the Day", () => {
   const hero = heroSource();
 
   it("renders the visible 'Dog of the Day' label", () => {
     expect(hero).toContain(">\n        Dog of the Day\n      <");
   });
 
-  it("mounts inside the hero in the fixed order: brand, subtitle, Isaiah, dog", () => {
-    const heroSection = homepage.slice(
-      homepage.indexOf("{/* Hero"),
-      homepage.indexOf('{/* Live adoptable dogs by ZIP */}')
-    );
-    expect(heroSection).toContain("<DogOfTheDay />");
-    expect(heroSection).toContain('href="/dogs/isaiah"');
-
-    // 2026-09-10: Isaiah is the brand icon and sits directly under the
-    // subtitle, as a pet tag; the Dog of the Day follows him, then the spin
-    // control, then the main action buttons. Every step of that order is
-    // asserted so a future edit can't quietly reshuffle the hero again.
+  it("puts Isaiah, the rescue message, and real-dog discovery before the daily feature", () => {
+    const home = homepage.slice(homepage.indexOf("export default function HomePage"));
     const order = [
-      '<span className="text-[#2DD4BF]">.com</span>', // wordmark
-      "Real adoptable dogs near you.", // subtitle
-      'href="/dogs/isaiah"', // Isaiah's pet tag
-      "<DogOfTheDay />", // "DOG OF THE DAY" + dynamic card + spin
-      "See dogs near me", // main action buttons
-      "Share",
+      'src="/isaiah-icon.jpg"',
+      '>ISAIAH</span>',
+      'BATDOG • THE DARK ZAY',
+      'id="brand-heading"',
+      '<span className="text-[#2DD4BF]">.com</span>',
+      'Don’t clone me. Adopt me.',
+      'id="find"',
+      '<FindDogs />',
+      '<DogOfTheDay />',
+      'Why these sources?',
     ].map((needle) => {
-      const at = heroSection.indexOf(needle);
-      expect(at, `hero must contain ${needle}`).toBeGreaterThan(-1);
+      const at = home.indexOf(needle);
+      expect(at, needle).toBeGreaterThan(-1);
       return at;
     });
-    for (let i = 1; i < order.length; i += 1) {
-      expect(order[i], `hero order broke at step ${i + 1}`).toBeGreaterThan(order[i - 1]);
-    }
+    for (let i = 1; i < order.length; i++) expect(order[i]).toBeGreaterThan(order[i - 1]);
+    expect(home.match(/<DogOfTheDay \/>/g)).toHaveLength(1);
   });
 
-  it("presents Isaiah as a compact brand pet tag, not a card or a CTA pill", () => {
-    // The <Link …>…</Link> itself — not the comment above it, which is allowed
-    // to name the wording this tag deliberately dropped.
-    const hrefAt = homepage.indexOf('href="/dogs/isaiah"');
-    const tag = homepage.slice(
-      homepage.lastIndexOf("<Link", hrefAt),
-      homepage.indexOf("</Link>", hrefAt)
-    );
-
-    // His face, in a clean circle, with the turquoise brand ring.
-    expect(tag).toContain("/isaiah-icon.jpg");
-    expect(tag).toContain("rounded-full");
-    expect(tag).toContain("2px solid #2DD4BF");
-    // Compact label in the established copy — no "Meet Isaiah →" CTA wording,
-    // which made the tag read as an ordinary button.
-    expect(tag).toContain("Batdog");
-    expect(tag).not.toContain("Meet Isaiah");
-    // Narrow by construction, so it can't spread into a nav pill.
-    expect(tag).toContain("w-fit");
-    // Still a real link, still keyboard-visible, still labelled.
-    expect(tag).toContain("focus-visible:outline");
-    expect(tag).toContain('aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"');
+  it("keeps the permanent face crop prominent on mobile and desktop", () => {
+    const home = homepage.slice(homepage.indexOf("export default function HomePage"));
+    expect(home).toContain('href="/dogs/isaiah"');
+    expect(home).toContain('h-48 w-48');
+    expect(home).toContain('lg:h-[280px] lg:w-[280px]');
+    expect(home).toContain('rounded-full border-[3px] border-[#2DD4BF] object-cover');
+    expect(home).toContain('fetchPriority="high"');
+    expect(home).toContain('focus-visible:outline');
+    expect(home.match(/href="\/dogs\/isaiah"/g)).toHaveLength(1);
+    expect(hero).not.toContain('src="/isaiah-icon.jpg"');
   });
 
-  it("keeps Isaiah permanent and never lets him take the dynamic slot", () => {
-    // He is hard-coded on purpose (he is the brand), which is exactly why the
-    // dog below him must keep coming from the feed.
-    expect(homepage).toContain('href="/dogs/isaiah"');
-    expect(homepage.match(/href="\/dogs\/isaiah"/g)?.length).toBe(1);
-    const heroSection = homepage.slice(
-      homepage.indexOf("{/* Hero"),
-      homepage.indexOf('{/* Live adoptable dogs by ZIP */}')
-    );
-    // Isaiah is outside the DogOfTheDay widget entirely.
-    expect(heroSection.indexOf('href="/dogs/isaiah"')).toBeLessThan(
-      heroSection.indexOf("<DogOfTheDay />")
-    );
+  it("retains automatic ZIP results and direct dog sharing", () => {
+    expect(homepage).toContain('useState("63040")');
+    expect(homepage).toContain('fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`)');
+    expect(homepage).toContain('<DogTile key={d.id}');
+    expect(homepage).toContain('Find Dogs Near Me');
+    expect(hero).toContain('url={`https://dontclonemetom.com${pagePath}`}');
   });
 
   it("never disappears: the label survives loading and unavailable states", () => {
@@ -156,8 +120,8 @@ describe("homepage hero: Dog of the Day", () => {
 
   it("keeps keyboard focus visible and touch targets big enough", () => {
     expect(hero).toContain("focus-visible:outline");
-    // Photo card is 112px tall on mobile; the fallback row is min-h-14 (56px).
+    // The featured portrait is 224px on desktop; the fallback row is 56px.
     expect(hero).toContain("min-h-14");
-    expect(hero).toContain("h-28 w-28");
+    expect(hero).toContain("sm:h-56 sm:w-56");
   });
 });

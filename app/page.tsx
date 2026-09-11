@@ -259,7 +259,7 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
       )}
       {d.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={d.photo} alt={d.name} loading="lazy" className="h-40 w-full object-cover" style={{ objectPosition: "50% 25%" }} />
+        <img src={d.photo} alt={d.name} loading="lazy" className="aspect-square w-full object-cover" style={{ objectPosition: "50% 25%" }} />
       ) : (
         <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
       )}
@@ -317,10 +317,7 @@ function DogOfTheDay() {
   const [pagePath, setPagePath] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
   const [spinning, setSpinning] = useState(false);
-  // "unavailable" only after the fetch actually settled with no dog — the
-  // hero heading stays put either way (2026-09-09: this widget used to
-  // `return null`, so a slow or failing feed silently deleted the Dog of the
-  // Day identity from the hero and left Isaiah reading as the site's hero).
+  // Keep the daily feature visible while loading or when the feed is unavailable.
   const [state, setState] = useState<"loading" | "ready" | "unavailable">("loading");
   const requestRef = useRef(0);
 
@@ -368,10 +365,10 @@ function DogOfTheDay() {
   const where = featured ? [featured.org, featured.city].filter(Boolean).join(" · ") : "";
 
   return (
-    <section aria-labelledby="dog-of-the-day-heading" className="mx-auto mt-6 max-w-md">
+    <section aria-labelledby="dog-of-the-day-heading" className="mx-auto mb-10 mt-8">
       <h2
         id="dog-of-the-day-heading"
-        className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF]"
+        className="text-2xl font-black text-[#e8edf5]"
       >
         Dog of the Day
       </h2>
@@ -381,7 +378,7 @@ function DogOfTheDay() {
           <Link
             href={pagePath}
             aria-label={`Dog of the Day: meet ${featured.name}${where ? `, ${where}` : ""}`}
-            className="mt-2 flex items-center gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF] sm:gap-5 sm:p-4"
+            className="mt-4 flex flex-col items-stretch gap-4 rounded-2xl border border-[#2DD4BF]/40 bg-[#141d2e] p-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF] sm:flex-row sm:items-center sm:gap-5 sm:p-4"
           >
             {featured.photo ? (
               // Face-first portrait crop: same object-fit: cover + top-biased
@@ -393,7 +390,7 @@ function DogOfTheDay() {
               <img
                 src={featured.photo}
                 alt={`${featured.name}, an adoptable dog${teaser ? ` — ${teaser}` : ""}`}
-                className="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
+                className="aspect-square w-full shrink-0 rounded-xl object-cover sm:h-56 sm:w-56"
                 style={{ objectPosition: "50% 18%" }}
               />
             ) : (
@@ -416,7 +413,16 @@ function DogOfTheDay() {
               <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
             </div>
           </Link>
-          <div className="mt-2 flex justify-center">
+          <div className="mt-3 flex flex-wrap justify-center gap-3">
+            <ShareMenu
+              label="Share this dog"
+              title={`Meet ${featured.name}`}
+              text={`Meet ${featured.name}, a real adoptable dog looking for a home.`}
+              url={`https://dontclonemetom.com${pagePath}`}
+              photo={featured.photo}
+              imgLines={[teaser, where].filter(Boolean)}
+              className="rounded-full border border-[#26324c] px-5 py-3 text-sm font-bold text-[#2DD4BF]"
+            />
             <SpinButton
               onSpin={() => {
                 setSpinning(true);
@@ -440,8 +446,7 @@ function DogOfTheDay() {
           </div>
         </div>
       ) : (
-        // Feed unavailable — the hero still says Dog of the Day and still
-        // offers a real way through to today's dog rather than disappearing.
+        // Keep an honest route to retry when the feed is unavailable.
         <Link
           href="/today"
           className="mt-2 flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-4 py-3 text-left transition hover:border-[#2DD4BF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
@@ -578,9 +583,10 @@ function FindDogs() {
         />
         <button
           onClick={openNearMe}
+          aria-label="Find Dogs Near Me on Petfinder (opens in a new tab)"
           className="inline-flex justify-center rounded-xl bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
         >
-          🐶 Find dogs near me
+          Find Dogs Near Me ↗
         </button>
       </div>
       <div className="mt-3 flex items-center gap-2">
@@ -811,76 +817,56 @@ function FindDogs() {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#0b1220] text-[#e8edf5]">
+    <main className="homepage min-h-screen bg-[#0b1220] text-[#e8edf5]">
       <div className="mx-auto max-w-3xl px-5 py-8">
 
-        {/* Hero — the domain is the whole hook (…Tom.com). Order is fixed:
-            wordmark, subtitle, Isaiah's brand pet tag, then the Dog of the
-            Day. Isaiah is the permanent brand icon (his face in a circle,
-            turquoise ring) and reads as a tag, not a card or a CTA pill; the
-            dog beneath him is the dynamic one and he must never stand in for
-            it. Locked by app/__tests__/dogOfTheDayHero.test.tsx. */}
-        <section className="text-center mb-6">
+        {/* Isaiah is the permanent brand face; discovery precedes the daily feature. */}
+        <section aria-labelledby="brand-heading" className="text-center mb-7">
+          <Link
+            href="/dogs/isaiah"
+            aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"
+            className="group mx-auto flex w-fit flex-col items-center rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2DD4BF]"
+          >
+            {/* The established face crop keeps both eyes and ears in frame. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/isaiah-icon.jpg"
+              alt="Isaiah, the black-and-white Batdog, looking right at you"
+              width={280}
+              height={280}
+              fetchPriority="high"
+              className="h-48 w-48 rounded-full border-[3px] border-[#2DD4BF] object-cover shadow-[0_0_40px_#2dd4bf18] sm:h-64 sm:w-64 lg:h-[280px] lg:w-[280px]"
+              style={{ objectPosition: "50% 25%" }}
+            />
+            <span className="mt-3 text-2xl font-black text-[#e8edf5] sm:text-3xl">ISAIAH</span>
+            <span className="mt-1 text-sm font-bold text-[#2DD4BF] sm:text-base">BATDOG • THE DARK ZAY</span>
+          </Link>
           <h1
-            className="font-black leading-[1.05] tracking-tight"
-            style={{ fontSize: "clamp(1.4rem, 7vw, 3.75rem)" }}
+            id="brand-heading"
+            className="mt-5 font-black leading-tight tracking-tight"
+            style={{ fontSize: "clamp(1.4rem, 6.2vw, 2.75rem)" }}
           >
             <span className="text-[#e8edf5]">DontCloneMeTom</span>
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-sm text-sm font-bold text-[#94a3b8] sm:text-base">
-            Real adoptable dogs near you.
+          <p className="mt-2 text-xl font-bold text-[#e8edf5] sm:text-2xl">
+            Don’t clone me. Adopt me.
           </p>
-
-          {/* Isaiah's pet tag: face in a circle with the brand ring, one
-              compact line of copy under it. Deliberately narrow (w-fit) so it
-              can't read as a nav pill or an adoption card, and with no
-              "Meet Isaiah →" CTA wording — the whole tag is the link. */}
-          <Link
-            href="/dogs/isaiah"
-            aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"
-            className="group mx-auto mt-4 flex w-fit flex-col items-center gap-1.5 rounded-2xl px-3 py-1.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/isaiah-icon.jpg"
-              alt="Isaiah, a black-and-white dog"
-              width={56}
-              height={56}
-              className="rounded-full object-cover"
-              style={{ width: 56, height: 56, border: "2px solid #2DD4BF" }}
-            />
-            <span className="text-[11px] font-black uppercase tracking-[0.18em] text-[#94a3b8] transition group-hover:text-[#e8edf5]">
-              Isaiah <span className="text-[#2DD4BF]">· Batdog</span>
-            </span>
-          </Link>
-
-          <DogOfTheDay />
-
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="#find"
-              className="inline-flex justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] hover:opacity-90 transition"
-            >
-              See dogs near me
-            </a>
-            <a
-              href="#share-real-dogs"
-              className="inline-flex justify-center rounded-full border border-[#26324c] bg-[#141d2e] px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#e8edf5] hover:border-[#26324c] transition"
-            >
-              Share
-            </a>
-          </div>
+          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#94a3b8] sm:text-base">
+            Discover real adoptable dogs near you.
+          </p>
         </section>
 
         {/* Live adoptable dogs by ZIP */}
-        <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-6">
+        <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-4 sm:p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Find a dog near you.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
             Start at 63040 or type your ZIP to see adoptable dogs nearby.
           </p>
           <FindDogs />
         </section>
+
+        <DogOfTheDay />
 
         {/* Why this source */}
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">

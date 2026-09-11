@@ -169,3 +169,12 @@ a[href]:hover {
   color: var(--om-ink);
 }
 /* OPEN MIRROR FAMILY STYLE OVERRIDE END */
+
+/* Homepage controls remain easy to tap, including details and photo controls. */
+.homepage button,
+.homepage summary,
+.homepage a:not(.absolute) {
+  min-height: 44px;
+}
+.homepage button { min-width: 44px; }
+.homepage summary { display: flex; align-items: center; }
