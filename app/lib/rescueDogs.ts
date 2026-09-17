@@ -148,6 +148,7 @@ type RGResource = {
 //   (linked from sccmo.org/825/Pet-Adoptions):
 const ORG_URL_OVERRIDES: Record<string, string> = {
   "8121": "https://www.straypawsrescue.com/animals",
+  "2707": "https://www.stclaircountyil.gov/departments/animal-services/adoption",
   "3085": "https://24petconnect.com/STCHAdopt?at=DOG",
 };
 
@@ -259,10 +260,10 @@ export function normalizeDog(
     // already screened from the live RescueGroups record.
     if (registryEntry && registryEntry.status !== "unverified") {
       return {
-        adoptionProfileUrl: registryEntry.adoptionProfileUrl,
-        adoptionProfileUrlOriginal: registryEntry.adoptionProfileUrl,
-        adoptionProfileUrlResolved: registryEntry.adoptionProfileUrl,
-        adoptionProfileUrlHttpStatus: registryEntry.adoptionProfileUrl ? 200 : null,
+        adoptionProfileUrl: registryEntry.status === "verified-direct-dog-page" ? registryEntry.adoptionProfileUrl : null,
+        adoptionProfileUrlOriginal: registryEntry.originalUrl ?? registryEntry.adoptionProfileUrl,
+        adoptionProfileUrlResolved: registryEntry.originalUrl ?? registryEntry.adoptionProfileUrl,
+        adoptionProfileUrlHttpStatus: registryEntry.httpStatus ?? null,
         adoptionProfileUrlStatus: registryEntry.status,
         adoptionProfileUrlSource: registryEntry.source,
         // A registry entry is a person's hand-audit of the destination, so it

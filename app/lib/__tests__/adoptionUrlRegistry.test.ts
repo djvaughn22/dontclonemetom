@@ -110,9 +110,9 @@ describe("adoptionUrlRegistry", () => {
 
     // 15 Spencer dogs + 32 added by the 2026-08-10 P0 link-integrity audit
     // (Country Acres, HSMO, St. Clair County, St. Animal Pet Adoptions).
-    expect(verifiedCount).toBe(47);
+    expect(verifiedCount).toBe(46); // Astrid’s Petfinder listing was removed.
     expect(nameMismatchCount).toBe(2);
-    expect(deadCount).toBe(6); // Mastino dogs
+    expect(deadCount).toBe(7); // Six Mastino dogs plus Astrid
     expect(verifiedCount + unverifiedCount + deadCount + nameMismatchCount).toBe(
       Object.keys(adoptionUrlRegistry).length,
     );
@@ -141,7 +141,6 @@ describe("adoptionUrlRegistry", () => {
       "22683643": "Michelle",
       "22684087": "Ryland",
       // St. Clair County Animal Adoption Center
-      "21881216": "Astrid",
       "22259414": "Regina",
       "22352140": "Triton",
       "22400599": "Bluebell",

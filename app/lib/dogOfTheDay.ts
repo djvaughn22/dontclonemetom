@@ -37,7 +37,7 @@ import {
 } from "./instagramPublisherCore";
 import { fetchAdoptableDogs, isPubliclyEligible, type Dog } from "./rescueDogs";
 import { hasConfirmedDestination } from "./adoptionUrlSchema";
-import { verifyDogProfileUrl } from "./linkVerification";
+import { refreshDogDestination, resetDestinationCacheForTests } from "./destinationAvailability";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
@@ -151,51 +151,22 @@ export function candidateRingForDate(
 // upstream can never turn one page render into an unbounded fetch storm.
 export const MAX_FEATURE_VERIFY_ATTEMPTS = 8;
 
-// Selection is deterministic, so the same dog is re-checked on every render.
-// Remember the verdict briefly to keep the homepage to (usually) zero
-// outbound checks and to stay a polite visitor to the rescues.
-const featureVerdictCache = new Map<string, { at: number; ok: boolean; detail: string }>();
-const FEATURE_VERDICT_MS = 30 * 60 * 1000;
+// Shared with the stable detail page; old audits expire and concurrent
+// requests reuse one bounded check instead of checking every dog in the grid.
+export const __resetFeatureVerdictCacheForTests = resetDestinationCacheForTests;
 
-export function __resetFeatureVerdictCacheForTests() {
-  featureVerdictCache.clear();
-}
-
-export type FeatureCheck = { confirmed: boolean; detail: string };
+export type FeatureCheck = { confirmed: boolean; detail: string; dog: Dog };
 
 export async function confirmFeatureEligibility(
   dog: Dog,
   options: { fetchImpl?: typeof fetch; now?: number } = {},
 ): Promise<FeatureCheck> {
-  // Already confirmed against the shelter's own official record.
-  if (hasConfirmedDestination(dog.adoption)) {
-    return { confirmed: true, detail: dog.adoption.adoptionProfileUrlDetail };
-  }
-
-  const url = dog.adoption.adoptionProfileUrl;
-  if (!url) {
-    return { confirmed: false, detail: "no individual adoption destination to confirm" };
-  }
-
-  const now = options.now ?? Date.now();
-  const cacheKey = `${dog.id}|${url}`;
-  const hit = featureVerdictCache.get(cacheKey);
-  if (hit && now - hit.at < FEATURE_VERDICT_MS) {
-    return { confirmed: hit.ok, detail: hit.detail };
-  }
-
-  const verdict = await verifyDogProfileUrl(url, {
-    dogName: dog.name,
-    animalId: dog.id,
-    sourcePetId: dog.rescueId,
-    orgUrl: dog.orgUrl,
-    fetchImpl: options.fetchImpl,
-  });
-
-  const ok = verdict.status === "exact-dog";
-  const detail = `${verdict.status}: ${verdict.detail}`;
-  featureVerdictCache.set(cacheKey, { at: now, ok, detail });
-  return { confirmed: ok, detail };
+  const checked = await refreshDogDestination(dog, options);
+  return {
+    confirmed: hasConfirmedDestination(checked.adoption),
+    detail: checked.adoption.adoptionProfileUrlDetail,
+    dog: checked,
+  };
 }
 
 // Walk the ring until a dog's destination is confirmed. Returns the first
@@ -217,7 +188,7 @@ export async function selectConfirmedDogForDate(
     if (attempts >= maxAttempts) break;
     attempts += 1;
     const check = await confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl });
-    if (check.confirmed) return { dog: candidate, rejected, attempts };
+    if (check.confirmed) return { dog: check.dog, rejected, attempts };
     rejected.push({ dog: candidate, detail: check.detail });
   }
 

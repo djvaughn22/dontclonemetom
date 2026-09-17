@@ -11,6 +11,8 @@
 // the source feed last showed this dog.
 
 import type { Metadata } from "next";
+import { cache } from "react";
+import { refreshDogDestination } from "../../lib/destinationAvailability";
 import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
@@ -51,6 +53,12 @@ export function DogPhoto({ photo, name }: { photo: string | null; name: string }
 
 type PageProps = { params: Promise<{ id: string }> };
 
+// Metadata and the page share a source fetch and the same cached verdict.
+const loadDog = cache(async (id: string) => {
+  const result = await fetchDogById(id);
+  return { ...result, dog: result.dog ? await refreshDogDestination(result.dog) : null };
+});
+
 function formatCentral(iso: string): string {
   const at = new Date(iso);
   if (Number.isNaN(at.getTime())) return iso;
@@ -84,13 +92,13 @@ function ListingEnded({ dog, nearby }: { dog: Dog; nearby: Dog[] }) {
   return (
     <section className="mt-6 rounded-3xl border border-[#26324c] bg-[#141d2e] p-6">
       <h2 className="text-lg font-black text-[#e8edf5]">
-        {dog.name} is no longer listed for adoption
+        {dog.name}’s adoption listing is unavailable
       </h2>
       <p className="mt-2 font-semibold leading-7 text-[#94a3b8]">
-        {dog.org} no longer shows {dog.name} among their adoptable pets. Very
-        often that means the best thing happened and {dog.name} went home. We
-        keep this page so your link still works — but we will not send you to a
-        listing that is not there.
+        The individual adoption listing for {dog.name} is no longer available.
+        This does not tell us whether {dog.name} was adopted. This page stays
+        here so your link still works. Contact {dog.org} for current availability
+        or meet other dogs below.
       </p>
 
       {directory ? (
@@ -100,7 +108,7 @@ function ListingEnded({ dog, nearby }: { dog: Dog; nearby: Dog[] }) {
           rel="noopener noreferrer"
           className="mt-4 inline-flex items-center justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-sm font-bold text-[#e8edf5] transition hover:border-[#2DD4BF]"
         >
-          See who {dog.org} has now ↗
+          Visit {dog.org}’s adoption page ↗
         </a>
       ) : null}
 
@@ -167,7 +175,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const { dog } = await fetchDogById(id);
+  const { dog } = await loadDog(id);
   if (!dog) return { title: "Adoptable dog" };
 
   // A shared link's preview card is often the only thing someone reads before
@@ -176,8 +184,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // hard: the link looked alive everywhere it was pasted.
   if (isConfirmedUnavailable(dog.adoption)) {
     return {
-      title: `${dog.name} is no longer listed — see dogs you can meet now`,
-      description: `${dog.org} no longer shows ${dog.name} among their adoptable pets. Meet the dogs who are still looking.`,
+      title: `${dog.name}’s adoption listing is unavailable`,
+      description: `The individual listing is unavailable. Contact ${dog.org} for current availability or meet other dogs.`,
       openGraph: dog.photo ? { images: [{ url: dog.photo }] } : undefined,
     };
   }
@@ -197,7 +205,7 @@ export default async function DogPage({ params }: PageProps) {
   const profile = getDogProfile(id);
   if (profile) return <DogProfileView profile={profile} />;
 
-  const { dog, gone, reason } = await fetchDogById(id);
+  const { dog, gone, reason } = await loadDog(id);
 
   if (!dog) {
     return (
@@ -248,6 +256,12 @@ export default async function DogPage({ params }: PageProps) {
       </p>
 
       {unavailable ? <ListingEnded dog={dog} nearby={nearby} /> : null}
+      {dog.adoption.adoptionProfileUrlStatus === "unverified" && (
+        <p role="status" className="mt-6 rounded-2xl border border-[#26324c] p-4 text-[#94a3b8]">
+          We couldn’t confirm this adoption page right now. That does not mean
+          {" "}{dog.name} is no longer available. Please try again later or contact {dog.org}.
+        </p>
+      )}
 
       <DogPhoto photo={dog.photo} name={dog.name} />
 
@@ -309,7 +323,7 @@ export default async function DogPage({ params }: PageProps) {
         </p>
       ) : null}
 
-      <div className="mt-8">
+      {!unavailable && <div className="mt-8">
         <DogShareActions
           key={dog.id}
           dogId={dog.id}
@@ -321,7 +335,7 @@ export default async function DogPage({ params }: PageProps) {
           destination={resolveDogDestination(dog)}
           viewEvent="dcmt_dog_viewed"
         />
-      </div>
+      </div>}
 
       <p className="mt-8 text-xs font-semibold leading-5 text-[#94a3b8]">
         {unavailable

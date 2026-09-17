@@ -9,6 +9,8 @@ type RegistryEntry = {
   source: AdoptionUrlSource;
   verifiedAt: string | null;
   notes: string;
+  httpStatus?: number;
+  originalUrl?: string;
 };
 
 
@@ -1162,11 +1164,13 @@ const org_21937865_data: Record<string, RegistryEntry> = {
 
 const org_21881216_data: Record<string, RegistryEntry> = {
   "21881216": {
-    adoptionProfileUrl: "https://www.petfinder.com/dog/astrid-41f09fe4-7329-46b5-a36d-1c172b29f135/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.petfinder.com/dog/astrid-41f09fe4-7329-46b5-a36d-1c172b29f135/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "dead-or-removed",
     source: "petfinder",
-    verifiedAt: "2026-08-11T01:17:30Z",
-    notes: "Astrid — St. Clair County's own Petfinder org page lists her individually; breed/age/sex match the RescueGroups record exactly (verified 2026-08-10 P0 audit).",
+    verifiedAt: "2026-09-17T01:28:07Z",
+    httpStatus: 404,
+    notes: "2026-09-16: owner-reported Petfinder 404 independently reproduced by web fetch. Direct automated requests receive 403 (blocking, not removal evidence). August source-provided Petfinder URL is now unavailable; RescueGroups 21881216 still exists but supplies no individual URL. Retained for audit, never reconstructed. This does not establish whether Astrid was adopted.",
   },
   "22259414": {
     adoptionProfileUrl: "https://www.petfinder.com/dog/regina-2e6f35dd-78d8-4f87-a660-4019c041dd52/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
