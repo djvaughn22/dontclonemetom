@@ -34,13 +34,13 @@ export const dynamic = "force-dynamic";
 // homepage tiles use when a listing has no photo at all.
 export function DogPhoto({ photo, name }: { photo: string | null; name: string }) {
   return (
-    <div className="mt-6 overflow-hidden rounded-3xl border border-[#26324c] bg-[#141d2e]">
+    <div className="mt-6 flex max-h-[34rem] justify-center rounded-3xl border border-[#26324c] bg-[#0b1220] p-2">
       {photo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={photo}
           alt={`${name}, an adoptable dog`}
-          className="aspect-[4/3] w-full object-cover"
+          className="block h-auto max-h-[32rem] max-w-full rounded-2xl object-contain object-center"
         />
       ) : (
         <div className="flex aspect-[4/3] w-full items-center justify-center text-6xl">

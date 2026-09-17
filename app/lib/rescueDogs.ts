@@ -125,6 +125,18 @@ function decodeEntities(s: string): string {
     .replace(/[ \t]{2,}/g, " ");
 }
 
+// RescueGroups can return the large variant with a width=500 thumbnail
+// transform. Remove that transform so detail pages receive the full source.
+export function uncroppedPhotoUrl(value: string): string {
+  try {
+    const url = new URL(value);
+    url.searchParams.delete("width");
+    return url.href;
+  } catch {
+    return value;
+  }
+}
+
 function flag(v: unknown, yes: string, no: string): string | null {
   return v === true ? yes : v === false ? no : null;
 }

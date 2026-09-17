@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { DogPhoto } from "../dogs/[id]/page";
+import { uncroppedPhotoUrl } from "../lib/rescueDogs";
 
 // Regression coverage for the production bug: the dog detail page (RYLAND
 // and any other live listing) showed name/breed/age/description but no
@@ -13,6 +14,10 @@ import { DogPhoto } from "../dogs/[id]/page";
 // review gate.
 
 describe("DogPhoto — the dog detail page always shows a picture", () => {
+  it("removes the RescueGroups thumbnail width while preserving the source URL", () => {
+    expect(uncroppedPhotoUrl("https://cdn.rescuegroups.org/a.jpg?width=500")).toBe("https://cdn.rescuegroups.org/a.jpg");
+    expect(uncroppedPhotoUrl("https://cdn.rescuegroups.org/a.jpg?foo=1&width=500")).toBe("https://cdn.rescuegroups.org/a.jpg?foo=1");
+  });
   it("renders the dog's real photo when one exists", () => {
     const html = renderToStaticMarkup(
       createElement(DogPhoto, { photo: "https://cdn.rescuegroups.org/ryland.jpg", name: "Ryland" }),
@@ -20,6 +25,8 @@ describe("DogPhoto — the dog detail page always shows a picture", () => {
     expect(html).toContain("https://cdn.rescuegroups.org/ryland.jpg");
     expect(html).toContain("Ryland, an adoptable dog");
     expect(html).not.toContain("🐶");
+    expect(html).toContain("object-contain");
+    expect(html).toContain("max-h-[32rem]");
   });
 
   it("renders the site's existing fallback (no broken image) when a dog has no photo", () => {
