@@ -22,7 +22,7 @@ describe("homepage hierarchy and Dog of the Day", () => {
     expect(hero).toContain(">\n        Dog of the Day\n      <");
   });
 
-  it("puts Isaiah, the rescue message, and real-dog discovery before the daily feature", () => {
+  it("puts the compact brand introduction and daily feature before search and results", () => {
     const home = homepage.slice(homepage.indexOf("export default function HomePage"));
     const order = [
       'src="/isaiah-icon.jpg"',
@@ -31,6 +31,7 @@ describe("homepage hierarchy and Dog of the Day", () => {
       'id="brand-heading"',
       '<span className="text-[#2DD4BF]">.com</span>',
       'Don’t clone me. Adopt me.',
+      '<DogOfTheDay />',
       'id="find"',
       '<FindDogs />',
       'Why these sources?',
@@ -43,25 +44,22 @@ describe("homepage hierarchy and Dog of the Day", () => {
     expect(homepage.match(/<DogOfTheDay \/>/g)).toHaveLength(1);
   });
 
-  it("bounds the preview before the daily feature and puts expansion afterwards", () => {
+  it("shows the selected picks below the controls with access to every returned dog", () => {
     const discovery = homepage.slice(homepage.indexOf("function FindDogs()"), homepage.indexOf("export default function HomePage"));
-    const preview = discovery.indexOf('aria-label="Adoptable dog preview"');
-    const daily = discovery.indexOf("<DogOfTheDay />");
-    const additional = discovery.indexOf('aria-label="Additional adoptable dogs"');
-    expect(preview).toBeGreaterThan(-1);
-    expect(daily).toBeGreaterThan(preview);
-    expect(additional).toBeGreaterThan(daily);
-    expect(discovery.slice(preview, daily)).toContain("dogs.slice(0, 3).map");
-    expect(discovery.slice(preview, daily)).not.toContain("dogs.map");
-    expect(discovery.slice(daily)).toContain("dogs.slice(2).map");
-    expect(discovery.slice(daily)).toContain("See all dogs ({dogs.length})");
+    expect(discovery.indexOf('aria-label="Adoptable dogs"')).toBeGreaterThan(discovery.indexOf("</form>"));
+    expect(discovery).toContain("visibleDogs.map((d)");
+    expect(discovery).toContain('picks === "all" ? dogs : dogs?.slice(0, Number(picks))');
+    expect(discovery).toContain('<option value="all">All dogs</option>');
+
+    expect(discovery).not.toContain("See all dogs");
+    expect(discovery).not.toContain("<DogOfTheDay />");
   });
 
-  it("keeps the permanent face crop prominent on mobile and desktop", () => {
+  it("keeps the permanent face crop compact on mobile and desktop", () => {
     const home = homepage.slice(homepage.indexOf("export default function HomePage"));
     expect(home).toContain('href="/dogs/isaiah"');
-    expect(home).toContain('h-48 w-48');
-    expect(home).toContain('lg:h-[280px] lg:w-[280px]');
+    expect(home).toContain('h-24 w-24');
+    expect(home).toContain('sm:h-[120px] sm:w-[120px]');
     expect(home).toContain('rounded-full border-[3px] border-[#2DD4BF] object-cover');
     expect(home).toContain('fetchPriority="high"');
     expect(home).toContain('focus-visible:outline');
@@ -71,9 +69,10 @@ describe("homepage hierarchy and Dog of the Day", () => {
 
   it("retains automatic ZIP results and direct dog sharing", () => {
     expect(homepage).toContain('useState("63040")');
-    expect(homepage).toContain('fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`)');
-    expect(homepage).toContain('<DogTile dog={d}');
-    expect(homepage).toContain('Find Dogs Near Me');
+    expect(homepage).toContain('fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`,');
+    expect(homepage).toContain('<DogTile key={d.id} dog={d}');
+    expect(homepage).toContain('Update dogs');
+    expect(homepage).not.toContain('openNearMe');
     expect(hero).toContain('url={`https://dontclonemetom.com${pagePath}`}');
   });
 

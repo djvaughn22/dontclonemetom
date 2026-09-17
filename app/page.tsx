@@ -377,7 +377,7 @@ function DogOfTheDay() {
   const where = featured ? [featured.org, featured.city].filter(Boolean).join(" · ") : "";
 
   return (
-    <section aria-labelledby="dog-of-the-day-heading" className="mx-auto mb-10 mt-8">
+    <section aria-labelledby="dog-of-the-day-heading" className="mx-auto mb-6">
       <h2
         id="dog-of-the-day-heading"
         className="text-2xl font-black text-[#e8edf5]"
@@ -470,7 +470,7 @@ function DogOfTheDay() {
           >
             Retry Dog of the Day
           </button>
-          <Link href="/today" className="ml-3 inline-flex items-center text-sm font-bold text-[#2DD4BF]">Open today’s page →</Link>
+          <Link href="/today" className="ml-3 inline-flex min-h-11 items-center text-sm font-bold text-[#2DD4BF]">Open today’s page →</Link>
         </div>
       )}
     </section>
@@ -480,6 +480,9 @@ function DogOfTheDay() {
 function FindDogs() {
   const [zip, setZip] = useState("63040");
   const [miles, setMiles] = useState(50);
+  const [picks, setPicks] = useState("222");
+  const [refresh, setRefresh] = useState(0);
+  const [initialized, setInitialized] = useState(false);
   const [dogs, setDogs] = useState<Dog[] | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "fallback">("loading");
   // When the requested radius doesn't have enough dogs with a verified
@@ -496,11 +499,13 @@ function FindDogs() {
   // Shared dog links land here: /?zip=63040&miles=50&dog=123 reopens that dog.
   useEffect(() => {
     const sp = new URLSearchParams(window.location.search);
-    const z = sp.get("zip"), m = sp.get("miles"), d = sp.get("dog");
+    const z = sp.get("zip"), m = sp.get("miles"), d = sp.get("dog"), p = sp.get("picks");
     // eslint-disable-next-line react-hooks/set-state-in-effect -- URL params are client-only; read after mount so hydration matches
     if (z && /^\d{5}$/.test(z)) setZip(z);
     if (m && RADIUS_OPTIONS.includes(parseInt(m, 10))) setMiles(parseInt(m, 10));
+    if (p && ["22", "222", "all"].includes(p)) setPicks(p);
     if (d) setPendingDog(d);
+    setInitialized(true);
   }, []);
   useEffect(() => {
     if (!pendingDog || !dogs) return;
@@ -510,22 +515,39 @@ function FindDogs() {
     setPendingDog(null);
   }, [dogs, pendingDog]);
 
-  const clean = zip.match(/\d{5}/)?.[0] ?? "63040";
+  const clean = /^\d{5}$/.test(zip) ? zip : "";
+  const visibleDogs = picks === "all" ? dogs : dogs?.slice(0, Number(picks));
   const detailDest = detail ? resolveDogDestination(detail) : null;
   const origin = typeof window !== "undefined" ? window.location.origin : "https://dontclonemetom.com";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=${miles}`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
-  const openNearMe = () => window.open(petfinderUrl, "_blank", "noopener,noreferrer");
+
+  // Keep valid settings in the URL so reloads and shared links retain them.
+  useEffect(() => {
+    if (!initialized || !clean) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("zip", clean);
+    url.searchParams.set("miles", String(miles));
+    url.searchParams.set("picks", picks);
+    window.history.replaceState(null, "", url);
+  }, [initialized, clean, miles, picks]);
 
   // Live dogs near the typed ZIP (RescueGroups.org, chosen radius).
   // Falls back to the search links below if the API is unavailable.
   useEffect(() => {
+    if (!initialized) return;
     let dead = false;
+    const controller = new AbortController();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch effect: show the loading state for the request this effect starts
     setStatus("loading");
+    setDogs(null);
+    if (!clean) return;
     const t = setTimeout(() => {
-      fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`)
-        .then((r) => r.json())
+      fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`, { signal: controller.signal })
+        .then((r) => {
+          if (!r.ok) throw new Error("Dogs unavailable");
+          return r.json();
+        })
         .then((j) => {
           if (dead) return;
           if (j?.dogs?.length) {
@@ -545,8 +567,9 @@ function FindDogs() {
     return () => {
       dead = true;
       clearTimeout(t);
+      controller.abort();
     };
-  }, [clean, miles]);
+  }, [initialized, clean, miles, refresh]);
 
   // The optional Petfinder widget mounts only when expanded: load its script,
   // then style its shadow DOM (2-per-row on desktop; readable dropdowns).
@@ -585,43 +608,56 @@ function FindDogs() {
 
   return (
     <div>
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <input
-          type="text"
-          inputMode="numeric"
-          value={zip}
-          onChange={(e) => setZip(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") openNearMe(); }}
-          maxLength={5}
-          aria-label="ZIP code"
-          placeholder="ZIP code"
-          className="w-full rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3 text-base font-bold text-[#e8edf5] placeholder-[#94a3b8] focus:border-[#2DD4BF] focus:outline-none sm:w-40"
-        />
-        <button
-          onClick={openNearMe}
-          aria-label="Find Dogs Near Me on Petfinder (opens in a new tab)"
-          className="inline-flex justify-center rounded-xl bg-[#2DD4BF] px-6 py-3 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
-        >
-          Find Dogs Near Me ↗
-        </button>
-      </div>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="text-xs font-black uppercase tracking-[0.12em] text-[#94a3b8]">Within</span>
-        {RADIUS_OPTIONS.map((m) => (
-          <button
-            key={m}
-            onClick={() => setMiles(m)}
-            className={
-              "rounded-full border px-3.5 py-1.5 text-xs font-black transition " +
-              (miles === m
-                ? "border-[#2DD4BF] bg-[#2DD4BF] text-[#0b1220]"
-                : "border-[#26324c] bg-[#0b1220] text-[#94a3b8] hover:border-[#2DD4BF]")
-            }
+      <form
+        aria-label="Find adoptable dogs"
+        onSubmit={(event) => { event.preventDefault(); setRefresh((value) => value + 1); }}
+        className="grid grid-cols-2 items-end gap-3 rounded-xl border border-[#26324c] bg-[#0b1220] p-3 sm:grid-cols-4"
+      >
+        <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
+          ZIP code
+          <input
+            type="text"
+            inputMode="numeric"
+            value={zip}
+            onChange={(e) => setZip(e.target.value)}
+            pattern="[0-9]{5}"
+            required
+            maxLength={5}
+            aria-label="ZIP code"
+            className="mt-1 min-h-11 w-full rounded-lg border border-[#26324c] bg-[#141d2e] px-3 py-2 text-base font-bold text-[#e8edf5]"
+          />
+        </label>
+        <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
+          Distance
+          <select
+            aria-label="Distance"
+            value={miles}
+            onChange={(e) => setMiles(Number(e.target.value))}
+            className="mt-1 min-h-11 w-full rounded-lg border border-[#26324c] bg-[#141d2e] px-3 py-2 text-base font-bold text-[#e8edf5]"
           >
-            {m} mi
-          </button>
-        ))}
-      </div>
+            {RADIUS_OPTIONS.map((m) => <option key={m} value={m}>{m} miles</option>)}
+          </select>
+        </label>
+        <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
+          Picks (dogs)
+          <select
+            aria-label="Picks (dogs)"
+            value={picks}
+            onChange={(e) => setPicks(e.target.value)}
+            className="mt-1 min-h-11 w-full rounded-lg border border-[#26324c] bg-[#141d2e] px-3 py-2 text-base font-bold text-[#e8edf5]"
+          >
+            <option value="22">22 dogs</option>
+            <option value="222">222 dogs</option>
+            <option value="all">All dogs</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="min-h-11 rounded-lg bg-[#2DD4BF] px-4 py-2 text-sm font-black text-[#0b1220]"
+        >
+          Update dogs
+        </button>
+      </form>
       <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
         {status === "ok" && widened ? (
           <>
@@ -635,40 +671,29 @@ function FindDogs() {
         )}
       </p>
 
+      {!clean && <p role="status" className="mt-3 text-sm text-[#94a3b8]">Enter a five-digit ZIP code to see nearby dogs.</p>}
+
       {/* Live adoptable dogs near the ZIP (dogs only). */}
-      {status === "loading" && (
+      {status === "loading" && clean && (
         <p className="mt-5 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
           Fetching good dogs near {clean}…
         </p>
       )}
-      <section aria-label="Adoptable dog preview">
-        {status === "ok" && dogs && (
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {dogs.slice(0, 3).map((d, index) => (
-              <div key={d.id} className={index === 2 ? "hidden min-w-0 sm:block" : "min-w-0"}>
-                <DogTile dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
-              </div>
-            ))}
-          </div>
+      <section aria-label="Adoptable dogs" aria-live="polite" aria-busy={status === "loading"}>
+        {status === "ok" && dogs && visibleDogs && (
+          <>
+            <p className="mt-4 text-sm font-semibold text-[#94a3b8]">
+              Showing {visibleDogs.length} of {dogs.length} dogs.
+              {visibleDogs.length < dogs.length && " Choose All dogs above to see every match."}
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {visibleDogs.map((d) => (
+                <DogTile key={d.id} dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
+              ))}
+            </div>
+          </>
         )}
       </section>
-
-      <DogOfTheDay />
-
-      {status === "ok" && dogs && dogs.length > 2 && (
-        <details className={dogs.length === 3 ? "sm:hidden" : ""}>
-          <summary className="cursor-pointer rounded-xl border border-[#26324c] px-4 py-3 text-sm font-black text-[#2DD4BF]">
-            See all dogs ({dogs.length})
-          </summary>
-          <div aria-label="Additional adoptable dogs" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {dogs.slice(2).map((d, index) => (
-              <div key={d.id} className={index === 0 ? "min-w-0 sm:hidden" : "min-w-0"}>
-                <DogTile dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
 
       {/* In-page dog detail — meet them without leaving tom.com */}
       {detail && (
@@ -691,7 +716,7 @@ function FindDogs() {
                 type="button"
                 aria-label="Close"
                 onClick={() => setDetail(null)}
-                className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+                className="absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
               >
                 ✕
               </button>
@@ -701,7 +726,7 @@ function FindDogs() {
                     type="button"
                     aria-label="Previous photo"
                     onClick={() => setPhotoIdx((photoIdx + detail.photos.length - 1) % detail.photos.length)}
-                    className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+                    className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
                   >
                     ‹
                   </button>
@@ -709,7 +734,7 @@ function FindDogs() {
                     type="button"
                     aria-label="Next photo"
                     onClick={() => setPhotoIdx((photoIdx + 1) % detail.photos.length)}
-                    className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
+                    className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-lg font-black text-white"
                   >
                     ›
                   </button>
@@ -776,7 +801,7 @@ function FindDogs() {
                     label={`📣 Share ${detail.name}`}
                     title={`Meet ${detail.name} 🐶`}
                     text={`Meet ${detail.name} — ${detail.breed}, ${detail.distance !== null ? `${Math.round(detail.distance)} miles away ` : ""}with ${detail.org}. Real adoptable dog looking for a home!`}
-                    url={`${origin}/?zip=${clean}&miles=${miles}&dog=${detail.id}`}
+                    url={`${origin}/?zip=${clean}&miles=${miles}&picks=${picks}&dog=${detail.id}`}
                     photo={detail.photo}
                     imgLines={[detail.breed, [detail.age, detail.sex].filter(Boolean).join(" · ") + (detail.org ? ` · ${detail.org}` : "")]}
                     className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
@@ -855,10 +880,10 @@ function FindDogs() {
 export default function HomePage() {
   return (
     <main className="homepage min-h-screen bg-[#0b1220] text-[#e8edf5]">
-      <div className="mx-auto max-w-3xl px-5 py-8">
+      <div className="mx-auto max-w-3xl px-5 py-5">
 
-        {/* Isaiah is the permanent brand face; discovery precedes the daily feature. */}
-        <section aria-labelledby="brand-heading" className="text-center mb-7">
+        {/* Isaiah is the compact brand face, followed immediately by the daily feature. */}
+        <section aria-labelledby="brand-heading" className="text-center mb-5">
           <Link
             href="/dogs/isaiah"
             aria-label="Isaiah the Batdog, the DontCloneMeTom.com brand dog"
@@ -869,18 +894,18 @@ export default function HomePage() {
             <img
               src="/isaiah-icon.jpg"
               alt="Isaiah, the black-and-white Batdog, looking right at you"
-              width={280}
-              height={280}
+              width={120}
+              height={120}
               fetchPriority="high"
-              className="h-48 w-48 rounded-full border-[3px] border-[#2DD4BF] object-cover shadow-[0_0_40px_#2dd4bf18] sm:h-64 sm:w-64 lg:h-[280px] lg:w-[280px]"
+              className="h-24 w-24 rounded-full border-[3px] border-[#2DD4BF] object-cover shadow-[0_0_40px_#2dd4bf18] sm:h-[120px] sm:w-[120px]"
               style={{ objectPosition: "50% 25%" }}
             />
-            <span className="mt-3 text-2xl font-black text-[#e8edf5] sm:text-3xl">ISAIAH</span>
-            <span className="mt-1 text-sm font-bold text-[#2DD4BF] sm:text-base">BATDOG • THE DARK ZAY</span>
+            <span className="mt-2 text-base font-black text-[#e8edf5] sm:text-lg">ISAIAH</span>
+            <span className="mt-1 text-xs font-bold text-[#2DD4BF]">BATDOG • THE DARK ZAY</span>
           </Link>
           <h1
             id="brand-heading"
-            className="mt-5 font-black leading-tight tracking-tight"
+            className="mt-3 font-black leading-tight tracking-tight"
             style={{ fontSize: "clamp(1.4rem, 6.2vw, 2.75rem)" }}
           >
             <span className="text-[#e8edf5]">DontCloneMeTom</span>
@@ -893,6 +918,8 @@ export default function HomePage() {
             Discover real adoptable dogs near you.
           </p>
         </section>
+
+        <DogOfTheDay />
 
         {/* Live adoptable dogs by ZIP */}
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-4 sm:p-6">
