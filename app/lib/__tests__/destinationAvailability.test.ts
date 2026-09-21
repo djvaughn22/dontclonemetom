@@ -72,8 +72,8 @@ describe("Astrid regression: an old audit is not permanent availability", () => 
       return new Response("", { status: Number(status) });
     });
     const result = await refreshDogDestination(dog, { fetchImpl, now });
-    expect(result.adoption.adoptionProfileUrlStatus).toBe("unverified");
-    expect(result.adoption.destinationVerifiedAt).toBeNull();
+    expect(result.adoption.adoptionProfileUrlStatus).toBe("verified-direct-dog-page");
+    expect(result.adoption.destinationVerifiedAt).toBe(dog.adoption.destinationVerifiedAt);
     expect(result.adoption.adoptionProfileUrlOriginal).toBe(dog.adoption.adoptionProfileUrl);
     await refreshDogDestination(dog, { fetchImpl, now: now + 1000 });
     expect(fetchImpl).toHaveBeenCalledTimes(1);

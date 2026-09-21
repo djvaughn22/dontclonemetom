@@ -54,6 +54,14 @@ export async function refreshDogDestination(
   }
 
   const { verdict, at } = checked;
+
+  // Temporary upstream blocking is not proof that a previously verified
+  // adoption listing is gone. Preserve its confirmed state until a check
+  // positively proves gone, generic, or wrong-dog.
+  if (verdict.status === "uncertain" && hasConfirmedDestination(dog.adoption)) {
+    return dog;
+  }
+
   const confirmed = verdict.status === "exact-dog";
   const status = confirmed ? "verified-direct-dog-page"
     : verdict.status === "gone" ? "dead-or-removed"
