@@ -180,11 +180,21 @@ export async function selectConfirmedDogForDate(
   options: { fetchImpl?: typeof fetch; maxAttempts?: number } = {},
 ): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
   const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset);
+
+  // Prefer candidates with a previously confirmed destination. Temporary
+  // upstream blocking must not hide a valid featured dog behind eight newer,
+  // unconfirmed listings.
+  const orderedRing = ring.slice().sort(
+    (a, b) =>
+      Number(hasConfirmedDestination(b.adoption)) -
+      Number(hasConfirmedDestination(a.adoption)),
+  );
+
   const maxAttempts = options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS;
   const rejected: { dog: Dog; detail: string }[] = [];
 
   let attempts = 0;
-  for (const candidate of ring) {
+  for (const candidate of orderedRing) {
     if (attempts >= maxAttempts) break;
     attempts += 1;
     const check = await confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl });
