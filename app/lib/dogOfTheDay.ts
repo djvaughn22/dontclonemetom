@@ -181,20 +181,16 @@ export async function selectConfirmedDogForDate(
 ): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
   const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset);
 
-  // Prefer candidates with a previously confirmed destination. Temporary
-  // upstream blocking must not hide a valid featured dog behind eight newer,
-  // unconfirmed listings.
-  const orderedRing = ring.slice().sort(
-    (a, b) =>
-      Number(hasConfirmedDestination(b.adoption)) -
-      Number(hasConfirmedDestination(a.adoption)),
-  );
+  // The current inventory has already confirmed these destinations. Use the
+  // first confirmed candidate before spending any live-check attempts.
+  const confirmed = ring.find((dog) => hasConfirmedDestination(dog.adoption));
+  if (confirmed) return { dog: confirmed, rejected: [], attempts: 0 };
 
   const maxAttempts = options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS;
   const rejected: { dog: Dog; detail: string }[] = [];
 
   let attempts = 0;
-  for (const candidate of orderedRing) {
+  for (const candidate of ring) {
     if (attempts >= maxAttempts) break;
     attempts += 1;
     const check = await confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl });

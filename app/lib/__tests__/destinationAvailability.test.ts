@@ -32,20 +32,24 @@ describe("Astrid regression: an old audit is not permanent availability", () => 
     expect(resolveDogDestination(dog).type).not.toBe("exact-dog");
   });
 
-  it("rechecks a stale audit, skips its 404 and features the next confirmed dog", async () => {
-    const dogs = [auditedDog("111"), auditedDog("222")];
-    const [removed, available] = candidateRingForDate("2026-09-16", dogs, new Set());
-    const fetchImpl = vi.fn(async (url) => new Response("<h1>Juniper</h1>", {
-      status: String(url) === removed.adoption.adoptionProfileUrl ? 404 : 200,
-    })) as unknown as typeof fetch;
+  it("selects the first confirmed candidate without live checks, respecting exclusions and offset", async () => {
+    const dogs = Array.from({ length: 12 }, (_, i) => auditedDog(String(111 + i)));
+    const ring = candidateRingForDate("2026-09-16", dogs, new Set());
+    for (const dog of ring.slice(0, 9)) {
+      dog.adoption.destinationVerificationMethod = "none";
+    }
+    const fetchImpl = vi.fn(async () => new Response("", { status: 503 }));
     const result = await selectConfirmedDogForDate("2026-09-16", dogs, new Set(), 0, { fetchImpl });
-    expect(result.dog?.id).toBe(available.id);
-    expect(result.attempts).toBe(2);
-    expect(result.rejected[0].detail).toContain("gone");
-    const detail = await refreshDogDestination(removed, { fetchImpl });
+    expect(result).toEqual({ dog: ring[9], rejected: [], attempts: 0 });
+    const alternative = await selectConfirmedDogForDate("2026-09-16", dogs, new Set([ring[9].id]), 9, { fetchImpl });
+    expect(alternative).toEqual({ dog: ring[10], rejected: [], attempts: 0 });
+    expect(fetchImpl).not.toHaveBeenCalled();
+    // Detail-page refresh still withdraws a listing when it confirms removal.
+    fetchImpl.mockImplementation(async () => new Response("", { status: 404 }));
+    const detail = await refreshDogDestination(ring[9], { fetchImpl });
     expect(detail.adoption.adoptionProfileUrlStatus).toBe("dead-or-removed");
     expect(detail.adoption.adoptionProfileUrl).toBeNull();
-    expect(fetchImpl).toHaveBeenCalledTimes(2); // detail shares the selection verdict
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it("shares concurrent checks, retains the exact sourced URL, and expires a successful verdict", async () => {
