@@ -82,6 +82,21 @@ describe("Dumpling regression: the featured dog's destination is checked live", 
     expect(fetchImpl).toHaveBeenCalled();
   });
 
+  it("gives each spin offset a different dog when unconfirmed dogs lead the ring", async () => {
+    const dogs = Array.from({ length: 6 }, (_, i) => auditedDog(String(111 + i)));
+    const ring = candidateRingForDate("2026-10-08", dogs, new Set());
+    for (const dog of ring.slice(0, 3)) {
+      dog.adoption.destinationVerifiedAt = null;
+      dog.adoption.destinationVerificationMethod = "none";
+    }
+    const fetchImpl = vi.fn(async () => new Response("<h1>Juniper</h1>")) as unknown as typeof fetch;
+    const picks = [];
+    for (const offset of [0, 1, 2]) {
+      picks.push((await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), offset, { fetchImpl })).dog?.id);
+    }
+    expect(picks).toEqual(ring.slice(3, 6).map((d) => d.id));
+  });
+
   it("keeps a confirmed dog through a blocked check without restamping it as verified", async () => {
     const dogs = [auditedDog("111"), auditedDog("222")];
     const [first] = candidateRingForDate("2026-10-08", dogs, new Set());

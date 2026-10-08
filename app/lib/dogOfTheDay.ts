@@ -189,13 +189,14 @@ export async function selectConfirmedDogForDate(
   offset = 0,
   options: { fetchImpl?: typeof fetch; maxAttempts?: number } = {},
 ): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
-  const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset);
+  const ring = candidateRingForDate(dateKey, dogs, excludeIds);
 
   // Previously confirmed destinations go first, but nobody skips the check.
+  // The offset (Spin) applies after ordering, so each spin is a new dog.
   const ordered = [
     ...ring.filter((dog) => hasConfirmedDestination(dog.adoption)),
     ...ring.filter((dog) => !hasConfirmedDestination(dog.adoption)),
-  ];
+  ].slice(Math.max(0, offset));
   const candidates = ordered.slice(0, options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS);
   const rejected: { dog: Dog; detail: string }[] = [];
 
