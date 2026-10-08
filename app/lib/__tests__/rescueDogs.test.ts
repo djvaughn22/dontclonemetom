@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { resolveDogDestination } from "../dogDestination";
 import {
   hasOwnListing,
+  isPubliclyEligible,
   normalizeDog,
   normalizeHttpUrl,
   resolveDogUrl,
@@ -324,28 +325,23 @@ describe("normalizeDog — URL handling from the raw API record", () => {
     expect(dog.url).toBe("");
   });
 
-  it("uses hand-verified adoption URL overrides when RescueGroups lacks individual dog URLs", () => {
-    // Paco (Spencer Pet Rescue) — verified GetBuddy page (2026-08-04 audit)
+  it("never links Paco's adopted GetBuddy page, from the override or the registry", () => {
+    // Paco (Spencer Pet Rescue) — GetBuddy override from the 2026-08-04 audit;
+    // GetBuddy reported him adopted by 2026-10-08.
     const { animal, included } = rgAnimal({
       id: "22649663",
       attributes: { name: "Paco" },
       org: { name: "Spencer Pet Rescue", url: "http://spencerpetrescue.info/" },
     });
     const dog = normalizeDog(animal, included);
-    // Verify the override was applied: no individual URL from RG, but GetBuddy
-    // from override is now the profileUrl
-    expect(dog.profileUrl).toBe(
-      "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile"
-    );
-    expect(dog.url).toBe(
-      "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile"
-    );
-    // Verify the modal CTA shows the exact dog, not the generic rescue
+    expect(dog.profileUrl).toBeNull();
+    expect(dog.url).not.toContain("getbuddy.com");
+    expect(dog.adoption.adoptionProfileUrlStatus).toBe("dead-or-removed");
+    expect(dog.adoption.adoptionProfileUrlOriginal).toContain("699d5d19e7817824d57fc1de");
+    expect(isPubliclyEligible(dog)).toBe(false);
     const dest = resolveDogDestination(dog);
-    expect(dest.type).toBe("exact-dog");
-    expect(dest.label).toBe("View Paco's adoption page");
-    expect(dest.url).toContain("getbuddy.com");
-    expect(dest.url).toContain("699d5d19e7817824d57fc1de");
+    expect(dest.type).not.toBe("exact-dog");
+    expect(dest.url ?? "").not.toContain("getbuddy.com");
   });
 
   it("prioritizes RescueGroups individual URLs over overrides when both exist", () => {

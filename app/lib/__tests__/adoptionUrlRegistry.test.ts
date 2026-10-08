@@ -13,16 +13,20 @@ describe("adoptionUrlRegistry", () => {
     expect(count).toBeGreaterThanOrEqual(222);
   });
 
-  it("Paco (22649663) is verified with GetBuddy URL", () => {
+  it("Paco (22649663) keeps his adopted GetBuddy URL for the record, never as a link", () => {
     const entry = getAdoptionUrlStatus("22649663");
     expect(entry).not.toBeNull();
-    expect(entry?.status).toBe("verified-direct-dog-page");
+    expect(entry?.status).toBe("dead-or-removed");
     expect(entry?.source).toBe("getbuddy");
-    expect(entry?.adoptionProfileUrl).toBe("https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de");
-    expect(entry?.verifiedAt).toBeTruthy();
+    expect(entry?.adoptionProfileUrl).toBeNull();
+    expect(entry?.originalUrl).toBe("https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de");
+    expect(entry?.verifiedAt).toBe("2026-10-08T21:30:00Z");
   });
 
-  it("15 Spencer dogs are verified with GetBuddy pages; Macy and Raya are honestly demoted", () => {
+  // 2026-10-08: every one of these GetBuddy pages said the dog had been
+  // adopted while RescueGroups still listed her, and Dumpling was Dog of the
+  // Day on the strength of the August audit. Withdrawn, not deleted.
+  it("15 adopted Spencer dogs are withdrawn from GetBuddy; Macy and Raya are honestly demoted", () => {
     const spencerVerified = {
       "22649636": "Carl",
       "22649637": "Darla",
@@ -43,11 +47,13 @@ describe("adoptionUrlRegistry", () => {
 
     for (const [id, name] of Object.entries(spencerVerified)) {
       const entry = getAdoptionUrlStatus(id);
-      expect(entry?.status).toBe("verified-direct-dog-page");
+      expect(entry?.status).toBe("dead-or-removed");
       expect(entry?.source).toBe("getbuddy");
-      expect(entry?.adoptionProfileUrl).toContain("getbuddy.com/pet");
-      expect(entry?.notes).toContain("Spencer Pet Rescue");
-      expect(entry?.notes).toContain("adoptable");
+      expect(entry?.adoptionProfileUrl).toBeNull();
+      expect(entry?.originalUrl).toContain("getbuddy.com/pet");
+      expect(entry?.notes).toContain(`${name}`);
+      expect(entry?.notes).toContain("has been adopted");
+      expect(hasVerifiedAdoptionProfile(id)).toBe(false);
     }
 
     // Macy and Raya were linked to GetBuddy pages that live-checks proved
@@ -61,13 +67,15 @@ describe("adoptionUrlRegistry", () => {
   });
 
   it("hasVerifiedAdoptionProfile returns true only for verified dogs", () => {
-    expect(hasVerifiedAdoptionProfile("22649663")).toBe(true);
+    expect(hasVerifiedAdoptionProfile("22259414")).toBe(true); // Regina, Petfinder
+    expect(hasVerifiedAdoptionProfile("22649663")).toBe(false); // Paco, adopted
     expect(hasVerifiedAdoptionProfile("21648834")).toBe(false);
   });
 
   it("getVerifiedAdoptionUrl returns URL only for verified dogs", () => {
-    const verifiedUrl = getVerifiedAdoptionUrl("22649663");
-    expect(verifiedUrl).toContain("getbuddy.com");
+    const verifiedUrl = getVerifiedAdoptionUrl("22259414");
+    expect(verifiedUrl).toContain("petfinder.com");
+    expect(getVerifiedAdoptionUrl("22649663")).toBeNull();
 
     const unverifiedUrl = getVerifiedAdoptionUrl("21648834");
     expect(unverifiedUrl).toBeNull();
@@ -108,11 +116,11 @@ describe("adoptionUrlRegistry", () => {
       }
     }
 
-    // 15 Spencer dogs + 32 added by the 2026-08-10 P0 link-integrity audit
-    // (Country Acres, HSMO, St. Clair County, St. Animal Pet Adoptions).
-    expect(verifiedCount).toBe(46); // Astrid’s Petfinder listing was removed.
+    // 32 added by the 2026-08-10 P0 link-integrity audit (Country Acres,
+    // HSMO, St. Clair County, St. Animal Pet Adoptions), less Astrid.
+    expect(verifiedCount).toBe(31);
     expect(nameMismatchCount).toBe(2);
-    expect(deadCount).toBe(7); // Six Mastino dogs plus Astrid
+    expect(deadCount).toBe(22); // Six Mastino dogs, Astrid, 15 adopted Spencer dogs
     expect(verifiedCount + unverifiedCount + deadCount + nameMismatchCount).toBe(
       Object.keys(adoptionUrlRegistry).length,
     );
@@ -190,13 +198,15 @@ describe("adoptionUrlRegistry", () => {
     it("locks the corrected GetBuddy IDs for the Lemon/Tango/Vida three-way swap", () => {
       // Commit 26a21ab paired these three dogs by list position instead of
       // identity, sending each one to a different dog's live GetBuddy page.
-      expect(getVerifiedAdoptionUrl("22649650")).toBe(
+      // All three were adopted by 2026-10-08; the retained record must
+      // still pair each dog with her own page.
+      expect(getAdoptionUrlStatus("22649650")?.originalUrl).toBe(
         "https://www.getbuddy.com/pet/6a399768e87cf5014cec6076" // Lemon
       );
-      expect(getVerifiedAdoptionUrl("22649675")).toBe(
+      expect(getAdoptionUrlStatus("22649675")?.originalUrl).toBe(
         "https://www.getbuddy.com/pet/6a399409e87cf5014cec6072" // Tango
       );
-      expect(getVerifiedAdoptionUrl("22649681")).toBe(
+      expect(getAdoptionUrlStatus("22649681")?.originalUrl).toBe(
         "https://www.getbuddy.com/pet/68e779edd634356c103f77c6" // Vida
       );
     });

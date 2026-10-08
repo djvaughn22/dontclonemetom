@@ -177,17 +177,10 @@ const ORG_URL_OVERRIDES: Record<string, string> = {
 //   3. Preserved even if the page later closes (for rechecking)
 //
 // Spencer Pet Rescue publishes via GetBuddy; RescueGroups feed lacks
-// individual dog URLs for their rescuings (2026-08-04 audit). All 17 Spencer
-// dogs must be audited and mapped. START WITH PACO (22649663):
-const ADOPTION_URL_OVERRIDES: Record<string, string> = {
-  // Spencer Pet Rescue via GetBuddy (verified 2026-08-04):
-  "22649663": "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de?utm_source=spencer-pet-rescue&utm_medium=embed&utm_content=pet-tile",
-  // TODO: Map remaining 16 Spencer dogs to their GetBuddy pages:
-  // 22649636 Carl, 22649637 Darla, 22649640 Dart, 22649644 Dumpling,
-  // 22649646 Holden, 22649648 ?, 22649650 ?, 22649652 ?,
-  // 22649657 ?, 22649660 ?, 22649666 ?, 22649668 ?,
-  // 22649671 ?, 22649675 ?, 22649678 ?, 22649681 ?
-};
+// individual dog URLs for their rescuings (2026-08-04 audit). Paco's GetBuddy
+// override was removed 2026-10-08: GetBuddy says he was adopted, and the
+// registry (adoptionUrlRegistry.ts) keeps every Spencer URL for the record.
+const ADOPTION_URL_OVERRIDES: Record<string, string> = {};
 
 // Profile hosts currently serving a generic or empty page for every
 // animal — treat their per-dog URLs as absent so cards fall back to the

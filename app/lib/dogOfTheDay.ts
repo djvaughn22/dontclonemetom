@@ -143,13 +143,23 @@ export function candidateRingForDate(
 //   2. A live destination check confirms the page is hers and does not say
 //      the listing is over.
 //
-// "uncertain" (blocked, timed out, unreadable) does NOT earn the slot. It is
-// not evidence she is gone either — she stays in the grid; she just isn't
-// promoted to the one placement that creates the most adoption intent.
+// "uncertain" (blocked, timed out, unreadable) never earns the slot for a dog
+// with no confirmed destination. A dog whose destination was confirmed before
+// keeps it through an uncertain check (destinationAvailability.ts) — a block
+// is not removal — but she is still CHECKED. A previous audit is evidence of
+// identity, not availability.
+//
+// 2026-10-08 — Dumpling held the slot for days while GetBuddy said she had
+// been adopted: her August hand audit counted as "confirmed", and selection
+// had stopped live-checking confirmed dogs. Every candidate is checked again.
 
 // How many candidates may be checked before giving up. Bounded so a bad day
 // upstream can never turn one page render into an unbounded fetch storm.
 export const MAX_FEATURE_VERIFY_ATTEMPTS = 8;
+
+// Candidates checked at once, so a run of removed listings at the front of
+// the ring cannot turn into eight sequential page loads.
+export const FEATURE_VERIFY_CONCURRENCY = 4;
 
 // Shared with the stable detail page; old audits expire and concurrent
 // requests reuse one bounded check instead of checking every dog in the grid.
@@ -181,21 +191,26 @@ export async function selectConfirmedDogForDate(
 ): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
   const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset);
 
-  // The current inventory has already confirmed these destinations. Use the
-  // first confirmed candidate before spending any live-check attempts.
-  const confirmed = ring.find((dog) => hasConfirmedDestination(dog.adoption));
-  if (confirmed) return { dog: confirmed, rejected: [], attempts: 0 };
-
-  const maxAttempts = options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS;
+  // Previously confirmed destinations go first, but nobody skips the check.
+  const ordered = [
+    ...ring.filter((dog) => hasConfirmedDestination(dog.adoption)),
+    ...ring.filter((dog) => !hasConfirmedDestination(dog.adoption)),
+  ];
+  const candidates = ordered.slice(0, options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS);
   const rejected: { dog: Dog; detail: string }[] = [];
 
   let attempts = 0;
-  for (const candidate of ring) {
-    if (attempts >= maxAttempts) break;
-    attempts += 1;
-    const check = await confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl });
-    if (check.confirmed) return { dog: check.dog, rejected, attempts };
-    rejected.push({ dog: candidate, detail: check.detail });
+  for (let i = 0; i < candidates.length; i += FEATURE_VERIFY_CONCURRENCY) {
+    const batch = candidates.slice(i, i + FEATURE_VERIFY_CONCURRENCY);
+    const checks = await Promise.all(
+      batch.map((candidate) => confirmFeatureEligibility(candidate, { fetchImpl: options.fetchImpl })),
+    );
+    // Ring order still decides among a batch, so the pick stays deterministic.
+    for (const [index, check] of checks.entries()) {
+      attempts += 1;
+      if (check.confirmed) return { dog: check.dog, rejected, attempts };
+      rejected.push({ dog: batch[index], detail: check.detail });
+    }
   }
 
   return { dog: null, rejected, attempts };

@@ -712,80 +712,99 @@ const org_22308787_data: Record<string, RegistryEntry> = {
   },
 };
 
-// SPENCER PET RESCUE — All 17 dogs, verified GetBuddy URLs
+// SPENCER PET RESCUE — GetBuddy URLs audited 2026-08-05; every one reported
+// adopted on GetBuddy by 2026-10-08 and withdrawn (see each entry).
 const org_22649636_data: Record<string, RegistryEntry> = {
-  // Carl — VERIFIED GetBuddy
+  // Carl — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649636": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/69d826adfa9cfc803fef5b57",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/69d826adfa9cfc803fef5b57",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Carl, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Carl has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Darla — VERIFIED GetBuddy
+  // Darla — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649637": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/681dc67a5ab6746988e790b2",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/681dc67a5ab6746988e790b2",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:30:00Z",
-    notes: "Verified GetBuddy: Darla, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Darla has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Dart — VERIFIED GetBuddy
+  // Dart — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649640": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/69f51f3c739af4ed5a06b83d",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/69f51f3c739af4ed5a06b83d",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:30:00Z",
-    notes: "Verified GetBuddy: Dart (from Stranger Things), Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Dart (from Stranger Things) has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Dumpling — VERIFIED GetBuddy
+  // Dumpling — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649644": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a39956de87cf5014cec6074",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a39956de87cf5014cec6074",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:30:00Z",
-    notes: "Verified GetBuddy: Dumpling, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Dumpling has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Holden aka Harlan — VERIFIED GetBuddy
+  // Holden aka Harlan — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649646": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/69f51c1d52a11dda4fa10eea",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/69f51c1d52a11dda4fa10eea",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Holden aka Harlan, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Holden aka Harlan has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Jid aka Jeddy Bear — VERIFIED GetBuddy
+  // Jid aka Jeddy Bear — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649648": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/69f5234b739af4ed5a06b845",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/69f5234b739af4ed5a06b845",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Jid aka Jeddy Bear, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Jid aka Jeddy Bear has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Lemon — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // Lemon — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy) (corrected 2026-08-05: prior commit 26a21ab
   // pointed Lemon at 6a399409e87cf5014cec6072, which is Tango's page)
   "22649650": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399768e87cf5014cec6076",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a399768e87cf5014cec6076",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Lemon (Dalmatian), Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Lemon (Dalmatian) has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Linus — VERIFIED GetBuddy
+  // Linus — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649652": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/699eae26e7817824d5874a7d",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/699eae26e7817824d5874a7d",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:30:00Z",
-    notes: "Verified GetBuddy: Linus, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Linus has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Macho Man — VERIFIED GetBuddy
+  // Macho Man — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649657": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a54f7c42f22adcfaaa0e238",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a54f7c42f22adcfaaa0e238",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:30:00Z",
-    notes: "Verified GetBuddy: Macho Man, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Macho Man has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
   // Macy — SAFETY DEMOTED 2026-08-05: prior commit 26a21ab claimed this
   // GetBuddy page (681dc6795ab6746988e790ab) was Macy "renamed" to Yasmin,
@@ -801,21 +820,25 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: null,
     notes: "Macy: no verified GetBuddy match. GetBuddy 681dc6795ab6746988e790ab is Yasmin (Hound vs Pit/Staffy/Akita mix — breed mismatch, unproven alias); do not relink without name/breed/photo evidence.",
   },
-  // Paco — VERIFIED GetBuddy (original)
+  // Paco — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy) (original)
   "22649663": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/699d5d19e7817824d57fc1de",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T00:00:00Z",
-    notes: "Verified GetBuddy: Paco, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Paco has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Raisin — VERIFIED GetBuddy
+  // Raisin — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649666": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a186b5f1ee9d8b1b7dc14b5",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a186b5f1ee9d8b1b7dc14b5",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Raisin, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Raisin has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
   // Raya — SAFETY DEMOTED 2026-08-05: prior commit 26a21ab claimed this
   // GetBuddy page (69d82a6ffa9cfc803fef5b5e) was Raya "renamed" to Nino.
@@ -829,40 +852,48 @@ const org_22649636_data: Record<string, RegistryEntry> = {
     verifiedAt: null,
     notes: "Raya: GetBuddy 69d82a6ffa9cfc803fef5b5e is Nino, a Male dog — Raya's RescueGroups record is Female. Confirmed wrong dog, not an alias. Do not relink without new evidence.",
   },
-  // Sweetie — VERIFIED GetBuddy
+  // Sweetie — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649671": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a54f92f2f22adcfaaa0e23b",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a54f92f2f22adcfaaa0e23b",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Sweetie, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Sweetie has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Tango — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // Tango — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy) (corrected 2026-08-05: prior commit 26a21ab
   // pointed Tango at 68e779edd634356c103f77c6, which is Vida's page)
   "22649675": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a399409e87cf5014cec6072",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a399409e87cf5014cec6072",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Tango (Boxer/Pit Bull mix, male), Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Tango (Boxer/Pit Bull mix has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Tiramisu — VERIFIED GetBuddy
+  // Tiramisu — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy)
   "22649678": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/6a398d71e87cf5014cec606d",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/6a398d71e87cf5014cec606d",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Tiramisu, Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Tiramisu has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
-  // Vida — VERIFIED GetBuddy (corrected 2026-08-05: prior commit 26a21ab
+  // Vida — ADOPTED per GetBuddy 2026-10-08 (was VERIFIED GetBuddy) (corrected 2026-08-05: prior commit 26a21ab
   // pointed Vida at 681dc6795ab6746988e790ab, which is Yasmin's page — and
   // was also duplicated onto Macy's entry)
   "22649681": {
-    adoptionProfileUrl: "https://www.getbuddy.com/pet/68e779edd634356c103f77c6",
-    status: "verified-direct-dog-page",
+    adoptionProfileUrl: null,
+    originalUrl: "https://www.getbuddy.com/pet/68e779edd634356c103f77c6",
+    status: "dead-or-removed",
     source: "getbuddy",
-    verifiedAt: "2026-08-05T23:35:00Z",
-    notes: "Verified GetBuddy: Vida (Lab/Chow/Pit Bull mix, female), Spencer Pet Rescue, O Fallon IL, adoptable",
+    verifiedAt: "2026-10-08T21:30:00Z",
+    httpStatus: 200,
+    notes: "2026-10-08: GetBuddy page answers 200 but its visible text says Vida (Lab/Chow/Pit Bull mix has been adopted and is no longer available for adoption. RescueGroups still lists the record. Original 2026-08-05 audit URL retained for the record, never reconstructed.",
   },
 };
 

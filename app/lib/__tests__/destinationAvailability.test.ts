@@ -32,24 +32,87 @@ describe("Astrid regression: an old audit is not permanent availability", () => 
     expect(resolveDogDestination(dog).type).not.toBe("exact-dog");
   });
 
-  it("selects the first confirmed candidate without live checks, respecting exclusions and offset", async () => {
+  it("rechecks a stale audit, skips its 404 and features the next confirmed dog", async () => {
+    const dogs = [auditedDog("111"), auditedDog("222")];
+    const [removed, available] = candidateRingForDate("2026-09-16", dogs, new Set());
+    const fetchImpl = vi.fn(async (url) => new Response("<h1>Juniper</h1>", {
+      status: String(url) === removed.adoption.adoptionProfileUrl ? 404 : 200,
+    })) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-09-16", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog?.id).toBe(available.id);
+    expect(result.attempts).toBe(2);
+    expect(result.rejected[0].detail).toContain("gone");
+    const detail = await refreshDogDestination(removed, { fetchImpl });
+    expect(detail.adoption.adoptionProfileUrlStatus).toBe("dead-or-removed");
+    expect(fetchImpl).toHaveBeenCalledTimes(2); // detail shares the selection verdict
+  });
+});
+
+// 2026-10-08: Dumpling was Dog of the Day while GetBuddy said she had been
+// adopted. Her August audit made her "confirmed", and selection had stopped
+// checking confirmed dogs at all; her own detail page said the listing was over.
+describe("Dumpling regression: the featured dog's destination is checked live", () => {
+  const ADOPTED = (name: string) =>
+    `<h1>${name}</h1><p>${name} has found a forever home! ${name} is no longer available for adoption.</p>`;
+
+  it("walks past audited dogs whose listing now says adopted, even a run longer than one batch", async () => {
     const dogs = Array.from({ length: 12 }, (_, i) => auditedDog(String(111 + i)));
-    const ring = candidateRingForDate("2026-09-16", dogs, new Set());
-    for (const dog of ring.slice(0, 9)) {
+    const ring = candidateRingForDate("2026-10-08", dogs, new Set());
+    const adoptedUrls = new Set(ring.slice(0, 6).map((d) => d.adoption.adoptionProfileUrl));
+    const fetchImpl = vi.fn(async (url) =>
+      new Response(adoptedUrls.has(String(url)) ? ADOPTED("Juniper") : "<h1>Juniper</h1>"),
+    ) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog?.id).toBe(ring[6].id);
+    expect(result.rejected.map((r) => r.dog.id)).toEqual(ring.slice(0, 6).map((d) => d.id));
+    expect(result.rejected.every((r) => r.detail.startsWith("gone"))).toBe(true);
+    expect(result.dog?.adoption.destinationVerificationMethod).toBe("page-content");
+  });
+
+  it("checks previously confirmed dogs first without skipping their check", async () => {
+    const dogs = Array.from({ length: 6 }, (_, i) => auditedDog(String(111 + i)));
+    const ring = candidateRingForDate("2026-10-08", dogs, new Set());
+    for (const dog of ring.slice(0, 3)) {
+      dog.adoption.destinationVerifiedAt = null;
       dog.adoption.destinationVerificationMethod = "none";
     }
-    const fetchImpl = vi.fn(async () => new Response("", { status: 503 }));
-    const result = await selectConfirmedDogForDate("2026-09-16", dogs, new Set(), 0, { fetchImpl });
-    expect(result).toEqual({ dog: ring[9], rejected: [], attempts: 0 });
-    const alternative = await selectConfirmedDogForDate("2026-09-16", dogs, new Set([ring[9].id]), 9, { fetchImpl });
-    expect(alternative).toEqual({ dog: ring[10], rejected: [], attempts: 0 });
-    expect(fetchImpl).not.toHaveBeenCalled();
-    // Detail-page refresh still withdraws a listing when it confirms removal.
-    fetchImpl.mockImplementation(async () => new Response("", { status: 404 }));
-    const detail = await refreshDogDestination(ring[9], { fetchImpl });
-    expect(detail.adoption.adoptionProfileUrlStatus).toBe("dead-or-removed");
-    expect(detail.adoption.adoptionProfileUrl).toBeNull();
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const fetchImpl = vi.fn(async () => new Response("<h1>Juniper</h1>")) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog?.id).toBe(ring[3].id);
+    expect(fetchImpl).toHaveBeenCalled();
+  });
+
+  it("keeps a confirmed dog through a blocked check without restamping it as verified", async () => {
+    const dogs = [auditedDog("111"), auditedDog("222")];
+    const [first] = candidateRingForDate("2026-10-08", dogs, new Set());
+    const fetchImpl = vi.fn(async () => new Response("", { status: 403 })) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog?.id).toBe(first.id);
+    expect(result.dog?.adoption.destinationVerifiedAt).toBe("2026-08-11T01:17:30Z");
+    expect(result.dog?.adoption.destinationVerificationMethod).toBe("manual-audit");
+  });
+
+  it("returns no dog, not a dead one, when every candidate is adopted or unconfirmable", async () => {
+    const dogs = [auditedDog("111"), auditedDog("222"), auditedDog("333")];
+    dogs[2].adoption.destinationVerifiedAt = null;
+    dogs[2].adoption.destinationVerificationMethod = "none";
+    const fetchImpl = vi.fn(async (url) =>
+      String(url).endsWith("333") ? new Response("", { status: 503 }) : new Response(ADOPTED("Juniper")),
+    ) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog).toBeNull();
+    expect(result.rejected).toHaveLength(3);
+  });
+
+  it("rejects a destination that lands on a different dog's listing", async () => {
+    const dogs = [auditedDog("111")];
+    const fetchImpl = vi.fn(async (url) =>
+      String(url).includes("AnimalID=111")
+        ? new Response(null, { status: 302, headers: { location: "https://rescue.example.org/animals/detail?AnimalID=999" } })
+        : new Response("<h1>Biscuit</h1>"),
+    ) as unknown as typeof fetch;
+    const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
+    expect(result.dog).toBeNull();
   });
 
   it("shares concurrent checks, retains the exact sourced URL, and expires a successful verdict", async () => {
