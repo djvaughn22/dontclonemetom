@@ -1020,8 +1020,8 @@ export default function HomePage() {
                 emoji: "🐾",
                 label: "Foster, if you can",
                 links: [
-                  { label: "How to foster a dog (Humane Society)", href: "https://www.humanesociety.org/resources/how-foster-dog" },
-                  { label: "Foster with Best Friends", href: "https://bestfriends.org/adopt-or-foster/foster" },
+                  { label: "Foster with the Humane Society of Missouri", href: "https://hsmo.org/foster/" },
+                  { label: "Foster with Best Friends", href: "https://bestfriends.org/foster" },
                 ],
               },
             ].map((cat) => (
