@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     template: "%s | DontCloneMeTom.com",
   },
   description:
-    "DontCloneMeTom.com — real adoptable dogs, waiting for homes today. Independent, not for profit, and tail-wagging.",
+    "DontCloneMeTom.com — real adoptable dogs, waiting for homes today. Independent, rescue-first, and tail-wagging.",
   applicationName: "DontCloneMeTom.com",
   appleWebApp: { capable: true, title: "DontCloneMeTom.com", statusBarStyle: "black-translucent" },
   openGraph: {
     title: "DontCloneMeTom.com — Rescue Dogs Are Already Here",
     description:
-      "DontCloneMeTom.com — real adoptable dogs, waiting for homes today. Independent, not for profit, and tail-wagging.",
+      "DontCloneMeTom.com — real adoptable dogs, waiting for homes today. Independent, rescue-first, and tail-wagging.",
     url: "https://dontclonemetom.com",
     siteName: "DontCloneMeTom.com",
     type: "website",

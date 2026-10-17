@@ -81,7 +81,7 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
           <SectionTitle accent={accent}>Your dog belongs on one of these</SectionTitle>
           <p className="mx-auto max-w-md text-sm font-semibold leading-6 text-[#94a3b8]">
             Add a photo, type the real name, pick a few true things — spin and
-            share new cards. Free, and the photo never leaves your device.
+            share new cards. The photo never leaves your device.
           </p>
           <Link
             href="/cards"

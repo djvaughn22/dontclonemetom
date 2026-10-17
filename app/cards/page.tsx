@@ -19,13 +19,13 @@ import { resolveDogDestination } from "../lib/dogDestination";
 import { dogCityLabel } from "../lib/dogOfTheDay";
 
 export const metadata: Metadata = {
-  title: "Make a Dog Card — free",
+  title: "Make a Dog Card",
   description:
     "Fun Dog Trading Cards: seven names made especially for your dog. Add a photo, spin a new nickname, and share today's card.",
   openGraph: {
-    title: "Make a Dog Card — free",
+    title: "Make a Dog Card",
     description:
-      "One dog, one nickname, one funny saying — spin a new card and share it. Free.",
+      "One dog, one nickname, one funny saying — spin a new card and share it.",
     url: "https://dontclonemetom.com/cards",
   },
 };

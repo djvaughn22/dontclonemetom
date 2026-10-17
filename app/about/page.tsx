@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "For dogs still waiting. DontCloneMeTom.com is not for profit — it's a way to help real adoptable dogs get seen.",
+    "For dogs still waiting. DontCloneMeTom.com is here to help real adoptable dogs get seen, shared, and home.",
 };
 
 const A = "#2DD4BF";
@@ -32,11 +32,10 @@ export default function AboutPage() {
         </p>
 
         <p style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", color: A, margin: "0 0 8px" }}>
-          Not for profit. Always for the dogs.
+          Always for the dogs.
         </p>
         <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: "0 0 32px" }}>
-          DontCloneMeTom.com isn&rsquo;t here to make money. The goal is simple: help more
-          adoptable dogs get seen, shared, and home.
+          The goal is simple: help more adoptable dogs get seen, shared, and home.
         </p>
 
         <p style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.06em", textTransform: "uppercase", color: A, margin: "0 0 8px" }}>

@@ -126,9 +126,13 @@ describe("locked public brand: DontCloneMeTom.com", () => {
   });
 });
 
-describe("about page: not for profit, no explained joke, no owner identity", () => {
-  it("states the site is not for personal profit", () => {
-    expect(about.toLowerCase()).toMatch(/not for profit|not here to make money/);
+describe("about page: purpose, no explained joke, no owner identity", () => {
+  // 2026-10-17 (owner): say what the site is for. "Not for profit" next to an
+  // LLC could read as a nonprofit claim, and money talk is out for now.
+  it("states the site's purpose, without money talk", () => {
+    expect(about).toContain("Always for the dogs.");
+    expect(about).toContain("help more adoptable dogs get seen, shared, and home");
+    expect(about.toLowerCase()).not.toMatch(/not for profit|for-profit|make money/);
   });
 
   it("never claims registered nonprofit/charity status", () => {
