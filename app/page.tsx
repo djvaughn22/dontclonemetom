@@ -639,9 +639,9 @@ function FindDogs() {
           </select>
         </label>
         <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
-          Picks (dogs)
+          How many dogs
           <select
-            aria-label="Picks (dogs)"
+            aria-label="How many dogs"
             value={picks}
             onChange={(e) => setPicks(e.target.value)}
             className="mt-1 min-h-11 w-full rounded-lg border border-[#26324c] bg-[#141d2e] px-3 py-2 text-base font-bold text-[#e8edf5]"
