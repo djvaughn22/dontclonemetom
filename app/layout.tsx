@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           links={[
             { emoji: "🐶", name: "Meet the Dogs", href: "/" },
             { emoji: "🌅", name: "Dog of the Day", href: "/today" },
-            { emoji: "ℹ️", name: "About", href: "/about" },
+            { emoji: "ℹ️", name: "About DontCloneMeTom", href: "/about" },
           ]}
         />
         {children}

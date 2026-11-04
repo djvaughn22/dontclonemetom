@@ -81,10 +81,11 @@ export default function AboutPage() {
         <section id="disclaimer" style={{ marginTop: 28, scrollMarginTop: 96 }}>
           <h2 style={{ fontSize: 17, fontWeight: 900, margin: "0 0 8px" }}>Disclaimer</h2>
           <p style={{ fontSize: 15, lineHeight: 1.65, color: "#94a3b8", margin: 0 }}>
-            Open Mirror LLC is independently owned and operated. Nothing
-            published by Open Mirror LLC is sponsored by, affiliated with,
-            endorsed by, or representative of the owner&rsquo;s full-time
-            employer. The trademark statement above also applies. Read the{" "}
+            Dog listings come from the rescues and shelters and can change at any time.
+            Open Mirror LLC and its projects are independently owned and operated. They
+            are not affiliated with, sponsored by, or endorsed by the owner&rsquo;s
+            current or former employers or their affiliates. The trademark statement
+            above also applies. Read the{" "}
             <a href="https://openmirrorllc.com/disclaimer" style={{ color: A }}>
               full Open Mirror disclaimer
             </a>
