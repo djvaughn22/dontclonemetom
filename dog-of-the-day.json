@@ -1,4 +1,10 @@
 {
   "about": "Which dog DontCloneMeTom.com featured as Dog of the Day on each date (America/Chicago). Written once a day by .github/workflows/record-dog-of-the-day.yml on main; read by app/lib/featuredHistory.ts.",
-  "days": []
+  "days": [
+    {
+      "date": "2026-11-07",
+      "id": "22616903",
+      "name": "Luke"
+    }
+  ]
 }
