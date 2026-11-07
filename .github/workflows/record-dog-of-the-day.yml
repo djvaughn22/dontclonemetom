@@ -24,12 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           sparse-checkout: scripts/record-dog-of-the-day.mjs
           sparse-checkout-cone-mode: false
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: dog-of-the-day-history
           path: history
