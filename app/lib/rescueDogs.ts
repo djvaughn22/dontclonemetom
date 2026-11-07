@@ -18,10 +18,19 @@ export type Dog = {
   age: string;
   sex: string;
   size: string;
+  // RescueGroups ageGroup (Baby / Young / Adult / Senior), kept apart from the
+  // free-text age ("5 Years") so visitors can filter by it.
+  ageGroup?: string;
   photo: string | null;
   photos: string[];
   city: string;
   distance: number | null;
+  // When this listing was created on RescueGroups (`createdDate`). It is a
+  // LISTING date, never an intake date or time spent in a shelter, and is only
+  // ever shown as "Listed since …".
+  listedAt?: string | null;
+  // The rescue's own flag that someone's adoption of this dog is underway.
+  adoptionPending?: boolean;
   // The shelter's own pet id, when the feed publishes one (e.g. APA of
   // Missouri's "A318825") but no per-dog URL. Used to build/verify a
   // rescue-specific deep link; null for rescues that don't publish one.
@@ -331,10 +340,16 @@ export function normalizeDog(
     age: String(at.ageString ?? at.ageGroup ?? ""),
     sex: String(at.sex ?? ""),
     size: String(at.sizeGroup ?? ""),
+    ageGroup: typeof at.ageGroup === "string" ? at.ageGroup : "",
     photo: photos[0] ?? null,
     photos,
     city: loc?.citystate ?? "",
     distance: typeof at.distance === "number" ? at.distance : null,
+    listedAt:
+      typeof at.createdDate === "string" && !Number.isNaN(Date.parse(at.createdDate))
+        ? at.createdDate.trim()
+        : null,
+    adoptionPending: at.isAdoptionPending === true,
     rescueId,
     feedSeenAt:
       typeof at.updatedDate === "string" && at.updatedDate.trim()
@@ -479,6 +494,28 @@ export function normalizeZip(value: string | null | undefined): string {
   return /^\d{5}$/.test(value ?? "") ? (value as string) : "63040";
 }
 
+// Where to search: a ZIP code, or a visitor's own location when they choose
+// "Use my location". Coordinates are rounded to two decimals (about half a
+// mile) before they go anywhere — close enough for "miles away", never a
+// precise point — and they are never stored.
+export type SearchPlace = string | { lat: number; lon: number };
+
+export function normalizePlace(lat: unknown, lon: unknown): { lat: number; lon: number } | null {
+  const la = typeof lat === "number" ? lat : typeof lat === "string" && lat.trim() ? Number(lat) : NaN;
+  const lo = typeof lon === "number" ? lon : typeof lon === "string" && lon.trim() ? Number(lon) : NaN;
+  if (!Number.isFinite(la) || !Number.isFinite(lo)) return null;
+  if (Math.abs(la) > 90 || Math.abs(lo) > 180) return null;
+  return { lat: Math.round(la * 100) / 100, lon: Math.round(lo * 100) / 100 };
+}
+
+function placeFilter(place: SearchPlace) {
+  return typeof place === "string" ? { postalcode: place } : { lat: place.lat, lon: place.lon };
+}
+
+function placeKey(place: SearchPlace) {
+  return typeof place === "string" ? place : `${place.lat.toFixed(2)},${place.lon.toFixed(2)}`;
+}
+
 // RescueGroups' v5 API rejects any limit above 250 ("Invalid Limit") and a
 // single request only ever returns one page — a fixed limit=222 silently
 // truncated the real result set (306 real dogs within 50mi of 63040 vs. 222
@@ -489,13 +526,13 @@ const RG_PAGE_LIMIT = 250;
 // headroom is generous without risking an unbounded fetch loop.
 const RG_MAX_PAGES = 10;
 
-async function fetchAnimalsPage(key: string, zip: string, miles: number, page: number) {
+async function fetchAnimalsPage(key: string, place: SearchPlace, miles: number, page: number) {
   const res = await fetch(
     `https://api.rescuegroups.org/v5/public/animals/search/available/dogs?limit=${RG_PAGE_LIMIT}&page=${page}&include=pictures,locations,orgs`,
     {
       method: "POST",
       headers: { Authorization: key, "Content-Type": "application/vnd.api+json" },
-      body: JSON.stringify({ data: { filterRadius: { miles, postalcode: zip } } }),
+      body: JSON.stringify({ data: { filterRadius: { miles, ...placeFilter(place) } } }),
       cache: "no-store",
     },
   );
@@ -512,25 +549,25 @@ async function fetchAnimalsPage(key: string, zip: string, miles: number, page: n
 // never as "no dogs"). Pages through the full result set — never silently
 // truncates the real pool to one page's worth of dogs.
 export async function fetchAdoptableDogs(
-  zip: string,
+  place: SearchPlace,
   miles: number,
 ): Promise<{ dogs: Dog[] | null; reason?: string }> {
   const key = process.env.RESCUEGROUPS_API_KEY;
   if (!key) return { dogs: null, reason: "no-key" };
 
   const safeMiles = Math.min(250, Math.max(5, miles || 50));
-  const cacheKey = `${zip}:${safeMiles}`;
+  const cacheKey = `${placeKey(place)}:${safeMiles}`;
   const hit = cache.get(cacheKey);
   if (hit && Date.now() - hit.at < CACHE_MS) {
     return { dogs: hit.dogs };
   }
 
   try {
-    const first = await fetchAnimalsPage(key, zip, safeMiles, 1);
+    const first = await fetchAnimalsPage(key, place, safeMiles, 1);
     const totalPages = Math.max(1, Math.min(RG_MAX_PAGES, first.meta?.pages ?? 1));
 
     const rest = await Promise.all(
-      Array.from({ length: totalPages - 1 }, (_, i) => fetchAnimalsPage(key, zip, safeMiles, i + 2)),
+      Array.from({ length: totalPages - 1 }, (_, i) => fetchAnimalsPage(key, place, safeMiles, i + 2)),
     );
     const pages = [first, ...rest];
 
@@ -564,11 +601,39 @@ export async function fetchAdoptableDogs(
 // still correct for a directly-addressed /dogs/[id] page someone already
 // has a link to — this eligibility gate is about what the site itself
 // chooses to show, not about breaking existing deep links.
-export function isPubliclyEligible(dog: Pick<Dog, "adoption" | "identityConflict">): boolean {
+// Signs, in the rescue's own data, that a listing is not a dog someone can
+// adopt right now. Each comes straight from the feed — never inferred.
+//
+// 2026-11-07 — the grid was showing "Stella \" I AM ADOPTED!\"" (flagged
+// isAdoptionPending by her rescue) and "FOSTER", a 2018 Camp Chaos record
+// whose whole description asks people to apply to foster. Either one could
+// have been Dog of the Day.
+const NAME_SAYS_TAKEN = /\b(adopted|adoption pending|pending adoption)\b/i;
+const PROGRAM_NAME = /^(fosters?|foster homes?|fostering|volunteers?|donate|donations?|sponsors?)$/i;
+const PROGRAM_ASK = /\b(submit an application|interested in fostering|apply to foster|foster application)\b/i;
+
+export function listingNotAdoptableReason(
+  dog: { name?: string; desc?: string; adoptionPending?: boolean },
+): string | null {
+  const name = (dog.name ?? "").trim();
+  if (dog.adoptionPending) return "the rescue marks this adoption as pending";
+  if (NAME_SAYS_TAKEN.test(name)) return "this listing’s name says the dog is adopted";
+  if (PROGRAM_NAME.test(name) && PROGRAM_ASK.test(dog.desc ?? "")) {
+    return "this listing is a foster or volunteer sign-up, not a dog";
+  }
+  return null;
+}
+
+export function isPubliclyEligible(
+  dog: Pick<Dog, "adoption" | "identityConflict"> & Partial<Pick<Dog, "name" | "desc" | "adoptionPending">>,
+): boolean {
   // A record that contradicts itself about which dog it is never gets chosen
   // by the site. It keeps its page for anyone holding a link; it just isn't
   // something we hand to a new visitor as a dog to fall in love with.
   if (dog.identityConflict) return false;
+  // Nor is a dog whose rescue says someone is already adopting her, or a
+  // listing that isn't a dog at all.
+  if (listingNotAdoptableReason(dog)) return false;
   return (
     dog.adoption.adoptionProfileUrlStatus === "verified-direct-dog-page" &&
     Boolean(dog.adoption.adoptionProfileUrl)
@@ -612,7 +677,7 @@ export type PubliclyEligibleResult = {
 // link — if even 250mi can't reach the floor, returns every verified dog
 // found there and says so honestly via `widened`.
 export async function fetchPubliclyEligibleDogs(
-  zip: string,
+  place: SearchPlace,
   requestedMiles: number,
   targetCount: number = PUBLIC_DISPLAY_BASELINE,
 ): Promise<{ result: PubliclyEligibleResult | null; reason?: string }> {
@@ -620,8 +685,8 @@ export async function fetchPubliclyEligibleDogs(
 
   const [requested, widest] =
     safeRequested === MAX_SEARCH_MILES
-      ? [await fetchAdoptableDogs(zip, safeRequested), null]
-      : await Promise.all([fetchAdoptableDogs(zip, safeRequested), fetchAdoptableDogs(zip, MAX_SEARCH_MILES)]);
+      ? [await fetchAdoptableDogs(place, safeRequested), null]
+      : await Promise.all([fetchAdoptableDogs(place, safeRequested), fetchAdoptableDogs(place, MAX_SEARCH_MILES)]);
 
   if (requested.dogs) {
     const eligible = requested.dogs.filter(isPubliclyEligible);

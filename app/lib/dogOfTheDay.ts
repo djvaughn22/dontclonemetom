@@ -1,11 +1,14 @@
 // DontCloneMeTom — Dog of the Day content adapter for the shared
 // Daily Social Engine (see app/lib/dailySocialCore.ts).
 //
-// One verified adoptable dog near ZIP 63040 each day. Selection is
-// deterministic for a date OVER THE CURRENT AVAILABLE LISTINGS: the same
-// date re-run while the same dogs are listed picks the same dog. Because
-// availability changes over time, the permanent archive is the dog's own
-// stable page (/dogs/[id]), not a dated page.
+// One verified adoptable dog near ZIP 63040 each day. Who gets the slot is
+// decided by the rotation in rotation.ts: every eligible dog gets a turn each
+// round before any dog repeats, longer-listed dogs get a modest nudge, and
+// the days already featured are pinned from the recorded history
+// (featuredHistory.ts), so the same date always gives the same dog and a
+// deploy can't reshuffle anything. Because availability changes over time,
+// the permanent archive is the dog's own stable page (/dogs/[id]), not a
+// dated page.
 //
 // HARD RULES (never violated): only currently-available listings with a real
 // photo, a real name, an identified rescue, and a working original listing
@@ -26,7 +29,6 @@ import {
   activeHashtags,
   captionMarkerForDate,
   formatFullDate,
-  hashSeed,
   isValidDateKey,
   type DailySocialBrandConfig,
   type DailySocialPost,
@@ -38,6 +40,8 @@ import {
 import { fetchAdoptableDogs, isPubliclyEligible, type Dog } from "./rescueDogs";
 import { hasConfirmedDestination } from "./adoptionUrlSchema";
 import { refreshDogDestination, resetDestinationCacheForTests } from "./destinationAvailability";
+import { rotationOrder, type FeaturedDay } from "./rotation";
+import { loadFeaturedHistory } from "./featuredHistory";
 
 export const DCMT_BRAND: DailySocialBrandConfig = {
   brand: "dontclonemetom",
@@ -81,55 +85,35 @@ export function eligibleDogs(dogs: Dog[]): Dog[] {
   });
 }
 
-// Deterministic pick for a date, skipping recently featured listing ids and
-// stepping forward with `offset` (the admin "choose another dog" control).
-export function selectDogForDate(
-  dateKey: string,
-  dogs: Dog[],
-  excludeIds: Set<string>,
-  offset = 0,
-): Dog | null {
-  const eligible = eligibleDogs(dogs).sort((a, b) =>
-    Number(a.id) - Number(b.id),
-  );
-  if (!eligible.length) return null;
-
-  const start = hashSeed(`dontclonemetom|${dateKey}`) % eligible.length;
-
-  // Walk the ring: skip excluded dogs, land offset steps beyond the first fit.
-  let remaining = offset;
-  for (let step = 0; step < eligible.length; step += 1) {
-    const dog = eligible[(start + step) % eligible.length];
-    if (excludeIds.has(dog.id)) continue;
-    if (remaining === 0) return dog;
-    remaining -= 1;
-  }
-
-  // Everything nearby was featured recently — better to repeat a real dog
-  // than to publish nothing? No: the publisher treats null as a clean error.
-  return null;
-}
-
-// The same deterministic ring selectDogForDate walks, but returned in order
-// so a candidate whose destination fails confirmation can be replaced by the
-// next one instead of leaving the slot on a dead listing.
+// Every eligible dog for a date, in rotation order (rotation.ts): the day's
+// pick first, then the dogs to fall back on when a listing fails its live
+// check. `offset` is where "Spin another dog" and the admin "choose another
+// dog" control start; excluded ids (recently posted to Instagram) are skipped.
 export function candidateRingForDate(
   dateKey: string,
   dogs: Dog[],
   excludeIds: Set<string>,
   offset = 0,
+  history: FeaturedDay[] = [],
 ): Dog[] {
-  const eligible = eligibleDogs(dogs).sort((a, b) => Number(a.id) - Number(b.id));
-  if (!eligible.length) return [];
+  const eligible = eligibleDogs(dogs);
+  const byId = new Map(eligible.map((dog) => [dog.id, dog]));
+  return rotationOrder(dateKey, eligible, history)
+    .map((id) => byId.get(id)!)
+    .filter((dog) => !excludeIds.has(dog.id))
+    .slice(Math.max(0, offset));
+}
 
-  const start = hashSeed(`dontclonemetom|${dateKey}`) % eligible.length;
-  const ring: Dog[] = [];
-  for (let step = 0; step < eligible.length; step += 1) {
-    const dog = eligible[(start + step) % eligible.length];
-    if (excludeIds.has(dog.id)) continue;
-    ring.push(dog);
-  }
-  return ring.slice(Math.max(0, offset));
+// The day's pick without live checks (null when nobody is eligible or the
+// offset walks past the last dog).
+export function selectDogForDate(
+  dateKey: string,
+  dogs: Dog[],
+  excludeIds: Set<string>,
+  offset = 0,
+  history: FeaturedDay[] = [],
+): Dog | null {
+  return candidateRingForDate(dateKey, dogs, excludeIds, offset, history)[0] ?? null;
 }
 
 // ---------------------------------------------------------------------------
@@ -152,6 +136,11 @@ export function candidateRingForDate(
 // 2026-10-08 — Dumpling held the slot for days while GetBuddy said she had
 // been adopted: her August hand audit counted as "confirmed", and selection
 // had stopped live-checking confirmed dogs. Every candidate is checked again.
+//
+// 2026-11-07 — confirmed dogs no longer go to the front of the line. That
+// ordering is what kept the same dozen audited dogs in the slot while the
+// rest never got a turn. The rotation decides the order; the live check only
+// decides whether a candidate can take her turn today.
 
 // How many candidates may be checked before giving up. Bounded so a bad day
 // upstream can never turn one page render into an unbounded fetch storm.
@@ -187,17 +176,10 @@ export async function selectConfirmedDogForDate(
   dogs: Dog[],
   excludeIds: Set<string>,
   offset = 0,
-  options: { fetchImpl?: typeof fetch; maxAttempts?: number } = {},
+  options: { fetchImpl?: typeof fetch; maxAttempts?: number; history?: FeaturedDay[] } = {},
 ): Promise<{ dog: Dog | null; rejected: { dog: Dog; detail: string }[]; attempts: number }> {
-  const ring = candidateRingForDate(dateKey, dogs, excludeIds);
-
-  // Previously confirmed destinations go first, but nobody skips the check.
-  // The offset (Spin) applies after ordering, so each spin is a new dog.
-  const ordered = [
-    ...ring.filter((dog) => hasConfirmedDestination(dog.adoption)),
-    ...ring.filter((dog) => !hasConfirmedDestination(dog.adoption)),
-  ].slice(Math.max(0, offset));
-  const candidates = ordered.slice(0, options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS);
+  const ring = candidateRingForDate(dateKey, dogs, excludeIds, offset, options.history);
+  const candidates = ring.slice(0, options.maxAttempts ?? MAX_FEATURE_VERIFY_ATTEMPTS);
   const rejected: { dog: Dog; detail: string }[] = [];
 
   let attempts = 0;
@@ -264,16 +246,16 @@ export async function recentlyFeaturedDogIds(): Promise<Set<string>> {
 
 export async function buildDogOfTheDay(
   dateKey: string,
-  options: { offset?: number; forPublish?: boolean } = {},
+  options: { offset?: number; forPublish?: boolean; history?: FeaturedDay[] } = {},
 ): Promise<DogOfTheDay> {
   if (!isValidDateKey(dateKey)) {
     throw new Error(`Invalid date key: ${dateKey}`);
   }
 
-  const { dogs, reason } = await fetchAdoptableDogs(
-    DOG_OF_THE_DAY_ZIP,
-    DOG_OF_THE_DAY_MILES,
-  );
+  const [{ dogs, reason }, history] = await Promise.all([
+    fetchAdoptableDogs(DOG_OF_THE_DAY_ZIP, DOG_OF_THE_DAY_MILES),
+    options.history ? Promise.resolve(options.history) : loadFeaturedHistory(),
+  ]);
 
   if (!dogs) {
     throw new Error(`dog source unavailable (${reason ?? "unknown"})`);
@@ -288,6 +270,7 @@ export async function buildDogOfTheDay(
     dogs,
     excludeIds,
     options.offset ?? 0,
+    { history },
   );
 
   if (rejected.length) {

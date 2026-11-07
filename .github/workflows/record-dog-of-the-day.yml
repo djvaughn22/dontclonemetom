@@ -1,0 +1,50 @@
+# Records which dog the live site shows as Dog of the Day, once a day, so the
+# rotation (app/lib/rotation.ts) remembers every dog's turn across deploys.
+# Writes only to the `dog-of-the-day-history` branch, which never deploys.
+# Turning this off is safe: the rotation fills unrecorded days by itself.
+name: Record Dog of the Day
+
+on:
+  schedule:
+    # Just after midnight in Chicago (06:20 UTC), plus a mid-morning backup
+    # run that only writes if the first one missed.
+    - cron: "20 6 * * *"
+    - cron: "20 15 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dog-of-the-day-history
+  cancel-in-progress: false
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: scripts/record-dog-of-the-day.mjs
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/checkout@v4
+        with:
+          ref: dog-of-the-day-history
+          path: history
+
+      - name: Ask the live site for today's dog
+        run: node scripts/record-dog-of-the-day.mjs history/dog-of-the-day.json
+
+      - name: Save it to the history branch
+        working-directory: history
+        run: |
+          if git diff --quiet; then
+            echo "Nothing new to record."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Record Dog of the Day"
+          git push

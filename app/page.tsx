@@ -3,6 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { resolveDogDestination } from "./lib/dogDestination";
+import {
+  FILTER_OPTIONS,
+  NO_FILTERS,
+  cleanPrefs,
+  hasFilters,
+  matchesFilters,
+  sortDogs,
+  type FindPrefs,
+} from "./lib/dogFilters";
+import { listedSinceLabel, listingBadge } from "./lib/listingAge";
+import { rescueEmailHref } from "./lib/rescueContact";
 import SpinButton from "./components/SpinButton";
 
 const shareLines = [
@@ -10,7 +21,7 @@ const shareLines = [
   "Adopt if you can. Foster if you can. Share if you can.",
   "Every share helps one more dog get seen.",
   "Rescue first. Real dogs, real homes.",
-  "Don’t clone me. Adopt me.",
+  "Don’t clone me. Rescue me.",
 ];
 
 function ShareCard({ line }: { line: string }) {
@@ -45,10 +56,12 @@ export type Dog = {
   age: string;
   sex: string;
   size: string;
+  ageGroup?: string;
   photo: string | null;
   photos: string[];
   city: string;
   distance: number | null;
+  listedAt?: string | null;
   profileUrl: string | null;
   sourceProfileUrl: string | null;
   orgUrl: string | null;
@@ -237,6 +250,7 @@ function ShareMenu({ label, title, text, url, className, photo = null, imgLines 
 export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
   const dest = resolveDogDestination(d);
   const direct = dest.type === "exact-dog";
+  const badge = listingBadge(d.listedAt);
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[#26324c] bg-[#141d2e] text-left transition hover:border-[#2DD4BF]">
       {direct ? (
@@ -262,6 +276,13 @@ export function DogTile({ dog: d, onOpen }: { dog: Dog; onOpen: () => void }) {
         <img src={d.photo} alt={d.name} loading="lazy" className="aspect-square w-full object-cover" style={{ objectPosition: "50% 25%" }} />
       ) : (
         <div className="flex h-36 w-full items-center justify-center bg-[#0b1220] text-4xl">🐶</div>
+      )}
+      {badge && (
+        <span
+          className={`pointer-events-none absolute left-2 top-2 rounded-full border border-[#26324c] bg-[#0b1220] px-2 py-0.5 text-[11px] font-black ${badge.kind === "new" ? "text-[#2DD4BF]" : "text-amber-300"}`}
+        >
+          {badge.text}
+        </span>
       )}
       <div className="px-3 py-2.5">
         <p className="truncate text-sm font-black text-[#e8edf5]">{d.name}</p>
@@ -304,6 +325,7 @@ type FeaturedDog = {
   city: string;
   breed?: string;
   age?: string;
+  listedAt?: string | null;
 };
 
 // Today's actual Dog of the Day, reused from the same selection engine as
@@ -422,6 +444,9 @@ function DogOfTheDay() {
               {where && (
                 <p className="truncate text-xs font-semibold text-[#94a3b8] sm:text-sm">{where}</p>
               )}
+              {listedSinceLabel(featured.listedAt) && (
+                <p className="truncate text-xs font-black text-amber-300 sm:text-sm">{listedSinceLabel(featured.listedAt)}</p>
+              )}
               <p className="mt-1.5 text-xs font-black text-[#2DD4BF] sm:text-sm">View {featured.name} →</p>
             </div>
           </Link>
@@ -477,10 +502,39 @@ function DogOfTheDay() {
   );
 }
 
+function FilterSelect({ label, value, onChange, options }: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: readonly (readonly [string, string])[];
+}) {
+  return (
+    <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
+      {label}
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 min-h-11 w-full rounded-lg border border-[#26324c] bg-[#141d2e] px-3 py-2 text-base font-bold text-[#e8edf5]"
+      >
+        {options.map(([option, text]) => <option key={option} value={option}>{text}</option>)}
+      </select>
+    </label>
+  );
+}
+
+// Search settings come back on a return visit — this device only, never
+// the visitor's location.
+const FIND_SETTINGS_KEY = "dcmt-find";
+
 function FindDogs() {
   const [zip, setZip] = useState("63040");
   const [miles, setMiles] = useState(50);
   const [picks, setPicks] = useState("222");
+  const [prefs, setPrefs] = useState<FindPrefs>(NO_FILTERS);
+  // "Use my location": rounded coordinates, kept in memory for this visit only.
+  const [near, setNear] = useState<{ lat: number; lon: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locNote, setLocNote] = useState("");
   const [refresh, setRefresh] = useState(0);
   const [initialized, setInitialized] = useState(false);
   const [dogs, setDogs] = useState<Dog[] | null>(null);
@@ -496,14 +550,25 @@ function FindDogs() {
   const [photoIdx, setPhotoIdx] = useState(0);
   const [pendingDog, setPendingDog] = useState<string | null>(null);
 
-  // Shared dog links land here: /?zip=63040&miles=50&dog=123 reopens that dog.
+  // Shared dog links land here: /?zip=63040&miles=50&dog=123 reopens that
+  // dog. A shared link's own settings win over the ones saved on this device.
   useEffect(() => {
+    let saved: Record<string, unknown> = {};
+    try {
+      saved = JSON.parse(window.localStorage.getItem(FIND_SETTINGS_KEY) ?? "{}") ?? {};
+    } catch {
+      // Storage blocked or unreadable — start fresh.
+    }
     const sp = new URLSearchParams(window.location.search);
-    const z = sp.get("zip"), m = sp.get("miles"), d = sp.get("dog"), p = sp.get("picks");
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- URL params are client-only; read after mount so hydration matches
+    const z = sp.get("zip") ?? (typeof saved.zip === "string" ? saved.zip : null);
+    const m = sp.get("miles") ?? (typeof saved.miles === "number" ? String(saved.miles) : null);
+    const p = sp.get("picks") ?? (typeof saved.picks === "string" ? saved.picks : null);
+    const d = sp.get("dog");
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- URL params and saved settings are client-only; read after mount so hydration matches
     if (z && /^\d{5}$/.test(z)) setZip(z);
     if (m && RADIUS_OPTIONS.includes(parseInt(m, 10))) setMiles(parseInt(m, 10));
     if (p && ["22", "222", "all"].includes(p)) setPicks(p);
+    setPrefs(cleanPrefs(saved));
     if (d) setPendingDog(d);
     setInitialized(true);
   }, []);
@@ -516,24 +581,37 @@ function FindDogs() {
   }, [dogs, pendingDog]);
 
   const clean = /^\d{5}$/.test(zip) ? zip : "";
-  const visibleDogs = picks === "all" ? dogs : dogs?.slice(0, Number(picks));
+  const filtered = hasFilters(prefs);
+  const matches = dogs ? sortDogs(dogs.filter((d) => matchesFilters(d, prefs)), prefs.sort) : null;
+  const visibleDogs = picks === "all" ? matches : matches?.slice(0, Number(picks));
   const detailDest = detail ? resolveDogDestination(detail) : null;
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://dontclonemetom.com";
   const petfinderUrl = `https://www.petfinder.com/search/dogs-for-adoption/?location=${clean}&distance=${miles}`;
   const adoptapetUrl = `https://www.adoptapet.com/dog-adoption/${clean}`;
+  const setPref = (key: keyof FindPrefs) => (value: string) => setPrefs((current) => ({ ...current, [key]: value }));
 
   // Keep valid settings in the URL so reloads and shared links retain them.
+  // A location search leaves the URL alone: coordinates never go in a link.
   useEffect(() => {
-    if (!initialized || !clean) return;
+    if (!initialized || !clean || near) return;
     const url = new URL(window.location.href);
     url.searchParams.set("zip", clean);
     url.searchParams.set("miles", String(miles));
     url.searchParams.set("picks", picks);
     window.history.replaceState(null, "", url);
-  }, [initialized, clean, miles, picks]);
+  }, [initialized, clean, miles, picks, near]);
 
-  // Live dogs near the typed ZIP (RescueGroups.org, chosen radius).
-  // Falls back to the search links below if the API is unavailable.
+  useEffect(() => {
+    if (!initialized) return;
+    try {
+      window.localStorage.setItem(FIND_SETTINGS_KEY, JSON.stringify({ zip: clean || undefined, miles, picks, ...prefs }));
+    } catch {
+      // Private mode or storage full — settings just won't come back.
+    }
+  }, [initialized, clean, miles, picks, prefs]);
+
+  // Live dogs near the typed ZIP or the visitor's location (RescueGroups.org,
+  // chosen radius). Falls back to the search links below if the API is
+  // unavailable.
   useEffect(() => {
     if (!initialized) return;
     let dead = false;
@@ -541,9 +619,18 @@ function FindDogs() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch effect: show the loading state for the request this effect starts
     setStatus("loading");
     setDogs(null);
-    if (!clean) return;
+    if (!clean && !near) return;
     const t = setTimeout(() => {
-      fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`, { signal: controller.signal })
+      // Coordinates travel in the request body, never in a URL.
+      const request = near
+        ? fetch("/api/adoptable-pets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ lat: near.lat, lon: near.lon, miles }),
+            signal: controller.signal,
+          })
+        : fetch(`/api/adoptable-pets?zip=${clean}&miles=${miles}`, { signal: controller.signal });
+      request
         .then((r) => {
           if (!r.ok) throw new Error("Dogs unavailable");
           return r.json();
@@ -569,7 +656,31 @@ function FindDogs() {
       clearTimeout(t);
       controller.abort();
     };
-  }, [initialized, clean, miles, refresh]);
+  }, [initialized, clean, miles, refresh, near]);
+
+  // Ask the browser for the visitor's location only when they tap the button.
+  function searchNearMe() {
+    if (!("geolocation" in navigator)) {
+      setLocNote("This browser can’t share a location. Type a ZIP instead.");
+      return;
+    }
+    setLocating(true);
+    setLocNote("");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocating(false);
+        setNear({
+          lat: Math.round(position.coords.latitude * 100) / 100,
+          lon: Math.round(position.coords.longitude * 100) / 100,
+        });
+      },
+      () => {
+        setLocating(false);
+        setLocNote("Location is turned off for this site. Type a ZIP instead.");
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 10 * 60 * 1000 },
+    );
+  }
 
   // The optional Petfinder widget mounts only when expanded: load its script,
   // then style its shadow DOM (2-per-row on desktop; readable dropdowns).
@@ -606,11 +717,21 @@ function FindDogs() {
     return () => clearInterval(iv);
   }, [showMore]);
 
+  const clearFilters = (
+    <button
+      type="button"
+      onClick={() => setPrefs((current) => ({ ...NO_FILTERS, sort: current.sort }))}
+      className="ml-2 inline-flex min-h-11 items-center font-black text-[#2DD4BF] underline-offset-4 hover:underline"
+    >
+      Clear filters
+    </button>
+  );
+
   return (
     <div>
       <form
         aria-label="Find adoptable dogs"
-        onSubmit={(event) => { event.preventDefault(); setRefresh((value) => value + 1); }}
+        onSubmit={(event) => { event.preventDefault(); setNear(null); setRefresh((value) => value + 1); }}
         className="grid grid-cols-2 items-end gap-3 rounded-xl border border-[#26324c] bg-[#0b1220] p-3 sm:grid-cols-4"
       >
         <label className="min-w-0 text-xs font-bold text-[#94a3b8]">
@@ -618,8 +739,9 @@ function FindDogs() {
           <input
             type="text"
             inputMode="numeric"
+            autoComplete="postal-code"
             value={zip}
-            onChange={(e) => setZip(e.target.value)}
+            onChange={(e) => { setZip(e.target.value); setNear(null); }}
             pattern="[0-9]{5}"
             required
             maxLength={5}
@@ -657,7 +779,26 @@ function FindDogs() {
         >
           Update dogs
         </button>
+        <button
+          type="button"
+          onClick={searchNearMe}
+          disabled={locating}
+          aria-pressed={Boolean(near)}
+          className="col-span-2 min-h-11 rounded-lg border border-[#26324c] bg-[#141d2e] px-4 py-2 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] disabled:opacity-60 sm:col-span-4"
+        >
+          {locating ? "Finding you…" : near ? "📍 Showing dogs near you" : "📍 Use my location"}
+        </button>
       </form>
+      {locNote && <p role="status" className="mt-2 text-xs font-bold text-amber-300">{locNote}</p>}
+
+      <div role="group" aria-label="Narrow the list" className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <FilterSelect label="Size" value={prefs.size} onChange={setPref("size")} options={FILTER_OPTIONS.size} />
+        <FilterSelect label="Age" value={prefs.age} onChange={setPref("age")} options={FILTER_OPTIONS.age} />
+        <FilterSelect label="Sex" value={prefs.sex} onChange={setPref("sex")} options={FILTER_OPTIONS.sex} />
+        <FilterSelect label="Good with" value={prefs.goodWith} onChange={setPref("goodWith")} options={FILTER_OPTIONS.goodWith} />
+        <FilterSelect label="Sort" value={prefs.sort} onChange={setPref("sort")} options={FILTER_OPTIONS.sort} />
+      </div>
+
       <p className="mt-3 text-xs font-semibold text-[#94a3b8]">
         {status === "ok" && widened ? (
           <>
@@ -666,26 +807,35 @@ function FindDogs() {
           </>
         ) : (
           <>
-            Real adoptable dogs <strong className="text-[#e8edf5]">within {miles} miles of your ZIP</strong> — live from the rescues themselves, every one linking straight to its own adoption page.
+            Real adoptable dogs <strong className="text-[#e8edf5]">within {miles} miles of {near ? "you" : "your ZIP"}</strong> — live from the rescues themselves, every one linking straight to its own adoption page.
           </>
         )}
+        {prefs.goodWith && " “Good with” only shows dogs whose rescue says so."}
       </p>
 
-      {!clean && <p role="status" className="mt-3 text-sm text-[#94a3b8]">Enter a five-digit ZIP code to see nearby dogs.</p>}
+      {!clean && !near && <p role="status" className="mt-3 text-sm text-[#94a3b8]">Enter a five-digit ZIP code to see nearby dogs.</p>}
 
       {/* Live adoptable dogs near the ZIP (dogs only). */}
-      {status === "loading" && clean && (
+      {status === "loading" && (clean || near) && (
         <p className="mt-5 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
-          Fetching good dogs near {clean}…
+          Fetching good dogs near {near ? "you" : clean}…
         </p>
       )}
       <section aria-label="Adoptable dogs" aria-live="polite" aria-busy={status === "loading"}>
-        {status === "ok" && dogs && visibleDogs && (
+        {status === "ok" && dogs && matches && visibleDogs && (
           <>
             <p className="mt-4 text-sm font-semibold text-[#94a3b8]">
-              Showing {visibleDogs.length} of {dogs.length} dogs.
-              {visibleDogs.length < dogs.length && " Choose All dogs above to see every match."}
+              {filtered
+                ? `${matches.length} of ${dogs.length} dogs match.`
+                : `Showing ${visibleDogs.length} of ${dogs.length} dogs.`}
+              {visibleDogs.length < matches.length && " Choose All dogs above to see every match."}
+              {filtered && clearFilters}
             </p>
+            {matches.length === 0 && (
+              <p className="mt-3 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
+                No dogs match those filters right now. Try fewer filters or a longer distance.
+              </p>
+            )}
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {visibleDogs.map((d) => (
                 <DogTile key={d.id} dog={d} onOpen={() => { setDetail(d); setPhotoIdx(0); }} />
@@ -702,6 +852,9 @@ function FindDogs() {
           onClick={() => setDetail(null)}
         >
           <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`About ${detail.name}`}
             className="max-h-[88vh] w-full max-w-md overflow-y-auto rounded-2xl border border-[#26324c] bg-[#141d2e]"
             onClick={(e) => e.stopPropagation()}
           >
@@ -770,54 +923,56 @@ function FindDogs() {
                 )}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
-                {[detail.age, detail.sex, detail.size, ...detail.facts].filter(Boolean).map((f) => (
+                {[detail.age, detail.sex, detail.size, ...detail.facts, listedSinceLabel(detail.listedAt)].filter(Boolean).map((f) => (
                   <span key={f} className="rounded-full border border-[#26324c] bg-[#0b1220] px-3 py-1 text-xs font-bold text-[#e8edf5]">
                     {f}
                   </span>
                 ))}
               </div>
-              {detail.desc && (
-                <p className="mt-4 whitespace-pre-line text-sm font-medium leading-6 text-[#94a3b8]">
-                  {detail.desc}
-                </p>
-              )}
               <div className="mt-5 flex flex-col gap-3">
-                <Link
-                  href={`/cards?dog=${detail.id}`}
-                  className="inline-flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
-                >
-                  🃏 Make a Dog Card for {detail.name}
-                </Link>
+                {detailDest && detailDest.type !== "none" && (
+                  <a
+                    href={detailDest.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={detailDest.ariaLabel}
+                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black text-[#0b1220] transition hover:opacity-90"
+                  >
+                    {detailDest.type === "exact-dog" ? `Meet ${detail.name}` : detailDest.label} ↗
+                  </a>
+                )}
                 {detail.email && (
                   <a
-                    href={`mailto:${detail.email}?subject=${encodeURIComponent(`Asking about ${detail.name} 🐶`)}&body=${encodeURIComponent(`Hi ${detail.org},\n\nI saw ${detail.name} on DontCloneMeTom.com and would love to learn more!\n\nThank you!`)}`}
-                    className="inline-flex w-full items-center justify-center rounded-xl bg-[#2DD4BF] px-6 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-[#0b1220] transition hover:opacity-90"
+                    href={rescueEmailHref(detail, detailDest)}
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                   >
-                    💌 Ask about {detail.name}
+                    💌 Email the rescue about {detail.name}
                   </a>
+                )}
+                <p className="text-xs font-semibold leading-5 text-[#94a3b8]">
+                  {detail.org || "The rescue"} handles the adoption. Most rescues start with a short application, then a call or a visit to meet the dog.
+                </p>
+                {detail.desc && (
+                  <p className="mt-1 whitespace-pre-line text-sm font-medium leading-6 text-[#94a3b8]">
+                    {detail.desc}
+                  </p>
                 )}
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <ShareMenu
                     label={`📣 Share ${detail.name}`}
                     title={`Meet ${detail.name} 🐶`}
                     text={`Meet ${detail.name} — ${detail.breed}, ${detail.distance !== null ? `${Math.round(detail.distance)} miles away ` : ""}with ${detail.org}. Real adoptable dog looking for a home!`}
-                    url={`${origin}/?zip=${clean}&miles=${miles}&picks=${picks}&dog=${detail.id}`}
+                    url={`https://dontclonemetom.com/dogs/${detail.id}`}
                     photo={detail.photo}
                     imgLines={[detail.breed, [detail.age, detail.sex].filter(Boolean).join(" · ") + (detail.org ? ` · ${detail.org}` : "")]}
                     className="flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
                   />
-                  {detailDest && detailDest.type !== "none" && (
-                    <a
-                      href={detailDest.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={detailDest.ariaLabel}
-                      className="flex items-center justify-between rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#e8edf5] transition hover:border-[#2DD4BF] hover:text-[#5eead4]"
-                    >
-                      <span className="truncate">{detailDest.label}</span>
-                      <span className="ml-2 text-[#94a3b8]">↗</span>
-                    </a>
-                  )}
+                  <Link
+                    href={`/cards?dog=${detail.id}`}
+                    className="inline-flex w-full items-center justify-center rounded-xl border border-[#26324c] bg-[#0b1220] px-4 py-3.5 text-sm font-black text-[#2DD4BF] transition hover:border-[#2DD4BF]"
+                  >
+                    🃏 Make a Dog Card for {detail.name}
+                  </Link>
                 </div>
               </div>
             </div>
@@ -826,7 +981,7 @@ function FindDogs() {
       )}
       {status === "fallback" && (
         <p className="mt-5 rounded-2xl border border-[#26324c] bg-[#141d2e] px-5 py-6 text-center text-sm font-bold text-[#94a3b8]">
-          No dogs loaded for {clean} right now — use the searches below, every dog there is real and nearby.
+          No dogs loaded {near ? "near you" : `for ${clean}`} right now — use the searches below, every dog there is real and nearby.
         </p>
       )}
 
@@ -912,11 +1067,17 @@ export default function HomePage() {
             <span className="text-[#2DD4BF]">.com</span>
           </h1>
           <p className="mt-2 text-xl font-bold text-[#e8edf5] sm:text-2xl">
-            Don’t clone me. Adopt me.
+            Don’t clone me. Rescue me.
           </p>
           <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-[#94a3b8] sm:text-base">
-            Discover real adoptable dogs near you.
+            Real dogs near you need homes today. Each one links straight to its rescue.
           </p>
+          <a
+            href="#find"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-2.5 text-sm font-black text-[#0b1220] transition hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2DD4BF]"
+          >
+            Find dogs near me
+          </a>
         </section>
 
         <DogOfTheDay />
@@ -925,19 +1086,19 @@ export default function HomePage() {
         <section id="find" className="mb-6 rounded-2xl border border-[#2DD4BF]/30 bg-[#141d2e] p-4 sm:p-6">
           <h2 className="text-2xl font-black text-[#e8edf5] mb-2">Find a dog near you.</h2>
           <p className="text-sm font-semibold text-[#94a3b8] mb-5">
-            Start at 63040 or type your ZIP to see adoptable dogs nearby.
+            Type your ZIP or use your location. Tap any dog to go straight to their rescue.
           </p>
           <FindDogs />
         </section>
 
-        {/* Why this source */}
+        {/* How adopting works */}
         <section className="mb-10 rounded-2xl border border-[#26324c] bg-[#141d2e] p-6">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">Why these sources?</p>
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-[#2DD4BF] mb-3">How adopting works</h2>
           <ul className="space-y-2 text-sm font-semibold leading-6 text-[#94a3b8]">
-            <li>🐾 We send you to adoptable dogs <strong className="text-[#e8edf5]">within 50, 100, or 250 miles of your ZIP</strong> — you pick — on <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong>, both original adoption sources, so every dog is one you could actually go meet.</li>
-            <li>🐾 Photos and details come from real rescue and shelter partners on those sites.</li>
-            <li>🐾 The live dog cards come from <strong className="text-[#e8edf5]">RescueGroups.org</strong>. Each card links to that dog&apos;s own listing when the rescue publishes one; some rescues don&apos;t, so those cards link to the rescue&apos;s adoptable-dogs page or website instead.</li>
-            <li>🐾 You adopt through the <strong className="text-[#e8edf5]">original organization</strong> — we just help you find them.</li>
+            <li>🐾 Every dog here is listed by a <strong className="text-[#e8edf5]">real rescue or shelter</strong>, live from RescueGroups.org. Tap a dog to open their own listing on the rescue&apos;s site.</li>
+            <li>🐾 You adopt <strong className="text-[#e8edf5]">through that rescue</strong>. Most start with a short application, then a call or a visit to meet the dog.</li>
+            <li>🐾 Fees, timing and the right match are up to each rescue — their listing is the place to check.</li>
+            <li>🐾 Want more choices? <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> list even more dogs near your ZIP.</li>
           </ul>
           <p className="mt-4 text-xs font-bold text-[#94a3b8]">We don&apos;t replace rescues or shelters. We help people find them. Adopt. Foster. Share.</p>
         </section>

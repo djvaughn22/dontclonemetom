@@ -16,6 +16,9 @@ type DogShareActionsProps = {
   // solely when the link opens that exact dog's own page.
   destination: DogDestination;
   viewEvent: string; // GA page-view event, e.g. "dcmt_today_viewed"
+  // The dog page shows the adoption button in its own block above
+  // (AdoptionActions), so it hides the duplicate here.
+  showDestination?: boolean;
 };
 
 // Share / card controls for /today and /dogs/[id] — practical sharing only:
@@ -31,6 +34,7 @@ export default function DogShareActions({
   cardFileName,
   destination,
   viewEvent,
+  showDestination = true,
 }: DogShareActionsProps) {
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -78,7 +82,7 @@ export default function DogShareActions({
 
   return (
     <div className="flex flex-col gap-3">
-      {destination.type !== "none" && (
+      {showDestination && destination.type !== "none" && (
         <div className="flex flex-wrap gap-2">
           <a
             href={destination.url}

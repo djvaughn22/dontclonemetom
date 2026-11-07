@@ -4,7 +4,9 @@ import { emptyAdoptionUrl } from "../adoptionUrlSchema";
 import {
   fetchPubliclyEligibleDogs,
   isPubliclyEligible,
+  listingNotAdoptableReason,
   normalizeDog,
+  normalizePlace,
   PUBLIC_DISPLAY_BASELINE,
   type Dog,
 } from "../rescueDogs";
@@ -250,5 +252,63 @@ describe("normalizeDog — sanity check that the test's verified/unverified fixt
     const unverified = normalizeDog(makeAnimal("u", "U", false) as never, included);
     expect(isPubliclyEligible(verified)).toBe(true);
     expect(isPubliclyEligible(unverified)).toBe(false);
+  });
+});
+
+// 2026-11-07: the grid showed "Stella \" I AM ADOPTED!\"" (her rescue flags the
+// adoption as pending) and "FOSTER", a 2018 record asking people to apply to
+// foster. Both had verified links, so both could have been Dog of the Day.
+describe("listings that aren't a dog someone can adopt right now", () => {
+  it("leaves out a dog whose rescue marks the adoption pending", () => {
+    expect(isPubliclyEligible(dog({ adoptionPending: true }))).toBe(false);
+    expect(listingNotAdoptableReason({ name: "Billy", adoptionPending: true })).toMatch(/pending/);
+  });
+
+  it("leaves out a listing whose own name says the dog is adopted", () => {
+    expect(isPubliclyEligible(dog({ name: 'Stella " I AM ADOPTED!"' }))).toBe(false);
+    expect(isPubliclyEligible(dog({ name: "Max - ADOPTION PENDING" }))).toBe(false);
+    // "Adopt me" and "Adoptable" are not the same thing.
+    expect(isPubliclyEligible(dog({ name: "Biscuit (adopt me!)" }))).toBe(true);
+  });
+
+  it("leaves out a foster sign-up posing as a dog, but keeps a real dog named Foster", () => {
+    const signUp = "IF INTERESTED IN FOSTERING PLEASE SUBMIT AN APPLICATION ON \"FOSTER\".";
+    expect(isPubliclyEligible(dog({ name: "FOSTER", desc: signUp }))).toBe(false);
+    expect(isPubliclyEligible(dog({ name: "Foster", desc: "Foster is a goofy lab who loves tennis balls." }))).toBe(true);
+  });
+
+  it("reads the pending flag, listing date and age group from the raw record", () => {
+    const raw = normalizeDog({
+      type: "animals",
+      id: "22827550",
+      attributes: {
+        name: "Stella",
+        ageGroup: "Senior",
+        ageString: "7 Years",
+        createdDate: "2026-10-04T22:13:35Z",
+        isAdoptionPending: true,
+      },
+    }, new Map());
+    expect(raw.adoptionPending).toBe(true);
+    expect(raw.listedAt).toBe("2026-10-04T22:13:35Z");
+    expect(raw.ageGroup).toBe("Senior");
+    expect(raw.age).toBe("7 Years");
+    const noDate = normalizeDog({ type: "animals", id: "1", attributes: { name: "Billy", createdDate: "soon" } }, new Map());
+    expect(noDate.listedAt).toBeNull();
+    expect(noDate.adoptionPending).toBe(false);
+  });
+});
+
+describe("normalizePlace — 'Use my location' coordinates", () => {
+  it("rounds to two decimals so a precise point never leaves the request", () => {
+    expect(normalizePlace(38.627003, "-90.199402")).toEqual({ lat: 38.63, lon: -90.2 });
+  });
+
+  it("rejects anything that isn't a real coordinate", () => {
+    expect(normalizePlace(undefined, -90)).toBeNull();
+    expect(normalizePlace("", "")).toBeNull();
+    expect(normalizePlace(91, 0)).toBeNull();
+    expect(normalizePlace(0, 181)).toBeNull();
+    expect(normalizePlace("abc", 1)).toBeNull();
   });
 });

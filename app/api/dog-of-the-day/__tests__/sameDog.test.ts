@@ -81,6 +81,7 @@ describe("GET /api/dog-of-the-day — every field is the same dog", () => {
       city: source.city,
       breed: source.breed,
       age: source.age,
+      listedAt: source.listedAt ?? null,
     });
     expect(json.pagePath).toBe(`/dogs/${source.id}`);
     // The destination that earned the slot was this dog's own listing, and

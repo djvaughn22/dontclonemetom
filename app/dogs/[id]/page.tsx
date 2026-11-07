@@ -17,8 +17,10 @@ import CardSpinner from "../../components/cards/CardSpinner";
 import DogShareActions from "../../components/DogShareActions";
 import DogProfileView from "../../components/profile/DogProfileView";
 import DogSpinControl from "../../components/DogSpinControl";
+import AdoptionActions from "../../components/AdoptionActions";
+import { listedSinceLabel } from "../../lib/listingAge";
 import { buildListingDeckReport, listingDisplayName } from "../../lib/cards/tradingCards";
-import { fetchDogById, fetchPubliclyEligibleDogs, type Dog } from "../../lib/rescueDogs";
+import { fetchDogById, fetchPubliclyEligibleDogs, listingNotAdoptableReason, type Dog } from "../../lib/rescueDogs";
 import { resolveDogDestination } from "../../lib/dogDestination";
 import { freshnessLine, isConfirmedUnavailable } from "../../lib/adoptionUrlSchema";
 import { getDogProfile } from "../../lib/dogProfiles";
@@ -243,7 +245,11 @@ export default async function DogPage({ params }: PageProps) {
     dog.sex && `Sex: ${dog.sex}`,
     dog.size && `Size: ${dog.size}`,
     ...dog.facts,
+    listedSinceLabel(dog.listedAt),
   ].filter(Boolean) as string[];
+  const destination = resolveDogDestination(dog);
+  // The rescue's own flag or wording that this dog may already be spoken for.
+  const notOpen = unavailable ? null : listingNotAdoptableReason(dog);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-12 text-[#e8edf5]">
@@ -256,6 +262,11 @@ export default async function DogPage({ params }: PageProps) {
       </p>
 
       {unavailable ? <ListingEnded dog={dog} nearby={nearby} /> : null}
+      {notOpen && (
+        <p role="status" className="mt-6 rounded-2xl border border-[#26324c] p-4 font-semibold text-amber-300">
+          Heads up: {notOpen}. {dog.org}’s listing has the latest.
+        </p>
+      )}
       {dog.adoption.adoptionProfileUrlStatus === "unverified" && (
         <p role="status" className="mt-6 rounded-2xl border border-[#26324c] p-4 text-[#94a3b8]">
           We couldn’t confirm this adoption page right now. That does not mean
@@ -265,8 +276,47 @@ export default async function DogPage({ params }: PageProps) {
 
       <DogPhoto photo={dog.photo} name={dog.name} />
 
+      {details.length ? (
+        <ul className="mt-6 flex flex-wrap gap-2">
+          {details.map((detail) => (
+            <li
+              key={detail}
+              className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-bold text-[#e8edf5]"
+            >
+              {detail}
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* Meeting the dog comes first: her listing at the rescue, or an email
+          to the rescue, right under her photo and facts. */}
+      {!unavailable && <AdoptionActions dog={dog} destination={destination} />}
+
+      {dog.desc ? (
+        <p className="mt-6 whitespace-pre-line font-semibold leading-7 text-[#94a3b8]">
+          {dog.desc.slice(0, 900)}
+          {dog.desc.length > 900 ? "…" : ""}
+        </p>
+      ) : null}
+
+      {!unavailable && <div className="mt-8">
+        <DogShareActions
+          key={dog.id}
+          dogId={dog.id}
+          dogName={dog.name}
+          city={city}
+          pageUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
+          cardPath={`/api/social/dog-card/${dog.id}.png`}
+          cardFileName={`dontclonemetom-${dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-card.png`}
+          destination={destination}
+          viewEvent="dcmt_dog_viewed"
+          showDestination={false}
+        />
+      </div>}
+
       {!unavailable && (
-        <div className="mt-3">
+        <div className="mt-8">
           <DogSpinControl currentId={dog.id} zip={DOG_OF_THE_DAY_ZIP} miles={DOG_OF_THE_DAY_MILES} />
         </div>
       )}
@@ -302,40 +352,6 @@ export default async function DogPage({ params }: PageProps) {
         />
       </div>
       )}
-
-      {details.length ? (
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {details.map((detail) => (
-            <li
-              key={detail}
-              className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-bold text-[#e8edf5]"
-            >
-              {detail}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-
-      {dog.desc ? (
-        <p className="mt-6 whitespace-pre-line font-semibold leading-7 text-[#94a3b8]">
-          {dog.desc.slice(0, 900)}
-          {dog.desc.length > 900 ? "…" : ""}
-        </p>
-      ) : null}
-
-      {!unavailable && <div className="mt-8">
-        <DogShareActions
-          key={dog.id}
-          dogId={dog.id}
-          dogName={dog.name}
-          city={city}
-          pageUrl={`https://dontclonemetom.com/dogs/${dog.id}`}
-          cardPath={`/api/social/dog-card/${dog.id}.png`}
-          cardFileName={`dontclonemetom-${dog.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-card.png`}
-          destination={resolveDogDestination(dog)}
-          viewEvent="dcmt_dog_viewed"
-        />
-      </div>}
 
       <p className="mt-8 text-xs font-semibold leading-5 text-[#94a3b8]">
         {unavailable

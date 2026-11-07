@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import DogShareActions from "../components/DogShareActions";
 import { buildDogOfTheDay, dogCityLabel } from "../lib/dogOfTheDay";
 import { resolveDogDestination } from "../lib/dogDestination";
+import { listedSinceLabel } from "../lib/listingAge";
 import { chicagoDateKey } from "../lib/dailySocialCore";
 import Link from "next/link";
 
@@ -70,8 +71,8 @@ export default async function TodayPage() {
         </p>
         <h1 className="mt-2 text-3xl font-black sm:text-4xl">{post.fullDate}</h1>
         <p className="mx-auto mt-3 max-w-xl text-sm font-semibold leading-6 text-[#94a3b8]">
-          One real adoptable dog near 63040, verified today. Every good boy and
-          girl deserves a good home.
+          One adoptable dog near St. Louis, a different one each day. Every good
+          boy and girl deserves a good home.
         </p>
       </header>
 
@@ -107,7 +108,8 @@ export default async function TodayPage() {
         </h2>
         <p className="mt-2 text-lg font-bold text-[#2DD4BF]">{city}</p>
         <p className="mt-1 text-sm font-semibold text-[#94a3b8]">
-          Listed by {dog.org} · via RescueGroups.org · verified today
+          Listed by {dog.org} · via RescueGroups.org
+          {listedSinceLabel(dog.listedAt) ? ` · ${listedSinceLabel(dog.listedAt)}` : ""}
         </p>
       </div>
 

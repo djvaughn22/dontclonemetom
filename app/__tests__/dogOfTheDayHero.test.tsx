@@ -30,11 +30,11 @@ describe("homepage hierarchy and Dog of the Day", () => {
       'BATDOG • THE DARK ZAY',
       'id="brand-heading"',
       '<span className="text-[#2DD4BF]">.com</span>',
-      'Don’t clone me. Adopt me.',
+      'Don’t clone me. Rescue me.',
       '<DogOfTheDay />',
       'id="find"',
       '<FindDogs />',
-      'Why these sources?',
+      'How adopting works',
     ].map((needle) => {
       const at = home.indexOf(needle);
       expect(at, needle).toBeGreaterThan(-1);
@@ -48,7 +48,7 @@ describe("homepage hierarchy and Dog of the Day", () => {
     const discovery = homepage.slice(homepage.indexOf("function FindDogs()"), homepage.indexOf("export default function HomePage"));
     expect(discovery.indexOf('aria-label="Adoptable dogs"')).toBeGreaterThan(discovery.indexOf("</form>"));
     expect(discovery).toContain("visibleDogs.map((d)");
-    expect(discovery).toContain('picks === "all" ? dogs : dogs?.slice(0, Number(picks))');
+    expect(discovery).toContain('picks === "all" ? matches : matches?.slice(0, Number(picks))');
     expect(discovery).toContain('<option value="all">All dogs</option>');
 
     expect(discovery).not.toContain("See all dogs");

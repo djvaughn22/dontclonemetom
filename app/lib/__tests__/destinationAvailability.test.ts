@@ -69,7 +69,10 @@ describe("Dumpling regression: the featured dog's destination is checked live", 
     expect(result.dog?.adoption.destinationVerificationMethod).toBe("page-content");
   });
 
-  it("checks previously confirmed dogs first without skipping their check", async () => {
+  // 2026-11-07: confirmed dogs no longer jump the line — that ordering kept
+  // the same audited dogs in the slot while the rest never got a turn. The
+  // rotation decides the order and every candidate is still checked.
+  it("follows the rotation order, live-checking dogs that have no audit instead of skipping them", async () => {
     const dogs = Array.from({ length: 6 }, (_, i) => auditedDog(String(111 + i)));
     const ring = candidateRingForDate("2026-10-08", dogs, new Set());
     for (const dog of ring.slice(0, 3)) {
@@ -78,11 +81,12 @@ describe("Dumpling regression: the featured dog's destination is checked live", 
     }
     const fetchImpl = vi.fn(async () => new Response("<h1>Juniper</h1>")) as unknown as typeof fetch;
     const result = await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), 0, { fetchImpl });
-    expect(result.dog?.id).toBe(ring[3].id);
+    expect(result.dog?.id).toBe(ring[0].id);
+    expect(result.dog?.adoption.destinationVerificationMethod).toBe("page-content");
     expect(fetchImpl).toHaveBeenCalled();
   });
 
-  it("gives each spin offset a different dog when unconfirmed dogs lead the ring", async () => {
+  it("gives each spin offset a different dog, in rotation order", async () => {
     const dogs = Array.from({ length: 6 }, (_, i) => auditedDog(String(111 + i)));
     const ring = candidateRingForDate("2026-10-08", dogs, new Set());
     for (const dog of ring.slice(0, 3)) {
@@ -94,7 +98,7 @@ describe("Dumpling regression: the featured dog's destination is checked live", 
     for (const offset of [0, 1, 2]) {
       picks.push((await selectConfirmedDogForDate("2026-10-08", dogs, new Set(), offset, { fetchImpl })).dog?.id);
     }
-    expect(picks).toEqual(ring.slice(3, 6).map((d) => d.id));
+    expect(picks).toEqual(ring.slice(0, 3).map((d) => d.id));
   });
 
   it("keeps a confirmed dog through a blocked check without restamping it as verified", async () => {
