@@ -341,9 +341,12 @@ export function findDeckProblems(
 
 // ── Spinning ─────────────────────────────────────────────────────────────
 
-/** "Thursday's Dog Card" */
+/** "Thursday's Dog Card" — the site's day (Chicago, like Dog of the Day).
+ *  A fixed zone also keeps the server's render and the browser's in step:
+ *  in each runtime's own zone, every evening after 6pm Central the server
+ *  (UTC) named tomorrow and React re-rendered the dog page (error #418). */
 export function dayLabel(date: Date): string {
-  return `${date.toLocaleDateString("en-US", { weekday: "long" })}'s Dog Card`;
+  return `${date.toLocaleDateString("en-US", { weekday: "long", timeZone: "America/Chicago" })}'s Dog Card`;
 }
 
 /**

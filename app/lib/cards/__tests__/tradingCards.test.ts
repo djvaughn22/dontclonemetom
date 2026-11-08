@@ -58,10 +58,15 @@ describe("deck building", () => {
 });
 
 describe("spinning", () => {
-  const date = new Date(2026, 6, 30); // a Thursday
+  const date = new Date("2026-07-30T17:00:00Z"); // a Thursday, noon in Chicago
 
   it("labels the day", () => {
     expect(dayLabel(date)).toBe("Thursday's Dog Card");
+  });
+
+  it("names Chicago's day, so the server (UTC) and the browser agree after 6pm Central", () => {
+    // Saturday 10:30pm in Chicago is already Sunday in UTC.
+    expect(dayLabel(new Date("2026-11-08T04:30:00Z"))).toBe("Saturday's Dog Card");
   });
 
   it("walks every nickname before repeating, then rotates the sayings", () => {
