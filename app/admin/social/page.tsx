@@ -126,7 +126,7 @@ export default async function AdminSocialPage({ searchParams }: PageProps) {
                 {data.dog.name} · {dogCityLabel(data.dog)} · {data.dog.org} · Listing ID {data.dog.id}
                 {" · "}
                 <a className="text-[#2DD4BF]" href={data.dog.url} target="_blank" rel="noreferrer">
-                  source listing ↗
+                  source listing ↗︎
                 </a>
                 {" · "}
                 <a className="text-[#2DD4BF]" href={data.post.pagePath}>

@@ -132,7 +132,7 @@ export default function DogProfileView({ profile }: { profile: DogProfileV1 }) {
                 className="mt-4 inline-flex justify-center rounded-full px-6 py-3 text-sm font-black uppercase tracking-[0.15em] text-[#0b1220] transition hover:opacity-90"
                 style={{ background: accent }}
               >
-                Meet {p.realName} ↗
+                Meet {p.realName} ↗︎
               </a>
             </section>
           )

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildDogOfTheDay, dogCityLabel } from "../../lib/dogOfTheDay";
 import { chicagoDateKey } from "../../lib/dailySocialCore";
+import { resolveDogDestination } from "../../lib/dogDestination";
 
 // Minimal JSON view of today's Dog of the Day for the homepage hero widget.
 // Same selection engine as /today (app/lib/dogOfTheDay.ts) — no separate
@@ -37,6 +38,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const { dog, post } = await buildDogOfTheDay(date, { offset });
+    const destination = resolveDogDestination(dog);
     return NextResponse.json(
       {
         date,
@@ -50,11 +52,15 @@ export async function GET(req: NextRequest) {
           // hero teaser line, nothing inferred. Never temperament or medical.
           breed: dog.breed,
           age: dog.age,
+          sex: dog.sex,
           // When the listing went up on RescueGroups — shown only as
           // "Listed since …", never as time in a shelter.
           listedAt: dog.listedAt ?? null,
         },
         pagePath: post.pagePath,
+        // Her own page at the rescue — the only link the hero's "Meet [Name]"
+        // may open. Null unless the resolver confirms it is that exact dog.
+        meet: destination.type === "exact-dog" ? { url: destination.url } : null,
       },
       // Ten minutes at the edge keeps the hero fast without holding a dog
       // past midnight or long after her listing changes.

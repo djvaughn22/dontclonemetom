@@ -90,7 +90,7 @@ export default function DogCardStudio({
               : adoption.fallbackKind === "adoptable-list"
                 ? "view the rescue’s shelter listings"
                 : "visit the rescue"}{" "}
-            ↗
+            ↗︎
           </a>
         )}
         <Link href="/cards" className="mt-2 text-sm font-bold text-[#2DD4BF]">

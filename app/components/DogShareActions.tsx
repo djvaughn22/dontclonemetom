@@ -92,7 +92,7 @@ export default function DogShareActions({
             onClick={() => track("dcmt_adoption_listing_opened", { dog_id: dogId })}
             className="inline-flex items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-2.5 text-sm font-black text-[#0b1220] transition hover:opacity-90"
           >
-            {destination.label} ↗
+            {destination.label} ↗︎
           </a>
         </div>
       )}

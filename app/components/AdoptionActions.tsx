@@ -21,7 +21,7 @@ export default function AdoptionActions({
       aria-label={`Adopt ${dog.name}`}
       className="mt-6 rounded-3xl border border-[#2DD4BF]/40 bg-[#141d2e] p-5"
     >
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         {destination.type !== "none" && (
           <a
             href={destination.url}
@@ -29,16 +29,16 @@ export default function AdoptionActions({
             rel="noopener noreferrer"
             aria-label={destination.ariaLabel}
             onClick={() => track("dcmt_adoption_listing_opened", { dog_id: dog.id })}
-            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full bg-[#2DD4BF] px-6 py-3 text-base font-black text-[#0b1220] transition hover:opacity-90"
+            className="inline-flex min-h-12 flex-auto items-center justify-center whitespace-nowrap rounded-full bg-[#2DD4BF] px-6 py-3 text-base font-black text-[#0b1220] transition hover:opacity-90"
           >
-            {destination.type === "exact-dog" ? `Meet ${dog.name}` : destination.label} ↗
+            {destination.type === "exact-dog" ? `Meet ${dog.name}` : destination.label} ↗︎
           </a>
         )}
         {dog.email && (
           <a
             href={rescueEmailHref(dog, destination)}
             onClick={() => track("dcmt_rescue_email_opened", { dog_id: dog.id })}
-            className="inline-flex min-h-12 flex-1 items-center justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-6 py-3 text-base font-black text-[#e8edf5] transition hover:border-[#2DD4BF]"
+            className="inline-flex min-h-12 flex-auto items-center justify-center whitespace-nowrap rounded-full border border-[#26324c] bg-[#0b1220] px-6 py-3 text-base font-black text-[#e8edf5] transition hover:border-[#2DD4BF]"
           >
             💌 Email the rescue
           </a>

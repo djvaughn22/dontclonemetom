@@ -94,12 +94,12 @@ describe("locked public brand: DontCloneMeTom.com", () => {
     expect(manifest).toContain(`short_name: "${BRAND}"`);
   });
 
-  it("homepage hero renders the wordmark as DontCloneMeTom + .com", () => {
-    // The hero splits the wordmark so the ".com" carries the accent color;
-    // together the two spans must read exactly "DontCloneMeTom.com".
-    expect(homepage).toMatch(
-      /<span className="text-\[#e8edf5\]">DontCloneMeTom<\/span>\s*<span className="text-\[#2DD4BF\]">\.com<\/span>/
-    );
+  it("the header carries the wordmark; the homepage hero doesn't repeat it", () => {
+    // Owner, Nov 7 2026: the site name already shows in the header bar
+    // (OpenMirrorNav splits it so ".com" takes the accent color), so the
+    // homepage hero leads with the slogan instead of a second wordmark.
+    expect(layout).toContain(`site="${BRAND}"`);
+    expect(homepage).not.toMatch(/>DontCloneMeTom<\/span>\s*<span[^>]*>\.com<\/span>/);
   });
 
   it("about page and dog-detail disclaimer name the brand with .com", () => {

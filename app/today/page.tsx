@@ -100,7 +100,7 @@ export default async function TodayPage() {
               aria-label={destination.ariaLabel}
               className="transition hover:text-[#5eead4]"
             >
-              {dog.name} <span className="text-2xl text-[#2DD4BF]">↗</span>
+              {dog.name} <span className="text-2xl text-[#2DD4BF]">↗︎</span>
             </a>
           ) : (
             dog.name

@@ -36,13 +36,15 @@ export const dynamic = "force-dynamic";
 // homepage tiles use when a listing has no photo at all.
 export function DogPhoto({ photo, name }: { photo: string | null; name: string }) {
   return (
-    <div className="mt-6 flex max-h-[34rem] justify-center rounded-3xl border border-[#26324c] bg-[#0b1220] p-2">
+    <div className="flex justify-center rounded-3xl border border-[#26324c] bg-[#0b1220] p-2 sm:max-h-[34rem]">
       {photo ? (
+        // Whole photo, never cropped or stretched. On phones it stops at half
+        // the screen so the way to meet her is close behind it.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={photo}
           alt={`${name}, an adoptable dog`}
-          className="block h-auto max-h-[32rem] max-w-full rounded-2xl object-contain object-center"
+          className="block h-auto max-h-[50vh] max-w-full rounded-2xl object-contain object-center sm:max-h-[32rem]"
         />
       ) : (
         <div className="flex aspect-[4/3] w-full items-center justify-center text-6xl">
@@ -110,7 +112,7 @@ function ListingEnded({ dog, nearby }: { dog: Dog; nearby: Dog[] }) {
           rel="noopener noreferrer"
           className="mt-4 inline-flex items-center justify-center rounded-full border border-[#26324c] bg-[#0b1220] px-5 py-2.5 text-sm font-bold text-[#e8edf5] transition hover:border-[#2DD4BF]"
         >
-          Visit {dog.org}’s adoption page ↗
+          Visit {dog.org}’s adoption page ↗︎
         </a>
       ) : null}
 
@@ -252,11 +254,11 @@ export default async function DogPage({ params }: PageProps) {
   const notOpen = unavailable ? null : listingNotAdoptableReason(dog);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 text-[#e8edf5]">
-      <p className="text-xs font-black uppercase tracking-[0.22em] text-[#2DD4BF]">
+    <main className="mx-auto max-w-5xl px-4 py-8 text-[#e8edf5] sm:px-6 sm:py-10">
+      <p className="text-sm font-bold text-[#2DD4BF]">
         {unavailable ? `Was listed near ${city}` : `Adoptable near ${city}`}
       </p>
-      <h1 className="mt-2 text-4xl font-black">{dog.name}</h1>
+      <h1 className="mt-1 text-4xl font-black tracking-tight sm:text-5xl">{dog.name}</h1>
       <p className="mt-2 text-sm font-semibold text-[#94a3b8]">
         Listed by {dog.org} · via RescueGroups.org · {freshness.text}
       </p>
@@ -274,27 +276,33 @@ export default async function DogPage({ params }: PageProps) {
         </p>
       )}
 
-      <DogPhoto photo={dog.photo} name={dog.name} />
+      {/* Photo first; on wide screens her facts and the way to meet her sit
+          beside it, so "Meet [Name]" is on the first screen. */}
+      <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:items-start lg:gap-10">
+        <DogPhoto photo={dog.photo} name={dog.name} />
 
-      {details.length ? (
-        <ul className="mt-6 flex flex-wrap gap-2">
-          {details.map((detail) => (
-            <li
-              key={detail}
-              className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-bold text-[#e8edf5]"
-            >
-              {detail}
-            </li>
-          ))}
-        </ul>
-      ) : null}
+        <div>
+          {details.length ? (
+            <ul className="mt-6 flex flex-wrap gap-2 lg:mt-0">
+              {details.map((detail) => (
+                <li
+                  key={detail}
+                  className="rounded-full border border-[#26324c] bg-[#141d2e] px-4 py-1.5 text-xs font-bold text-[#e8edf5]"
+                >
+                  {detail}
+                </li>
+              ))}
+            </ul>
+          ) : null}
 
-      {/* Meeting the dog comes first: her listing at the rescue, or an email
-          to the rescue, right under her photo and facts. */}
-      {!unavailable && <AdoptionActions dog={dog} destination={destination} />}
+          {/* Meeting the dog comes first: her listing at the rescue, or an email
+              to the rescue, right under her photo and facts. */}
+          {!unavailable && <AdoptionActions dog={dog} destination={destination} />}
+        </div>
+      </div>
 
       {dog.desc ? (
-        <p className="mt-6 whitespace-pre-line font-semibold leading-7 text-[#94a3b8]">
+        <p className="mt-8 max-w-3xl whitespace-pre-line font-semibold leading-7 text-[#94a3b8]">
           {dog.desc.slice(0, 900)}
           {dog.desc.length > 900 ? "…" : ""}
         </p>

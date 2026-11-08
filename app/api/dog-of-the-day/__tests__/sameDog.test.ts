@@ -81,9 +81,12 @@ describe("GET /api/dog-of-the-day — every field is the same dog", () => {
       city: source.city,
       breed: source.breed,
       age: source.age,
+      sex: source.sex,
       listedAt: source.listedAt ?? null,
     });
     expect(json.pagePath).toBe(`/dogs/${source.id}`);
+    // "Meet [Name]" on the homepage opens this same dog's own listing.
+    expect(json.meet).toEqual({ url: source.adoption.adoptionProfileUrl });
     // The destination that earned the slot was this dog's own listing, and
     // that page named this dog.
     const checked = vi.mocked(fetch).mock.calls.map(([url]) => String(url));

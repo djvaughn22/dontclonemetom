@@ -9,10 +9,10 @@ html { color-scheme: dark; background: #0b1220; }
 /* ── ACCESSIBILITY & MOTION (app-store polish, matches stepinthering) ── */
 button, a { touch-action: manipulation; }
 
+/* The ring follows each control's own shape (a pill stays a pill). */
 :focus-visible {
   outline: 2px solid #2DD4BF;
   outline-offset: 2px;
-  border-radius: 4px;
 }
 
 /* ── PRINT / PDF (dog profile pages) ─────────────────────────────────
@@ -170,11 +170,21 @@ a[href]:hover {
 }
 /* OPEN MIRROR FAMILY STYLE OVERRIDE END */
 
-/* Homepage controls remain easy to tap, including details and photo controls. */
-.homepage button,
-.homepage summary,
-.homepage a:not(.absolute) {
-  min-height: 44px;
+/* Light theme: the focus ring darkens with the other teal accents so it
+   stays visible on white. */
+html[data-om-theme="light"] :focus-visible {
+  outline-color: #0f766e;
 }
-.homepage button { min-width: 44px; }
-.homepage summary { display: flex; align-items: center; }
+
+/* Homepage controls remain easy to tap, including details and photo controls.
+   A floor, in the base layer so a control's own min-h-* size can only add to
+   it (unlayered, it silently capped every taller button at 44px). */
+@layer base {
+  .homepage button,
+  .homepage summary,
+  .homepage a:not(.absolute) {
+    min-height: 44px;
+  }
+  .homepage button { min-width: 44px; }
+  .homepage summary { display: flex; align-items: center; }
+}
