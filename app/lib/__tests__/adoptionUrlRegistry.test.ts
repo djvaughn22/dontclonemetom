@@ -117,8 +117,11 @@ describe("adoptionUrlRegistry", () => {
     }
 
     // 32 added by the 2026-08-10 P0 link-integrity audit (Country Acres,
-    // HSMO, St. Clair County, St. Animal Pet Adoptions), less Astrid.
-    expect(verifiedCount).toBe(31);
+    // HSMO, St. Clair County, St. Animal Pet Adoptions), less Astrid, plus 9
+    // from the 2026-11-07 pass (7 St. Clair County including Zeke, 2 Country
+    // Acres). HSMO and St. Charles dogs are now verified from the shelters'
+    // own official lists instead (shelterPortals.ts), not stored here.
+    expect(verifiedCount).toBe(40);
     expect(nameMismatchCount).toBe(2);
     expect(deadCount).toBe(22); // Six Mastino dogs, Astrid, 15 adopted Spencer dogs
     expect(verifiedCount + unverifiedCount + deadCount + nameMismatchCount).toBe(
@@ -175,12 +178,19 @@ describe("adoptionUrlRegistry", () => {
       });
     }
 
-    it("dogs the audit could not confirm (Kanga, Zeke, Penelope) stay honestly unverified — never guessed", () => {
-      for (const id of ["22273763", "22499881", "17536864"]) {
+    it("dogs no audit could confirm (Kanga, Penelope) stay honestly unverified — never guessed", () => {
+      for (const id of ["22273763", "17536864"]) {
         const entry = getAdoptionUrlStatus(id);
         expect(entry?.status).toBe("unverified");
         expect(entry?.adoptionProfileUrl).toBeNull();
       }
+    });
+
+    it("Zeke, missing in August, was verified only once his rescue listed him (2026-11-07)", () => {
+      const entry = getAdoptionUrlStatus("22499881");
+      expect(entry?.status).toBe("verified-direct-dog-page");
+      expect(entry?.adoptionProfileUrl).toContain("/zeke-3e2d26f6-d4fc-494c-af16-f0b04d33b512/");
+      expect(entry?.verifiedAt).toBe("2026-11-07T23:55:00Z");
     });
   });
 

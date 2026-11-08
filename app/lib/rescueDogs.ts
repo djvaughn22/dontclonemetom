@@ -9,6 +9,7 @@ import { emptyAdoptionUrl } from "./adoptionUrlSchema";
 import { getAdoptionUrlStatus, getVerifiedAdoptionUrl } from "./adoptionUrlRegistry";
 import { APA_ORG_ID, APA_PET_URL_BASE, buildApaPetUrl, parseApaPetUrl } from "./apaAdoption";
 import { checkApaIndex, loadApaIndex, type ApaIndex } from "./officialAvailability";
+import { loadPortalIndex, portalDogUrl, SHELTER_PORTALS, type PortalIndex } from "./shelterPortals";
 import { findIdentityConflict, type IdentityConflict } from "./identityIntegrity";
 
 export type Dog = {
@@ -63,6 +64,9 @@ export type Dog = {
   orgUrlKind: "adoptable-list" | "website" | null;
   url: string;
   org: string;
+  // The RescueGroups org id — which rescue's official list (if any) can
+  // vouch for this dog (shelterPortals.ts).
+  orgId?: string | null;
   orgCity: string;
   email: string | null;
   desc: string;
@@ -365,6 +369,7 @@ export function normalizeDog(
     orgUrlKind,
     url: resolveDogUrl({ profileUrl, orgUrl }),
     org: String(org?.name ?? ""),
+    orgId: orgRef?.id ?? null,
     orgCity: org?.citystate ?? "",
     email,
     // Suppressed while the record disagrees with itself about which dog it
@@ -471,8 +476,42 @@ export function applyOfficialAvailability(dog: Dog, apaIndex: ApaIndex | null): 
   };
 }
 
-// Enrich a whole batch with one feed fetch. Skipped entirely when no dog in
-// the batch comes from a rescue that has an official feed.
+// A dog whose shelter publishes an official adoptable list on 24PetConnect
+// (shelterPortals.ts) gets her own page on it — only when the list carries
+// her exact shelter id, the same id RescueGroups gives as `rescueId`. Only a
+// dog with no destination decision yet ("unverified") is eligible: a
+// verified page is kept, and a recorded negative decision (removed, wrong
+// dog, generic page) is never overridden from here.
+export function applyShelterPortal(dog: Dog, index: PortalIndex | null): Dog {
+  const config = dog.orgId ? SHELTER_PORTALS[dog.orgId] : undefined;
+  if (!config || !index || index.portal !== config.portal || !dog.rescueId) return dog;
+  if (dog.adoption.adoptionProfileUrlStatus !== "unverified") return dog;
+
+  const shelterId = dog.rescueId.trim().toUpperCase();
+  const listed = index.byId.get(shelterId);
+  if (!listed) return dog;
+
+  const url = portalDogUrl(index.portal, listed.code, shelterId);
+  return {
+    ...dog,
+    profileUrl: url,
+    url,
+    adoption: {
+      ...dog.adoption,
+      adoptionProfileUrl: url,
+      adoptionProfileUrlOriginal: url,
+      adoptionProfileUrlResolved: url,
+      adoptionProfileUrlStatus: "verified-direct-dog-page",
+      adoptionProfileUrlSource: "shelter-id-deep-link",
+      destinationVerifiedAt: index.fetchedAt,
+      destinationVerificationMethod: "official-feed",
+      adoptionProfileUrlDetail: `${shelterId} is on ${config.shelter}'s official adoptable list (${index.byId.size} dogs)`,
+    },
+  };
+}
+
+// Enrich a whole batch with one read per official source. Skipped entirely
+// when no dog in the batch comes from a rescue that has one.
 export async function withOfficialAvailability(
   dogs: Dog[],
   options: { fetchImpl?: typeof fetch } = {},
@@ -480,10 +519,21 @@ export async function withOfficialAvailability(
   const needsApa = dogs.some((d) =>
     parseApaPetUrl(d.adoption.adoptionProfileUrl ?? d.adoption.adoptionProfileUrlOriginal ?? "") !== null,
   );
-  if (!needsApa) return dogs;
+  const portals = new Set(
+    dogs.flatMap((d) => (d.orgId && d.rescueId && SHELTER_PORTALS[d.orgId] ? [SHELTER_PORTALS[d.orgId].portal] : [])),
+  );
+  if (!needsApa && !portals.size) return dogs;
 
-  const apaIndex = await loadApaIndex(options);
-  return dogs.map((dog) => applyOfficialAvailability(dog, apaIndex));
+  const [apaIndex, portalIndexes] = await Promise.all([
+    needsApa ? loadApaIndex(options) : Promise.resolve(null),
+    Promise.all([...portals].map(async (portal) => [portal, await loadPortalIndex(portal, options)] as const)),
+  ]);
+  const byPortal = new Map(portalIndexes);
+  return dogs.map((dog) => {
+    const checked = needsApa ? applyOfficialAvailability(dog, apaIndex) : dog;
+    const portal = dog.orgId ? SHELTER_PORTALS[dog.orgId]?.portal : undefined;
+    return portal ? applyShelterPortal(checked, byPortal.get(portal) ?? null) : checked;
+  });
 }
 
 // Small in-memory cache so repeat calls don't hammer the free API.

@@ -1752,6 +1752,77 @@ const org_22606131_data: Record<string, RegistryEntry> = {
   },
 };
 
+// 2026-11-07 link-coverage pass: the rescue's own Petfinder org page, matched
+// by exact name + sex + size + breed against the RescueGroups record, every
+// page opened and read. Petfinder's age group runs one step younger than
+// RescueGroups' for some of these shelters; noted where it differs. Listed
+// last so it supersedes Zeke's August "not yet resolved" entry.
+const verified_2026_11_07_data: Record<string, RegistryEntry> = {
+  "22719050": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/zaya-ab3cc7fb-2ac8-4840-9d99-b30820d4edb3/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Zaya — St. Clair County's own Petfinder org page lists her individually; Terrier mix, female, small match the RescueGroups record (Petfinder says Puppy, RescueGroups Young) (verified 2026-11-07).",
+  },
+  "22736177": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/paris-af103150-04e2-4501-bf6d-c88230747f65/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Paris — St. Clair County's own Petfinder org page lists her individually; Pit Bull Terrier mix, female, medium match (Petfinder says Young, RescueGroups Adult) (verified 2026-11-07).",
+  },
+  "22736178": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/moo-6013ab05-685e-435d-9e48-0e8f8e8a0c9b/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Moo — St. Clair County's own Petfinder org page lists her individually; Pit Bull Terrier mix, adult, female, medium match (not APA's MOO, 22736087) (verified 2026-11-07).",
+  },
+  "22736179": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/squints-6635af2e-8674-4e4e-82e0-fe86d3167bfd/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Squints — St. Clair County's own Petfinder org page lists him individually; Pit Bull Terrier mix, adult, male, large match exactly (verified 2026-11-07).",
+  },
+  "22777476": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/ophelia-e6e65c27-3a39-4439-aef0-39a9b8d42981/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Ophelia — St. Clair County's own Petfinder org page lists her individually; Labrador Retriever mix, female, medium match (Petfinder says Puppy, RescueGroups Young) (verified 2026-11-07).",
+  },
+  "22862354": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/stunna-girl-15f069b5-75af-46ca-a631-8184009a2775/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Stunna Girl — St. Clair County's own Petfinder org page lists her individually; Yorkshire Terrier mix, adult, female, small match exactly (verified 2026-11-07).",
+  },
+  "22499881": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/zeke-3e2d26f6-d4fc-494c-af16-f0b04d33b512/il/belleville/st-clair-county-animal-adoption-center-il533/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Zeke — St. Clair County's own Petfinder org page lists him individually now (he was not there on 2026-08-10); American Bulldog mix, adult, male, medium match exactly (verified 2026-11-07).",
+  },
+  "22844189": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/venus-ccad54b6-14de-4b02-8e2c-dbb99ffe98ab/mo/manchester/country-acres-rescue-mo291/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Venus — Country Acres Rescue's own Petfinder org page lists her individually; Cattle Dog mix, adult, female, medium match (Jupiter is listed separately with the same traits) (verified 2026-11-07).",
+  },
+  "22844193": {
+    adoptionProfileUrl: "https://www.petfinder.com/dog/jupiter-56d36466-27ff-486f-8b01-f6273f6dd936/mo/manchester/country-acres-rescue-mo291/details/",
+    status: "verified-direct-dog-page",
+    source: "petfinder",
+    verifiedAt: "2026-11-07T23:55:00Z",
+    notes: "Jupiter — Country Acres Rescue's own Petfinder org page lists her individually; Cattle Dog mix, adult, female, medium match (Venus is listed separately with the same traits) (verified 2026-11-07).",
+  },
+};
+
 export const adoptionUrlRegistry: Record<string, RegistryEntry> = {
   ...org_21648834_data,
   ...org_12030390_data,
@@ -1774,6 +1845,7 @@ export const adoptionUrlRegistry: Record<string, RegistryEntry> = {
   ...org_12645754_data,
   ...org_22606131_data,
   ...org_22657150_data,
+  ...verified_2026_11_07_data,
 };
 
 export function getAdoptionUrlStatus(animalId: string): RegistryEntry | null {
