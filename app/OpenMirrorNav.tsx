@@ -21,6 +21,12 @@
 // A11y contract (unchanged): React-controlled open/close, real aria wiring,
 // Escape + outside-click + route-change close, focus into the menu on open and
 // back to the trigger on close, body-scroll lock on phones, 44px touch rows.
+//
+// Width (2026-11-08): the row is 680px wide with 20px sides. A site whose pages
+// run wider sets two variables on .om-bar in its own CSS so the brand and the
+// menu line up with its content, e.g. DontCloneMeTom's 1024px page:
+//   .om-bar { --om-bar-max: 64rem; --om-bar-pad-x: 1rem; }
+//   @media (min-width: 40rem) { .om-bar { --om-bar-pad-x: 1.5rem; } }
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { usePathname } from "next/navigation";
@@ -162,13 +168,13 @@ export default function OpenMirrorNav({
         ref={containerRef}
         style={{
           position: "relative",
-          maxWidth: 680,
+          maxWidth: "var(--om-bar-max, 680px)",
           margin: "0 auto",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 12,
-          padding: "12px 20px",
+          padding: "12px var(--om-bar-pad-x, 20px)",
         }}
       >
         {/* The brand is the CURRENT site and goes to its own home. */}
@@ -245,7 +251,8 @@ export default function OpenMirrorNav({
               className="om-menu-panel"
               style={{
                 position: "absolute",
-                right: 16,
+                // Flush with the Menu button when a site sets its own sides.
+                right: "var(--om-bar-pad-x, 16px)",
                 top: "calc(100% + 8px)",
                 zIndex: 60,
                 width: 264,

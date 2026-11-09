@@ -176,6 +176,14 @@ html[data-om-theme="light"] :focus-visible {
   outline-color: #0f766e;
 }
 
+/* The shared header's row lines up with the page (mx-auto max-w-5xl px-4
+   sm:px-6 on the homepage and dog pages), so the brand sits over Isaiah and
+   the Menu button ends where the content does. See OpenMirrorNav's note. */
+.om-bar { --om-bar-max: 64rem; --om-bar-pad-x: 1rem; }
+@media (min-width: 40rem) {
+  .om-bar { --om-bar-pad-x: 1.5rem; }
+}
+
 /* Homepage controls remain easy to tap, including details and photo controls.
    A floor, in the base layer so a control's own min-h-* size can only add to
    it (unlayered, it silently capped every taller button at 44px). */
