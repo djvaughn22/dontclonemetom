@@ -1317,6 +1317,7 @@ export default function HomePage() {
             <h2 id="how-heading" className={SECTION_TITLE}>How adopting works</h2>
             <ul className="mt-3 space-y-2.5 text-sm font-medium leading-6 text-[#94a3b8]">
               <li>🐾 Every dog here is listed by a <strong className="text-[#e8edf5]">real rescue or shelter</strong>, live from RescueGroups.org. Tap a dog to open their own listing on the rescue&apos;s site.</li>
+              <li>🐾 Dogs get adopted fast, and a listing can stay up for a day or two after. <strong className="text-[#e8edf5]">Check with the rescue</strong> that your dog is still available before you visit.</li>
               <li>🐾 You adopt <strong className="text-[#e8edf5]">through that rescue</strong>. Most start with a short application, then a call or a visit to meet the dog.</li>
               <li>🐾 Fees, timing and the right match are up to each rescue — their listing is the place to check.</li>
               <li>🐾 Want more choices? <strong className="text-[#e8edf5]">Petfinder</strong> and <strong className="text-[#e8edf5]">Adopt-a-Pet</strong> list even more dogs near your ZIP.</li>
