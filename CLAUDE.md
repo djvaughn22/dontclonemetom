@@ -18,6 +18,7 @@ Real rescue-dog campaign (Tom Brady cloned his dog → adopt originals). Secular
 - **Adoption path:** dog page = photo → facts → `AdoptionActions` (Meet [Name] ↗ + Email the rescue, one plain “what happens next” line) → story → share → spin → trading cards. Never invent fees, timing, availability or response times; the rescue’s own description may state theirs.
 
 ## Open Mirror family rules
+- **Messaging (owner, 2026-11-24):** DontCloneMeTom is about adoptable dogs near you, rescue first, in its own voice. No plugs for other Open Mirror sites, no preparedness copy, no Open Mirror story; About keeps its one line saying it is an independent project by Open Mirror LLC. Full rules: the hub repo's `docs/MESSAGING.md`.
 - One of 11 Open Mirror LLC sites (hub: openmirrorllc.com, repo djvaughn22/open-mirror). Baseline tag: `mvp-1`.
 - **Design:** flat + cool. bg `#0b1220`, surface `#141d2e`, border `#26324c`, text `#e8edf5`, muted `#94a3b8`. No glass, no gradients, **no red**.
 - **Shared chrome is SYNCED, not owned here:** `OpenMirrorNav.tsx`, `OpenMirrorFooter.tsx`, `OpenMirrorTheme.tsx` in the app folder are copies from the hub repo `packages/openmirror-ui/`. NEVER edit them here — edit in the hub, run its `scripts/sync-ui.sh`, then rebuild/commit each satellite. The header's row width is ours, though: `.om-bar { --om-bar-max; --om-bar-pad-x }` in `app/globals.css` lines it up with the page container (`max-w-5xl px-4 sm:px-6`, Nov 8 2026). If the page container changes, change those two with it.
